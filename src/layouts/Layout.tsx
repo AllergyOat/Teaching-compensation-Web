@@ -3,7 +3,7 @@ import { Outlet } from "react-router";
 
 const Layout = () => {
   return (
-    <main>
+    <main className="bg-[#F7F7F7]">
       <Navbar />
       <Outlet />
     </main>
