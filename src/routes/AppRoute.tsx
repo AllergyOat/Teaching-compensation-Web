@@ -3,6 +3,7 @@ import LayoutAdmin from "@/layouts/AdminLayout";
 import AuthLayout from "@/layouts/AuthLayout";
 import Home from "@/pages/user/Home";
 import { BrowserRouter, Routes, Route } from "react-router";
+import Login from "@/pages/auth/Login";
 
 const AppRoute = () => {
   return (
@@ -10,7 +11,7 @@ const AppRoute = () => {
       <Routes>
         {/* Auth Section */}
         <Route element={<AuthLayout />}>
-          <Route path="/login" element={<div>Login Page</div>} />
+          <Route path="/login" element={<Login />} />
           <Route path="/register" element={<div>Register Page</div>} />
         </Route>
 
