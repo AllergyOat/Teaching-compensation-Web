@@ -4,6 +4,7 @@ import AuthLayout from "@/layouts/AuthLayout";
 import Home from "@/pages/user/Home";
 import { BrowserRouter, Routes, Route } from "react-router";
 import Login from "@/pages/auth/Login";
+import Register from "@/pages/auth/Register";
 
 const AppRoute = () => {
   return (
@@ -12,7 +13,7 @@ const AppRoute = () => {
         {/* Auth Section */}
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<div>Register Page</div>} />
+          <Route path="/register" element={<Register />} />
         </Route>
 
         {/* User Section */}

@@ -11,6 +11,10 @@
   }
 }
 
+.bg{
+  background-image: url('../assets/images/registerBG.png');
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme {
