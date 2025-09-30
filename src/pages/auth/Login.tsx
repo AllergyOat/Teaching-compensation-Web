@@ -30,7 +30,7 @@ const Login = () => {
       localStorage.setItem("user", JSON.stringify(user));
       
       // Navigate to home page on success
-      navigate("/");
+      navigate("/home");
       
     } catch (error: any) {
       console.error("Login failed:", error);

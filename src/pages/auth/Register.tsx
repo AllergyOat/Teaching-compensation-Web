@@ -26,7 +26,7 @@ const Register = () => {
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("user", JSON.stringify(user));
 
-    navigate("/");
+    navigate("/home");
   };
 
   return (

@@ -18,7 +18,7 @@ const AppRoute = () => {
 
         {/* User Section */}
         <Route element={<Layout />}>
-          <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/form" element={<div>Form</div>} />
           <Route path="/form/:formId" element={<div>Form Detail</div>} />
           <Route path="/status" element={<div>Status</div>} />
