@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router";
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
 import Form from "@/pages/user/FormSelect";
+import FormInput from "@/pages/user/FormInput";
+import FormDetail from "@/pages/user/FormDetail";
 
 const AppRoute = () => {
   return (
@@ -20,10 +22,10 @@ const AppRoute = () => {
         {/* User Section */}
         <Route element={<Layout />}>
           <Route path="/home" element={<Home />} />
-          <Route path="/form" element={<Form />} />
-          <Route path="/form/:formId" element={<div>Form Detail</div>} />
+          <Route path="/home/:formId" element={<FormDetail />} />
           <Route path="/status" element={<div>Status</div>} />
-          <Route path="/create-form" element={<div>Create Form</div>} />
+          <Route path="/form" element={<Form />} />
+          <Route path="/form/new" element={<FormInput />} />
           <Route path="/profile" element={<div>Profile</div>} />
         </Route>
 

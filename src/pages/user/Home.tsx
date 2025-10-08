@@ -4,7 +4,7 @@ import SendedFormMonth from "@/components/home/SendedFormMonth";
 import SchedulesCard from "@/components/home/SchedulesCard";
 import { useState, useEffect } from "react";
 import { getHomeData, type HomeResponse } from "@/api/user/home";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import {
   translateProgram,
   translateSection,
@@ -97,16 +97,18 @@ const Home = () => {
         <h1 className="mt-10 text-3xl font-bold">รายวิชาทั้งหมด</h1>
         <div className="mt-4 grid gap-5 md:grid-cols-1 lg:grid-cols-2">
           {homeData?.forms.map((form) => (
-            <SchedulesCard
-              key={form.id}
-              subjectId={form.subjectId}
-              sectionId={form.formScheduleDetails[0]?.sectionId || ""}
-              subjectName={form.subjectName}
-              section={translateSection(form.section)}
-              room={form.formScheduleDetails[0]?.schedules[0]?.room || ""}
-              program={translateProgram(form.program)}
-              sectionColorClass={getSectionColor(form.section)}
-            />
+            <Link to={`/home/${form.id}`} key={form.id}>
+              <SchedulesCard
+                key={form.id}
+                subjectId={form.subjectId}
+                sectionId={form.formScheduleDetails[0]?.sectionId || ""}
+                subjectName={form.subjectName}
+                section={translateSection(form.section)}
+                room={form.formScheduleDetails[0]?.schedules[0]?.room || ""}
+                program={translateProgram(form.program)}
+                sectionColorClass={getSectionColor(form.section)}
+              />
+            </Link>
           )) || (
             <div className="col-span-full py-8 text-center text-gray-500">
               ไม่มีข้อมูลรายวิชา
