@@ -8,6 +8,7 @@ import Register from "@/pages/auth/Register";
 import Form from "@/pages/user/FormSelect";
 import FormInput from "@/pages/user/FormInput";
 import FormDetail from "@/pages/user/FormDetail";
+import Profile from "@/pages/user/Profile";
 
 const AppRoute = () => {
   return (
@@ -26,7 +27,7 @@ const AppRoute = () => {
           <Route path="/status" element={<div>Status</div>} />
           <Route path="/form" element={<Form />} />
           <Route path="/form/new" element={<FormInput />} />
-          <Route path="/profile" element={<div>Profile</div>} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
 
         {/* Admin Section */}
