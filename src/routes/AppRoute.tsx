@@ -5,6 +5,7 @@ import Home from "@/pages/user/Home";
 import { BrowserRouter, Routes, Route } from "react-router";
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
+import Form from "@/pages/user/FormSelect";
 
 const AppRoute = () => {
   return (
@@ -19,7 +20,7 @@ const AppRoute = () => {
         {/* User Section */}
         <Route element={<Layout />}>
           <Route path="/home" element={<Home />} />
-          <Route path="/form" element={<div>Form</div>} />
+          <Route path="/form" element={<Form />} />
           <Route path="/form/:formId" element={<div>Form Detail</div>} />
           <Route path="/status" element={<div>Status</div>} />
           <Route path="/create-form" element={<div>Create Form</div>} />

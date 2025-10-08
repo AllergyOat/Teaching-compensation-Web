@@ -19,28 +19,29 @@ const Login = () => {
 
   const loginSubmit = async (data: LoginFormInputs) => {
     try {
-      setLoginError(null); 
-      
+      setLoginError(null);
+
       const { accessToken, user }: LoginResponse = await login(
         data.email,
-        data.password
+        data.password,
       );
-      
+
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("user", JSON.stringify(user));
-      
+
       // Navigate to home page on success
       navigate("/home");
-      
     } catch (error: any) {
       console.error("Login failed:", error);
-      
+
       if (error.response?.status === 401) {
         setLoginError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
       } else if (error.response?.status === 500) {
         setLoginError("เกิดข้อผิดพลาดของเซิร์ฟเวอร์ กรุณาลองใหม่อีกครั้ง");
-      } else if (error.message?.includes('Network Error')) {
-        setLoginError("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต");
+      } else if (error.message?.includes("Network Error")) {
+        setLoginError(
+          "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต",
+        );
       } else {
         setLoginError("เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
       }
@@ -48,38 +49,45 @@ const Login = () => {
   };
 
   return (
-    <div className="flex h-screen container">
-      <div className="flex-2 pt-[150px]">
-        <h1 className="font-bold text-5xl mb-3.5">เข้าสู่ระบบ</h1>
-        <p className="text-2xl mb-10">
-          สร้างบัญชีของคุณ{" "}
-          <Link to="/register">
-            <span className="underline text-[#2797C7]">สร้างบัญชี</span>
-          </Link>
-        </p>
-        <form onSubmit={handleSubmit(loginSubmit)}>
-          <FormInputs
-            register={register}
-            name="email"
-            type="email"
-            placeholder="Email"
-            errors={errors}
-            className="w-full px-4 py-3 rounded-xl border-1 bg-[#F4F4F5] h-12 transition-all duration-200 placeholder:text-gray-700"
-          />
-          <FormInputs
-            register={register}
-            name="password"
-            type="password"
-            placeholder="Password"
-            errors={errors}
-            className="w-full px-4 py-3 rounded-xl border-1 bg-[#F4F4F5] h-12 transition-all duration-200 placeholder:text-gray-700"
-          />
-          <Buttons text="เข้าสู่ระบบ" isPending={isSubmitting} className="bg-[#17C964] hover:bg-[#13b45a] w-[500px] h-12 rounded-2xl text-black text-lg transition-colors cursor-pointer mb-6" />
-
-        </form>
-        <p className="text-[#2797C7] cursor-pointer">ลืมรหัสผ่าน?</p>
+    <div className="flex h-screen">
+      <div className="flex flex-2 flex-col items-center pt-[150px]">
+        <div>
+          <h1 className="mb-3.5 text-5xl font-bold">เข้าสู่ระบบ</h1>
+          <p className="mb-10 text-2xl">
+            สร้างบัญชีของคุณ{" "}
+            <Link to="/register">
+              <span className="text-[#2797C7] underline">สร้างบัญชี</span>
+            </Link>
+          </p>
+          <form onSubmit={handleSubmit(loginSubmit)}>
+            <FormInputs
+              register={register}
+              name="email"
+              type="email"
+              placeholder="Email"
+              errors={errors}
+              className="h-12 w-full rounded-xl border-1 bg-[#F4F4F5] px-4 py-3 transition-all duration-200 placeholder:text-gray-700"
+            />
+            <FormInputs
+              register={register}
+              name="password"
+              type="password"
+              placeholder="Password"
+              errors={errors}
+              className="h-12 w-full rounded-xl border-1 bg-[#F4F4F5] px-4 py-3 transition-all duration-200 placeholder:text-gray-700"
+            />
+            <Buttons
+              text="เข้าสู่ระบบ"
+              isPending={isSubmitting}
+              className="mb-6 h-12 w-[500px] cursor-pointer rounded-2xl bg-[#17C964] text-lg text-black transition-colors hover:bg-[#13b45a]"
+            />
+          </form>
+          <p className="cursor-pointer text-[#2797C7]">ลืมรหัสผ่าน?</p>
+        </div>
       </div>
-      <div className="flex-1 bg-blue-300">Image</div>
+      <div className="flex flex-1 flex-col items-start justify-center bg-blue-300">
+        <div>Image</div>
+      </div>
     </div>
   );
 };

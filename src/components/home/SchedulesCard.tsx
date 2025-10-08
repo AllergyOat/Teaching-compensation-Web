@@ -21,7 +21,7 @@ const SchedulesCard = (props: SchedulesCardProps) => {
     sectionColorClass,
   } = props;
   return (
-    <Card className="grid h-37 grid-cols-[2fr_1fr] border-0 shadow-md">
+    <Card className="grid h-37 cursor-pointer grid-cols-[2fr_1fr] border-0 shadow-md transition-all duration-200 hover:scale-[1.02] hover:bg-gray-100 hover:shadow-lg">
       <div className="flex flex-col justify-center gap-y-4 pl-8 font-bold">
         <div>
           {subjectId} <span className="font-normal">หมู่</span>{" "}

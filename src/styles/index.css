@@ -5,21 +5,14 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@layer components{
-  .container{
-    @apply px-8 mx-auto
-  }
-}
-
-.bg{
-  background-image: url('../assets/images/registerBG.png');
-}
-
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-family: Roboto, sans-serif;
-  --shadow-custom: 0 0 4px rgba(0,0,0,0.25);
+  --font-famil .bg {
+    background-image: url("../assets/images/registerBG.png");
+  }
+  y: Roboto, sans-serif;
+  --shadow-custom: 0 0 4px rgba(0, 0, 0, 0.25);
 }
 
 @theme inline {
