@@ -5,14 +5,14 @@ import { Link } from "react-router";
 
 const Navbar = () => {
   return (
-    <nav className="h-20 flex justify-between bg-white">
+    <nav className="sticky top-0 z-50 flex h-20 justify-between bg-white">
       <div className="flex items-center">
-        <Link to="/home" className="flex items-center ml-2">
+        <Link to="/home" className="ml-2 flex items-center">
           <Logo />
           <Title />
         </Link>
       </div>
-      <div className="flex items-center mr-5">
+      <div className="mr-5 flex items-center">
         <MenuBar />
       </div>
     </nav>

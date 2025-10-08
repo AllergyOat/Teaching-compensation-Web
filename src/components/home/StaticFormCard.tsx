@@ -10,7 +10,7 @@ const StaticFormCard = (props: StaticFormCardProps) => {
   const { total, description, graphData } = props;
   return (
     <Card className="bg-white border-0 shadow-md flex items-center justify-center">
-      <div className="grid grid-cols-[1fr_150px_1fr] w-full h-full">
+      <div className="grid grid-cols-[1fr_2fr_1fr] w-full h-full">
         <div className="flex items-center justify-center font-bold text-6xl pl-5">
           {total}
         </div>
