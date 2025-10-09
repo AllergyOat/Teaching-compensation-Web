@@ -9,6 +9,7 @@ import Form from "@/pages/user/FormSelect";
 import FormInput from "@/pages/user/FormInput";
 import FormDetail from "@/pages/user/FormDetail";
 import Profile from "@/pages/user/Profile";
+import Status from "@/pages/user/Status";
 
 const AppRoute = () => {
   return (
@@ -24,7 +25,7 @@ const AppRoute = () => {
         <Route element={<Layout />}>
           <Route path="/home" element={<Home />} />
           <Route path="/home/:formId" element={<FormDetail />} />
-          <Route path="/status" element={<div>Status</div>} />
+          <Route path="/status" element={<Status />} />
           <Route path="/form" element={<Form />} />
           <Route path="/form/new" element={<FormInput />} />
           <Route path="/profile" element={<Profile />} />
