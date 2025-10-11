@@ -26,6 +26,7 @@ const AppRoute = () => {
           <Route path="/home" element={<Home />} />
           <Route path="/home/:formId" element={<FormDetail />} />
           <Route path="/status" element={<Status />} />
+          <Route path="/status/:id" element={<div>EDIT STATUS</div>} />
           <Route path="/form" element={<Form />} />
           <Route path="/form/new" element={<FormInput />} />
           <Route path="/profile" element={<Profile />} />

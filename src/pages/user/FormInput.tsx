@@ -100,9 +100,11 @@ const FormInput = () => {
                       <TableHead>หมายเหตุ</TableHead>
                     </TableRow>
                   </TableHeader>
+
                   <TableBody>
                     <TableRow className="border-0 bg-[#F0F9F6]">
                       <TableCell>1</TableCell>
+
                       <TableCell>
                         <Popover open={open} onOpenChange={setOpen}>
                           <PopoverTrigger asChild>
@@ -138,6 +140,7 @@ const FormInput = () => {
                           </PopoverContent>
                         </Popover>
                       </TableCell>
+
                       <TableCell>
                         <Input
                           className="w-30 bg-white"
@@ -145,13 +148,13 @@ const FormInput = () => {
                         />
                       </TableCell>
                       <TableCell>
-                        <Input className="w-15 bg-white" placeholder="3"/>
+                        <Input className="w-15 bg-white" placeholder="3" />
                       </TableCell>
                       <TableCell>
                         <Input className="bg-white" />
                       </TableCell>
                       <TableCell>
-                        <Input className="w-30 bg-white" />
+                        <Input className="w-20 bg-white" />
                       </TableCell>
                       <TableCell>
                         <Input className="bg-white" />
@@ -159,7 +162,7 @@ const FormInput = () => {
                     </TableRow>
                   </TableBody>
                 </Table>
-                <div>//more schedules</div>
+                <div className="mt-10">//more schedules</div>
               </div>
             </div>
           </div>

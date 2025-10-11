@@ -7,6 +7,7 @@ import type { LoginFormInputs } from "@/utils/types";
 import { loginSchema } from "@/utils/schemas";
 import Buttons from "@/components/form/Buttons";
 import { useState } from "react";
+import dashbordImg from "@/assets/images/dashboard.png";
 
 const Login = () => {
   const { register, handleSubmit, formState } = useForm<LoginFormInputs>({
@@ -85,8 +86,10 @@ const Login = () => {
           <p className="cursor-pointer text-[#2797C7]">ลืมรหัสผ่าน?</p>
         </div>
       </div>
-      <div className="flex flex-1 flex-col items-start justify-center bg-blue-300">
-        <div>Image</div>
+      <div className="flex flex-1 flex-col items-start justify-center">
+        <div>
+          <img src={dashbordImg} alt="Dashboard" />
+        </div>
       </div>
     </div>
   );

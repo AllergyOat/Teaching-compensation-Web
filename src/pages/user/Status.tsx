@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getStatus } from "@/api/user/status";
 
 type StatusCounts = {
@@ -91,98 +91,60 @@ const Status = () => {
   }
 
   return (
-    <div className="min-h-screen p-6">
-      <div className="mx-auto max-w-4xl space-y-6">
-        <h1 className="text-3xl font-bold">สถานะคำขอ</h1>
+    <div className="min-h-screen p-8">
+      <Card className="border-0 bg-white shadow-md">
+        <CardHeader>
+          <div className="flex items-center justify-between text-2xl font-bold text-[#006B42]">
+            <p className="">ประวัติการส่งแบบรายงาน</p>
+            <p>เดือน (SelectMonth)</p>
+          </div>
+          <div className="flex items-center justify-between text-2xl font-bold text-[#02BC77]">
+            <p>เดือน(month) ภาค(semester)</p>
+            <p>ปี (SelectYear)</p>
+          </div>
+          <div>Select Program</div>
+        </CardHeader>
 
-        {/* Status Summary Cards
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
-                รอดำเนินการ
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-yellow-600">
-                {statusData?.statusCounts.PENDING || 0}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
-                อนุมัติแล้ว
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {statusData?.statusCounts.APPROVED || 0}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
-                ไม่อนุมัติ
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-600">
-                {statusData?.statusCounts.REJECTED || 0}
-              </div>
-            </CardContent>
-          </Card>
-        </div> */}
-
-        {/* Forms List */}
-        <Card>
-          <CardHeader>
-            <CardTitle>รายการคำขอทั้งหมด</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {statusData?.forms && statusData.forms.length > 0 ? (
-              <div className="space-y-4">
-                {statusData.forms.map((form) => (
-                  <div
-                    key={form.id}
-                    className="flex items-center justify-between rounded-lg border p-4"
-                  >
-                    <div className="flex-1">
-                      <h3 className="font-medium">{form.subjectName}</h3>
-                      <p className="text-sm text-gray-600">
-                        รหัสวิชา: {form.subjectId}
+        <CardContent>
+          {statusData?.forms && statusData.forms.length > 0 ? (
+            <div className="space-y-4">
+              {statusData.forms.map((form) => (
+                <div
+                  key={form.id}
+                  className="flex items-center justify-between rounded-lg border p-4"
+                >
+                  <div className="flex-1">
+                    <h3 className="font-medium">{form.subjectName}</h3>
+                    <p className="text-sm text-gray-600">
+                      รหัสวิชา: {form.subjectId}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      วันที่ส่ง:{" "}
+                      {new Date(form.createdAt).toLocaleDateString("th-TH")}
+                    </p>
+                    {form.adminComment && (
+                      <p className="mt-2 text-sm text-gray-700">
+                        <strong>ความเห็น:</strong> {form.adminComment}
                       </p>
-                      <p className="text-sm text-gray-500">
-                        วันที่ส่ง:{" "}
-                        {new Date(form.createdAt).toLocaleDateString("th-TH")}
-                      </p>
-                      {form.adminComment && (
-                        <p className="mt-2 text-sm text-gray-700">
-                          <strong>ความเห็น:</strong> {form.adminComment}
-                        </p>
-                      )}
-                    </div>
-                    <div className="ml-4">
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusBadge(form.status)}`}
-                      >
-                        {getStatusText(form.status)}
-                      </span>
-                    </div>
+                    )}
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="py-8 text-center text-gray-500">
-                ไม่มีข้อมูลคำขอ
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                  <div className="ml-4">
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusBadge(form.status)}`}
+                    >
+                      {getStatusText(form.status)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-8 text-center text-gray-500">
+              ไม่มีข้อมูลคำขอ
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
