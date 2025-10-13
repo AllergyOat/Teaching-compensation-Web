@@ -10,6 +10,7 @@ import FormInput from "@/pages/user/FormInput";
 import FormDetail from "@/pages/user/FormDetail";
 import Profile from "@/pages/user/Profile";
 import Status from "@/pages/user/Status";
+import Test from "@/pages/user/Test";
 
 const AppRoute = () => {
   return (
@@ -29,6 +30,7 @@ const AppRoute = () => {
           <Route path="/status/:id" element={<div>EDIT STATUS</div>} />
           <Route path="/form" element={<Form />} />
           <Route path="/form/new" element={<FormInput />} />
+          <Route path="/form/news" element={<Test />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
 
