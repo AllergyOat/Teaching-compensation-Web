@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Table,
   TableHeader,
@@ -11,7 +12,6 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
@@ -43,7 +43,7 @@ export const LectureGroup = ({
   }>({});
 
   return (
-    <div className="lecture-group mt-6">
+    <div className="lecture-group mt-9">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">ตารางสอน {index + 1} </h2>
         {totalGroups > 1 && (
@@ -90,7 +90,7 @@ export const LectureGroup = ({
                 key={item.id}
                 className="schedule-item border-0 bg-[#F0F9F6]"
               >
-                <TableCell>{k + 1}</TableCell>
+                <TableCell className="text-center">{k + 1}</TableCell>
                 <TableCell>
                   {(() => {
                     const dateKey = `${index}-${k}`;
@@ -181,6 +181,7 @@ export const LectureGroup = ({
                   <Input
                     type="number"
                     className="w-15 bg-white"
+                    min={0}
                     {...register(
                       `formScheduleDetails[${index}].schedules[${k}].totalHour`,
                     )}
@@ -214,22 +215,22 @@ export const LectureGroup = ({
                   />
                 </TableCell>
                 {fields.length > 1 && (
-                <TableCell>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="text-red-600 hover:text-red-700"
-                    onClick={() => remove(k)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              )}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+                  <TableCell>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="text-red-600 hover:text-red-700"
+                      onClick={() => remove(k)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                )}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
       <Button
         type="button"
@@ -240,7 +241,7 @@ export const LectureGroup = ({
             date: "",
             time: "",
             topic: "",
-            totalHour: 0,
+            totalHour: "",
             room: "",
             note: null,
           })

@@ -10,6 +10,15 @@ import {
   translateProgram,
   translateSection,
 } from "@/utils/programSectionUtils";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Test = () => {
   const [searchParams] = useSearchParams();
@@ -69,32 +78,67 @@ const Test = () => {
       <main className="flex flex-col items-center justify-start">
         <div className="mt-4 w-10/12">
           <h2 className="mt-4 text-2xl font-bold">ข้อมูลแบบรายงาน</h2>
-          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div>
               <Label htmlFor="month">แบบรายงานการสอนประจำเดือน</Label>
-              <Input
-                id="month"
-                className="bg-white shadow-md"
-                placeholder="เช่น ธันวาคม"
-                {...register("form.month")}
-              />
+              <Select
+                onValueChange={(value) => setValue("form.month", value)}
+                value={watch("form.month")}
+              >
+                <SelectTrigger className="mt-1 w-full bg-white shadow-md" id="month">
+                  <SelectValue placeholder="เลือกเดือนแบบรายงานการสอน" />
+                </SelectTrigger>
+                <SelectContent className="border-0">
+                  <SelectGroup>
+                    <SelectLabel>เลือกเดือน</SelectLabel>
+                    <SelectItem value="มกราคม">มกราคม</SelectItem>
+                    <SelectItem value="กุมภาพันธ์">กุมภาพันธ์</SelectItem>
+                    <SelectItem value="มีนาคม">มีนาคม</SelectItem>
+                    <SelectItem value="เมษายน">เมษายน</SelectItem>
+                    <SelectItem value="พฤษภาคม">พฤษภาคม</SelectItem>
+                    <SelectItem value="มิถุนายน">มิถุนายน</SelectItem>
+                    <SelectItem value="กรกฎาคม">กรกฎาคม</SelectItem>
+                    <SelectItem value="สิงหาคม">สิงหาคม</SelectItem>
+                    <SelectItem value="กันยายน">กันยายน</SelectItem>
+                    <SelectItem value="ตุลาคม">ตุลาคม</SelectItem>
+                    <SelectItem value="พฤศจิกายน">พฤศจิกายน</SelectItem>
+                    <SelectItem value="ธันวาคม">ธันวาคม</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
               <Label htmlFor="semester">ภาคการศึกษา</Label>
-              <Input
-                id="semester"
-                className="bg-white shadow-md"
-                placeholder="เช่น ภาคต้น"
-                {...register("form.semester")}
-              />
+              <Select
+                onValueChange={(value) => setValue("form.semester", value)}
+                value={watch("form.semester")}
+              >
+                <SelectTrigger
+                  className="mt-1 w-full bg-white shadow-md"
+                  id="semester"
+                >
+                  <SelectValue placeholder="เลือกภาคการศึกษา" />
+                </SelectTrigger>
+                <SelectContent className="border-0">
+                  <SelectGroup>
+                    <SelectLabel>เลือกภาคการศึกษา</SelectLabel>
+                    <SelectItem value="ภาคต้น">ภาคต้น</SelectItem>
+                    <SelectItem value="ภาคปลาย">ภาคปลาย</SelectItem>
+                    <SelectItem value="ภาคฤดูร้อน">ภาคฤดูร้อน</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
               <Label htmlFor="year">ปีการศึกษา</Label>
               <Input
                 id="year"
-                className="bg-white shadow-md"
+                type="number"
+                min={new Date().getFullYear() + 543}
+                max={new Date().getFullYear() + 543 + 10}
+                className="mt-1 bg-white shadow-md"
                 {...register("form.year")}
               />
             </div>
@@ -103,7 +147,7 @@ const Test = () => {
               <Label htmlFor="subjectId">รหัสรายวิชา</Label>
               <Input
                 id="subjectId"
-                className="bg-white shadow-md"
+                className="mt-1 bg-white shadow-md"
                 placeholder="เช่น 02739200"
                 {...register("form.subjectId")}
               />
@@ -113,7 +157,7 @@ const Test = () => {
               <Label htmlFor="subjectName">วิชา</Label>
               <Input
                 id="subjectName"
-                className="bg-white shadow-md"
+                className="mt-1 bg-white shadow-md"
                 placeholder="เช่น Computer Programming"
                 {...register("form.subjectName")}
               />
