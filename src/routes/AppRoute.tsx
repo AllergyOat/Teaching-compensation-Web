@@ -6,11 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router";
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
 import Form from "@/pages/user/FormSelect";
-import FormInput from "@/pages/user/FormInput";
 import FormDetail from "@/pages/user/FormDetail";
 import Profile from "@/pages/user/Profile";
 import Status from "@/pages/user/Status";
-import Test from "@/pages/user/Test";
+import FormInput from "@/pages/user/FormInput";
 
 const AppRoute = () => {
   return (
@@ -29,8 +28,7 @@ const AppRoute = () => {
           <Route path="/status" element={<Status />} />
           <Route path="/status/:id" element={<div>EDIT STATUS</div>} />
           <Route path="/form" element={<Form />} />
-          <Route path="/form/new" element={<Test />} />
-          <Route path="/form/news" element={<FormInput />} />
+          <Route path="/form/new" element={<FormInput />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
 

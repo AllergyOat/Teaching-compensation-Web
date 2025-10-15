@@ -16,7 +16,7 @@ export const translateSection = (section: string): string => {
     case "LECTURE":
       return "บรรยาย";
     case "LAB":
-      return "ปฏิบัติการ";
+      return "ปฏิบัติ";
     default:
       return section;
   }

@@ -10,6 +10,10 @@ export type RegisterFormInputs = {
   confirmPassword: string;
 }
 
+// Define specific types for form validation
+export type MonthType = "มกราคม" | "กุมภาพันธ์" | "มีนาคม" | "เมษายน" | "พฤษภาคม" | "มิถุนายน" | "กรกฎาคม" | "สิงหาคม" | "กันยายน" | "ตุลาคม" | "พฤศจิกายน" | "ธันวาคม";
+export type SemesterType = "ภาคต้น" | "ภาคปลาย" | "ภาคฤดูร้อน";
+
 // form and schedule types
 export type Schedule = {
   date: string;
@@ -22,6 +26,7 @@ export type Schedule = {
 
 export type LectureGroup = {
   lectureId: string;
+  kind: SemesterType;
   schedules: Schedule[];
 };
 
@@ -29,8 +34,8 @@ export type FormData = {
   form: {
     program: string;
     section: string;
-    month: string;
-    semester: string;
+    month: MonthType;
+    semester: SemesterType;
     year: number;
     subjectId: string;
     subjectName: string;

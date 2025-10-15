@@ -17,9 +17,35 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Trash2, ChevronDownIcon } from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
+import { useSearchParams } from "react-router";
+import type {
+  Control,
+  UseFormRegister,
+  UseFormWatch,
+  UseFormSetValue,
+} from "react-hook-form";
+
+interface LectureGroupProps {
+  control: Control<any>;
+  index: number;
+  register: UseFormRegister<any>;
+  removeLectureGroup: (index: number) => void;
+  watch: UseFormWatch<any>;
+  setValue: UseFormSetValue<any>;
+  totalGroups: number;
+}
 
 // This is the component for a single lecture group and its schedules
 export const LectureGroup = ({
@@ -30,7 +56,7 @@ export const LectureGroup = ({
   watch,
   setValue,
   totalGroups,
-}: any) => {
+}: LectureGroupProps) => {
   // This is a NESTED field array for the schedules within this group
   const { fields, append, remove } = useFieldArray({
     control,
@@ -41,6 +67,9 @@ export const LectureGroup = ({
   const [datePickerStates, setDatePickerStates] = useState<{
     [key: string]: boolean;
   }>({});
+
+  const [searchParams] = useSearchParams();
+  const section = searchParams.get("section") || "";
 
   return (
     <div className="lecture-group mt-9">
@@ -59,15 +88,41 @@ export const LectureGroup = ({
         )}
       </div>
 
-      <div className="my-4 flex items-center gap-4">
-        <Label htmlFor={`formScheduleDetails[${index}].lectureId`}>
-          หมู่เรียน
-        </Label>
-        <Input
-          className="w-32 border-0 border-gray-400 bg-white shadow-md"
-          placeholder="กรอกเลขหมู่เรียน"
-          {...register(`formScheduleDetails[${index}].lectureId`)}
-        />
+      <div className="flex gap-4">
+        <div className="my-4 flex items-center gap-2">
+          <Label htmlFor={`formScheduleDetails[${index}].lectureId`}>
+            หมู่เรียน
+          </Label>
+          <Input
+            className="w-32 border-0 border-gray-400 bg-white shadow-md"
+            placeholder="กรอกเลขหมู่เรียน"
+            {...register(`formScheduleDetails[${index}].lectureId`)}
+          />
+        </div>
+        {section === "LAB" && (
+          <div className="my-4 gap-4">
+            <Select
+              onValueChange={(value) =>
+                setValue(`formScheduleDetails[${index}].kind`, value)
+              }
+              value={watch(`formScheduleDetails[${index}].kind`)}
+            >
+              <SelectTrigger
+                className="mt-1 w-full bg-white shadow-md"
+                id="month"
+              >
+                <SelectValue placeholder="เลือกหมู่" />
+              </SelectTrigger>
+              <SelectContent className="border-0">
+                <SelectGroup>
+                  <SelectLabel>เลือกหมู่</SelectLabel>
+                  <SelectItem value="LECTURE">บรรยาย</SelectItem>
+                  <SelectItem value="LAB">ปฏิบัติ</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
       </div>
 
       <div>
@@ -241,7 +296,7 @@ export const LectureGroup = ({
             date: "",
             time: "",
             topic: "",
-            totalHour: "",
+            totalHour: 1,
             room: "",
             note: null,
           })
