@@ -13,6 +13,7 @@ export type RegisterFormInputs = {
 // Define specific types for form validation
 export type MonthType = "มกราคม" | "กุมภาพันธ์" | "มีนาคม" | "เมษายน" | "พฤษภาคม" | "มิถุนายน" | "กรกฎาคม" | "สิงหาคม" | "กันยายน" | "ตุลาคม" | "พฤศจิกายน" | "ธันวาคม";
 export type SemesterType = "ภาคต้น" | "ภาคปลาย" | "ภาคฤดูร้อน";
+type KindType = "LECTURE" | "LAB";
 
 // form and schedule types
 export type Schedule = {
@@ -26,7 +27,7 @@ export type Schedule = {
 
 export type LectureGroup = {
   lectureId: string;
-  kind: SemesterType;
+  kind: KindType;
   schedules: Schedule[];
 };
 

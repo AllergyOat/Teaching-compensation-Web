@@ -50,7 +50,7 @@ const FormInput = () => {
       formScheduleDetails: [
         {
           lectureId: "",
-          kind: "ภาคต้น",
+          kind: "LECTURE" as const,
           schedules: [
             {
               date: "",
@@ -236,7 +236,7 @@ const FormInput = () => {
             onClick={() =>
               append({
                 lectureId: "",
-                kind: "ภาคต้น" as const,
+                kind: "LECTURE" as const,
                 schedules: [
                   {
                     date: "",

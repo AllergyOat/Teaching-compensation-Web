@@ -28,7 +28,7 @@ export const scheduleSchema = z.object({
 
 export const lectureGroupSchema = z.object({
   lectureId: z.string().min(1, { message: "รหัสหมู่เรียนไม่สามารถว่างได้" }),
-  kind: z.enum(["ภาคต้น", "ภาคปลาย", "ภาคฤดูร้อน"], { 
+  kind: z.enum(["LECTURE", "LAB"], { 
     message: "กรุณาเลือกภาคการศึกษา" 
   }),
   schedules: z.array(scheduleSchema).min(1, { message: "ต้องมีตารางสอนอย่างน้อย 1 รายการ" }),

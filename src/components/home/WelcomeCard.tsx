@@ -1,24 +1,24 @@
 import { Card } from "../ui/card";
 import studentImg from "../../assets/images/students.png";
 
-const WelcomeCard = () => {
+const WelcomeCard = ({ firstname = "ผู้ใช้" }: { firstname?: string }) => {
   return (
-    <Card className="bg-[#02BC77] grid grid-cols-[3fr_1fr] border-0 h-67 mb-6 p-0 shadow-md">
-      <div className="flex flex-col justify-center h-full pl-8">
-        <div className="text-white font-bold text-5xl">
-          สวัสดี คุณ(username)!
+    <Card className="mb-6 grid h-67 grid-cols-[3fr_1fr] border-0 bg-[#02BC77] p-0 shadow-md">
+      <div className="flex h-full flex-col justify-center pl-8">
+        <div className="text-5xl font-bold text-white">
+          สวัสดี คุณ{firstname}!
         </div>
-        <div className="text-white text-lg font-bold mt-4">
+        <div className="mt-4 text-lg font-bold text-white">
           ยินดีต้อนรับสู่หน้าแสดงข้อมูลการสอน
         </div>
-        <div className="text-white text-lg font-bold">
+        <div className="text-lg font-bold text-white">
           ในเดือน(month) ปี (year)
         </div>
-        <div className="flex gap-4 mt-4">
-          <button className="bg-white text-black font-bold px-2 py-2 rounded-md">
+        <div className="mt-4 flex gap-4">
+          <button className="rounded-md bg-white px-2 py-2 font-bold text-black">
             เลือกเดือน
           </button>
-          <button className="bg-white text-black font-bold px-2 py-2 rounded-md">
+          <button className="rounded-md bg-white px-2 py-2 font-bold text-black">
             เลือกปี
           </button>
         </div>
@@ -27,7 +27,7 @@ const WelcomeCard = () => {
         <img
           src={studentImg}
           alt="Students"
-          className="object-contain h-50 mt-8 w-full"
+          className="mt-8 h-50 w-full object-contain"
         />
       </div>
     </Card>

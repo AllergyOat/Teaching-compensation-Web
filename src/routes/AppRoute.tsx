@@ -24,6 +24,7 @@ const AppRoute = () => {
         {/* User Section */}
         <Route element={<Layout />}>
           <Route path="/home" element={<Home />} />
+          <Route path="/home/static" element={<div>STATIC CONTENT</div>} />
           <Route path="/home/:formId" element={<FormDetail />} />
           <Route path="/status" element={<Status />} />
           <Route path="/status/:id" element={<div>EDIT STATUS</div>} />
