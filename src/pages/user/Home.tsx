@@ -1,6 +1,6 @@
 import WelcomeCard from "@/components/home/WelcomeCard";
 import StaticFormCard from "@/components/home/StaticFormCard";
-import SendedFormMonth from "@/components/home/SendedFormMonth";
+import UserInfoCard from "@/components/home/UserInfoCard";
 import SchedulesCard from "@/components/home/SchedulesCard";
 import { useState, useEffect } from "react";
 import { getHomeData, type HomeResponse } from "@/api/user/home";
@@ -10,6 +10,17 @@ import {
   translateSection,
   getSectionColor,
 } from "@/utils/programSectionUtils";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import emthyBoxImg from "@/assets/images/empty_box.png";
+import { Button } from "@/components/ui/button";
 
 const Home = () => {
   const [homeData, setHomeData] = useState<HomeResponse | null>(null);
@@ -17,6 +28,7 @@ const Home = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<"user" | "money">("user");
 
   // Get current date for defaults
   const currentDate = new Date();
@@ -141,71 +153,14 @@ const Home = () => {
     <div className="min-h-screen">
       <div className="px-[50px] py-[50px]">
         <h1 className="text-3xl font-bold">Dashboard</h1>
-
-        {/* Add filter controls */}
-        <div className="mt-4 mb-6 flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <label htmlFor="month" className="text-sm font-medium">
-              เดือน:
-            </label>
-            <select
-              id="month"
-              value={month || ""}
-              onChange={(e) =>
-                updateFilters(e.target.value || undefined, year || undefined)
-              }
-              className="rounded border border-gray-300 px-3 py-2"
-            >
-              <option value="">ทุกเดือน</option>
-              <option value="มกราคม">มกราคม</option>
-              <option value="กุมภาพันธ์">กุมภาพันธ์</option>
-              <option value="มีนาคม">มีนาคม</option>
-              <option value="เมษายน">เมษายน</option>
-              <option value="พฤษภาคม">พฤษภาคม</option>
-              <option value="มิถุนายน">มิถุนายน</option>
-              <option value="กรกฎาคม">กรกฎาคม</option>
-              <option value="สิงหาคม">สิงหาคม</option>
-              <option value="กันยายน">กันยายน</option>
-              <option value="ตุลาคม">ตุลาคม</option>
-              <option value="พฤศจิกายน">พฤศจิกายน</option>
-              <option value="ธันวาคม">ธันวาคม</option>
-            </select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <label htmlFor="year" className="text-sm font-medium">
-              ปี:
-            </label>
-            <select
-              id="year"
-              value={year || ""}
-              onChange={(e) =>
-                updateFilters(month || undefined, e.target.value || undefined)
-              }
-              className="rounded border border-gray-300 px-3 py-2"
-            >
-              <option value="">ทุกปี</option>
-              <option value="2567">2567</option>
-              <option value="2568">2568</option>
-              <option value="2569">2569</option>
-              <option value="2570">2570</option>
-            </select>
-          </div>
-
-          {(month !== currentMonth || year !== currentYear.toString()) && (
-            <button
-              onClick={clearFilters}
-              className="rounded bg-gray-500 px-3 py-2 text-sm text-white hover:bg-gray-600"
-            >
-              รีเซ็ตเป็นเดือนปัจจุบัน
-            </button>
-          )}
-        </div>
-
         <div className="mt-4 grid grid-cols-1 gap-5 lg:grid-cols-[65%_35%]">
           {/* Left column */}
           <div className="lg:pr-4">
-            <WelcomeCard firstname={homeData?.user.firstName || "ผู้ใช้"} />
+            <WelcomeCard
+              firstname={homeData?.user.firstName || "ผู้ใช้"}
+              month={month}
+              year={year}
+            />
             <div className="grid h-50 grid-cols-2 gap-5">
               <StaticFormCard
                 total={homeData?.total_forms || 0}
@@ -221,14 +176,114 @@ const Home = () => {
           </div>
           {/* Right column */}
           <div className="hidden h-full flex-col gap-5 lg:flex">
-            <div className="rounded bg-red-200 p-4 text-center">
-              Dashboard &amp; setting
+            <div className="grid h-12 w-full grid-cols-2">
+              <Button
+                onClick={() => setActiveTab("user")}
+                className={`h-full w-full rounded-l-md rounded-r-none ${
+                  activeTab === "user"
+                    ? "bg-[#0BA678] text-white"
+                    : "bg-[#E4E4E4] text-black"
+                }`}
+              >
+                ข้อมูลผู้ใช้
+              </Button>
+
+              <Button
+                onClick={() => setActiveTab("money")}
+                className={`h-full w-full rounded-l-none rounded-r-md ${
+                  activeTab === "money"
+                    ? "bg-[#0BA678] text-white"
+                    : "bg-[#E4E4E4] text-black"
+                }`}
+              >
+                จำนวนเงินที่ได้รับ
+              </Button>
             </div>
-            <SendedFormMonth />
+
+            {activeTab === "user" ? (
+              <UserInfoCard
+                firstName={homeData?.user.firstName || "ผู้ใช้"}
+                lastName={homeData?.user.lastName || " "}
+                degree={homeData?.user.degree || " "}
+                department={homeData?.user.department || " "}
+                major={homeData?.user.major || " "}
+                teachingLevel={homeData?.user.teachingLevel || " "}
+                position={homeData?.user.position || " "}
+                type={homeData?.user.type || " "}
+              />
+            ) : (
+              <div>Hello</div>
+            )}
           </div>
         </div>
 
-        <h1 className="mt-10 text-3xl font-bold">รายวิชาทั้งหมด</h1>
+        <div className="mt-10 flex items-center justify-between">
+          <h1 className="text-3xl font-bold">รายวิชาทั้งหมด</h1>
+          {/* Add filter controls */}
+          <div className="mt-4 mb-6 flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label htmlFor="month" className="text-sm font-medium">
+                เดือน:
+              </label>
+              <Select
+                value={month || ""}
+                onValueChange={(value) =>
+                  updateFilters(value || undefined, year || undefined)
+                }
+              >
+                <SelectTrigger className="rounded border border-gray-300 bg-white px-3 py-2">
+                  <SelectValue placeholder="ทุกเดือน" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>เลือกเดือน</SelectLabel>
+                    {thaiMonths.map((thaiMonth) => (
+                      <SelectItem key={thaiMonth} value={thaiMonth}>
+                        {thaiMonth}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label htmlFor="year" className="text-sm font-medium">
+                ปี:
+              </label>
+              <Select
+                value={year || ""}
+                onValueChange={(value) =>
+                  updateFilters(month || undefined, value || undefined)
+                }
+              >
+                <SelectTrigger
+                  id="year"
+                  className="rounded border border-gray-300 bg-white px-3 py-2"
+                >
+                  <SelectValue placeholder="ทุกปี" />
+                </SelectTrigger>
+
+                <SelectContent>
+                  <SelectItem value="2567">2567</SelectItem>
+                  <SelectItem value="2568">2568</SelectItem>
+                  <SelectItem value="2569">2569</SelectItem>
+                  <SelectItem value="2570">2570</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {(month !== currentMonth || year !== currentYear.toString()) && (
+              <Button
+                onClick={clearFilters}
+                className="rounded bg-[#02BC77] px-3 py-2 text-sm font-bold text-white hover:bg-green-800"
+              >
+                รีเซ็ตเป็นเดือนปัจจุบัน
+              </Button>
+            )}
+          </div>
+        </div>
+
         <div className="mt-4 grid gap-5 md:grid-cols-1 lg:grid-cols-2">
           {homeData?.forms && homeData.forms.length > 0 ? (
             homeData.forms.map((form) => (
@@ -247,8 +302,12 @@ const Home = () => {
             ))
           ) : (
             <div className="col-span-full py-8 text-center text-gray-500">
-              ไม่มีข้อมูลรายวิชา
-              {(month || year) && " สำหรับเงื่อนไขที่เลือก"}
+              <img
+                src={emthyBoxImg}
+                alt="No Data"
+                className="mx-auto mt-20 h-50 w-50"
+              />
+              <p className="text-2xl font-bold">ยังไม่พบข้อมูลในเดือนนี้</p>
             </div>
           )}
         </div>
