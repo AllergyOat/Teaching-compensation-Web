@@ -71,9 +71,44 @@ const FormInput = () => {
     name: "formScheduleDetails",
   });
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = async (data: FormData) => {
     console.log("Form data:", JSON.stringify(data, null, 2));
     alert("แบบฟอร์มผ่านการตรวจสอบแล้ว! ตรวจสอบ console สำหรับข้อมูล");
+    try {
+      const accessToken = localStorage.getItem("accessToken");
+      if (!accessToken) {
+        alert("กรุณาเข้าสู่ระบบก่อนส่งแบบฟอร์ม");
+        return;
+      }
+
+      const response = await fetch(
+        "http://localhost:3000/api/forms/create-form",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify(FormData),
+        },
+      );
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          alert("เซสชั่นหมดอายุ กรุณาเข้าสู่ระบบใหม่");
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("user");
+          // Optionally redirect to login page
+          return;
+        }
+        throw new Error("เกิดข้อผิดพลาดในการส่งแบบฟอร์ม");
+      }
+
+      alert("ส่งแบบฟอร์มสำเร็จ!");
+    } catch (error) {
+      alert("ไม่สามารถส่งแบบฟอร์มได้");
+      console.error(error);
+    }
   };
 
   const onError = (errors: any) => {
