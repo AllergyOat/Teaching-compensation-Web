@@ -71,7 +71,7 @@ const Profile = () => {
                 
                 {/* User Info */}
                 <div>
-                  <p className="text-base font-semibold">{formData.position} {formData.firstName} {formData.lastName}</p>
+                  <p className="text-base font-semibold">{formData.firstName} {formData.lastName}</p>
                   <p className="text-sm text-gray-600">somchai.de@gmail.com</p>
                 </div>
               </div>
@@ -99,7 +99,7 @@ const Profile = () => {
                 </div>
                 
                 <div>
-                  <p className="text-sm font-semibold text-gray-900">สถานะอาจารย์</p>
+                  <p className="text-sm font-semibold text-gray-900">ตำแหน่ง</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">{formData.position}</p>
@@ -127,7 +127,7 @@ const Profile = () => {
                 </div>
 
                 <div>
-                  <p className="text-sm font-semibold text-gray-900">ตำแหน่ง</p>
+                  <p className="text-sm font-semibold text-gray-900">สถานะอาจารย์</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">{formData.type}</p>
