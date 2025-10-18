@@ -10,6 +10,7 @@ import FormDetail from "@/pages/user/FormDetail";
 import Profile from "@/pages/user/Profile";
 import Status from "@/pages/user/Status";
 import FormInput from "@/pages/user/FormInput";
+import ProfileEdit from "@/pages/user/ProfileEdit";
 
 const AppRoute = () => {
   return (
@@ -31,6 +32,7 @@ const AppRoute = () => {
           <Route path="/form" element={<Form />} />
           <Route path="/form/new" element={<FormInput />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/edit" element={<ProfileEdit />} />
         </Route>
 
         {/* Admin Section */}
