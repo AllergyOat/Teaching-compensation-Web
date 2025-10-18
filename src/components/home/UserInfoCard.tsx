@@ -37,24 +37,23 @@ const UserInfoCard = ({
             </h2>
           </div>
           <div className="flex gap-6">
-            <div className="space-y-1 text-md font-bold text-[#8D949A]">
+            <div className="text-md space-y-1 font-bold text-[#8D949A]">
               <p>ระดับการศึกษา :</p>
-              <p>สถานะอาจารย์ :</p>
               <p>สังกัดวิชา :</p>
               <p>สาขาวิชา :</p>
               <p>ระดับการสอน :</p>
               <p>ตำแหน่ง :</p>
+              <p>สถานะอาจารย์ :</p>
             </div>
-            <div className="space-y-1 text-md font-bold text-black">
+            <div className="text-md space-y-1 font-bold text-black">
               <p>{degree}</p>
-              <p>{position}</p>
               <p>{department}</p>
               <p>{major}</p>
               <p>{teachingLevel}</p>
+              <p>{position}</p>
               <p>{type}</p>
             </div>
           </div>
-
           <div className="flex justify-end">
             <Link to="/profile">
               <Button className="cursor-pointer bg-green-500 font-bold">
