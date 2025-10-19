@@ -1,7 +1,9 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useFieldArray, useForm } from "react-hook-form";
-import { useSearchParams } from "react-router";
+import { useSearchParams, useParams, useNavigate } from "react-router";
+import { useState, useEffect } from "react";
+import { getFormDetail, type FormDetailResponse } from "@/api/forms/detail";
 import { LectureGroup } from "@/components/formInput/LectureGroup";
 import type {
   FormData,
@@ -30,16 +32,23 @@ import { formInputSchema } from "@/utils/schemas";
 
 const FormInput = () => {
   const [searchParams] = useSearchParams();
+  const { id: formId } = useParams<{ id?: string }>();
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState<FormDetailResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(!!formId);
+
   const program = searchParams.get("program") || "";
   const section = searchParams.get("section") || "";
   const programThai = translateProgram(program);
   const sectionThai = translateSection(section);
+
   const {
     register,
     control,
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formInputSchema),
@@ -77,42 +86,130 @@ const FormInput = () => {
     name: "formScheduleDetails",
   });
 
+  // Fetch form data for editing
+  useEffect(() => {
+    const fetchFormData = async () => {
+      if (!formId) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const response = await getFormDetail(formId);
+        setFormData(response);
+
+        // Transform the form data to match FormInput format
+        const form = response.data;
+        const transformedData: FormData = {
+          form: {
+            program: form.program as ProgramType,
+            section: form.section as SectionType,
+            month: form.month as MonthType,
+            semester: form.semester as SemesterType,
+            year: form.year,
+            subjectId: form.subjectId,
+            subjectName: form.subjectName,
+          },
+          formScheduleDetails: form.formScheduleDetails.map((section) => ({
+            lectureId: section.sectionId,
+            kind: section.kind as "LECTURE" | "LAB",
+            schedules: section.schedules.map((schedule) => ({
+              date: new Date(schedule.date).toISOString().split("T")[0], // Convert to YYYY-MM-DD
+              time: schedule.time,
+              totalHour: schedule.totalHour,
+              topic: schedule.topic,
+              room: schedule.room,
+              note: schedule.note,
+            })),
+          })),
+        };
+
+        // Reset form with the fetched data
+        reset(transformedData);
+      } catch (error: any) {
+        console.error("Error fetching form data:", error);
+        if (error.message.includes("login")) {
+          navigate("/login");
+        } else {
+          alert("ไม่สามารถโหลดข้อมูลแบบฟอร์มได้");
+          navigate("/home");
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchFormData();
+  }, [formId, reset, navigate]);
+
   const onSubmit = async (data: FormData) => {
     console.log("Form data:", JSON.stringify(data, null, 2));
-    alert("แบบฟอร์มผ่านการตรวจสอบแล้ว! ตรวจสอบ console สำหรับข้อมูล");
+
+    const isEdit = !!formId;
+    const alertMessage = isEdit
+      ? "แบบฟอร์มผ่านการตรวจสอบแล้ว! กำลังอัปเดต..."
+      : "แบบฟอร์มผ่านการตรวจสอบแล้ว! กำลังส่ง...";
+    alert(alertMessage);
+
     try {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
         alert("กรุณาเข้าสู่ระบบก่อนส่งแบบฟอร์ม");
+        navigate("/login");
         return;
       }
 
-      const response = await fetch(
-        "http://localhost:3000/api/forms/create-form",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify(data),
+      const url = isEdit
+        ? `http://localhost:3000/api/forms/edit-form/${formId}`
+        : "http://localhost:3000/api/forms/create-form";
+
+      const method = isEdit ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
-      );
+        body: JSON.stringify(data),
+      });
 
       if (!response.ok) {
         if (response.status === 401) {
           alert("เซสชั่นหมดอายุ กรุณาเข้าสู่ระบบใหม่");
           localStorage.removeItem("accessToken");
           localStorage.removeItem("user");
-          // Optionally redirect to login page
+          navigate("/login");
           return;
         }
-        throw new Error("เกิดข้อผิดพลาดในการส่งแบบฟอร์ม");
+        if (response.status === 403) {
+          alert("คุณไม่มีสิทธิ์ในการดำเนินการนี้");
+          return;
+        }
+        throw new Error(
+          isEdit
+            ? "เกิดข้อผิดพลาดในการอัปเดตแบบฟอร์ม"
+            : "เกิดข้อผิดพลาดในการส่งแบบฟอร์ม",
+        );
       }
 
-      alert("ส่งแบบฟอร์มสำเร็จ!");
+      const successMessage = isEdit
+        ? "อัปเดตแบบฟอร์มสำเร็จ!"
+        : "ส่งแบบฟอร์มสำเร็จ!";
+      alert(successMessage);
+
+      // Navigate back to form detail page if editing, or home if creating
+      if (isEdit) {
+        navigate(`/home/${formId}`);
+      } else {
+        navigate("/home");
+      }
     } catch (error) {
-      alert("ไม่สามารถส่งแบบฟอร์มได้");
+      const errorMessage = isEdit
+        ? "ไม่สามารถอัปเดตแบบฟอร์มได้"
+        : "ไม่สามารถส่งแบบฟอร์มได้";
+      alert(errorMessage);
       console.error(error);
     }
   };
@@ -121,13 +218,23 @@ const FormInput = () => {
     console.log("Form validation errors:", errors);
     alert("กรุณาตรวจสอบข้อมูลในแบบฟอร์มให้ครบถ้วน");
   };
+
+  // Show loading state when fetching form data for editing
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-2xl">กำลังโหลดข้อมูลแบบฟอร์ม...</div>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit, onError)}>
       <header>
         <div className="flex items-center gap-4 bg-[#02BC77] p-4 pl-10 text-3xl font-bold text-white shadow-md">
           <img src={documentsImg} alt="Documents" className="h-28 w-20" />
           <h1>
-            แบบฟอร์มการสอน{sectionThai} {programThai}
+            {formId ? "แก้ไข" : "แบบฟอร์ม"}การสอน{sectionThai} {programThai}
           </h1>
         </div>
       </header>

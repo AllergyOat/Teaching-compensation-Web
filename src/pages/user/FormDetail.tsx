@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Edit } from "lucide-react";
 
 const FormDetail = () => {
   const { formId } = useParams<{ formId: string }>();
@@ -25,6 +25,12 @@ const FormDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Function to handle form editing
+  const handleEditForm = () => {
+    if (!formId) return;
+    navigate(`/form/edit/${formId}`);
+  };
 
   // Function to handle form deletion
   const handleDeleteForm = async () => {
@@ -174,6 +180,14 @@ const FormDetail = () => {
             ← กลับสู่หน้าหลัก
           </Link>
           <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              className="text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+              onClick={handleEditForm}
+            >
+              <Edit className="mr-2 h-4 w-4" />
+              แก้ไขแบบฟอร์ม
+            </Button>
             <Button
               variant="outline"
               className="text-red-600 hover:bg-red-50 hover:text-red-700"
