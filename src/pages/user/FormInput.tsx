@@ -61,7 +61,7 @@ const FormInput = () => {
             {
               date: "",
               time: "",
-              totalHour: 1,
+              totalHour: 0,
               topic: "",
               room: "",
               note: null,

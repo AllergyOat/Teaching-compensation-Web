@@ -14,7 +14,7 @@ import {
   getProfile,
   type ProfileData,
 } from "@/api/user/profile";
-import { useParams, useNavigate, Link } from "react-router";
+import { Link } from "react-router";
 
 const ProfileEdit = () => {
   const [formData, setFormData] = useState<ProfileData>({

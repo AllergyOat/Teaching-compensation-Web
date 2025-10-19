@@ -311,6 +311,7 @@ const Home = () => {
             </div>
           )}
         </div>
+        <div className="mt-6 text-right">ทั้งหมด <span className="font-bold text-[#17C964]">{homeData?.forms.length || 0}</span> รายวิชา</div>
       </div>
     </div>
   );
