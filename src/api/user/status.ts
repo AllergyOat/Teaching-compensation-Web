@@ -20,7 +20,13 @@ type ProfileData = {
   forms: Form[];
 };
 
-export const getStatus = async (): Promise<ProfileData> => {
+type StatusParams = {
+  program?: string;
+  month?: string;
+  year?: string;
+};
+
+export const getStatus = async (params?: StatusParams): Promise<ProfileData> => {
   try {
     const accessToken = localStorage.getItem("accessToken");
 
@@ -28,7 +34,16 @@ export const getStatus = async (): Promise<ProfileData> => {
       throw new Error("No access token found. Please login first.");
     }
 
-    const response = await axios.get("http://localhost:3000/api/user/status", {
+    // Build query string
+    const queryParams = new URLSearchParams();
+    if (params?.program) queryParams.append("program", params.program);
+    if (params?.month) queryParams.append("month", params.month);
+    if (params?.year) queryParams.append("year", params.year);
+    
+    const queryString = queryParams.toString();
+    const url = `http://localhost:3000/api/user/status${queryString ? `?${queryString}` : ""}`;
+
+    const response = await axios.get(url, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
