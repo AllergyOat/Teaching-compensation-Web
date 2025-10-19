@@ -3,7 +3,7 @@ import { Label } from "@/components/ui/label";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useSearchParams, useParams, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
-import { getFormDetail, type FormDetailResponse } from "@/api/forms/detail";
+import { getFormDetail } from "@/api/forms/detail";
 import { LectureGroup } from "@/components/formInput/LectureGroup";
 import type {
   FormData,
@@ -15,6 +15,7 @@ import type {
 import { Button } from "@/components/ui/button";
 import documentsImg from "@/assets/images/documents.png";
 import {
+  thaiMonths,
   translateProgram,
   translateSection,
 } from "@/utils/programSectionUtils";
@@ -34,13 +35,14 @@ const FormInput = () => {
   const [searchParams] = useSearchParams();
   const { id: formId } = useParams<{ id?: string }>();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState<FormDetailResponse | null>(null);
   const [isLoading, setIsLoading] = useState(!!formId);
 
   const program = searchParams.get("program") || "";
   const section = searchParams.get("section") || "";
   const programThai = translateProgram(program);
   const sectionThai = translateSection(section);
+
+  const currentMonthThai = thaiMonths[new Date().getMonth()] as MonthType;
 
   const {
     register,
@@ -56,7 +58,7 @@ const FormInput = () => {
       form: {
         program: (program as ProgramType) || "REGULAR_PROGRAM",
         section: (section as SectionType) || "LECTURE",
-        month: "มกราคม" as const,
+        month: currentMonthThai,
         semester: "ภาคต้น" as const,
         year: new Date().getFullYear() + 543, // Buddhist year
         subjectId: "",
@@ -97,7 +99,6 @@ const FormInput = () => {
       try {
         setIsLoading(true);
         const response = await getFormDetail(formId);
-        setFormData(response);
 
         // Transform the form data to match FormInput format
         const form = response.data;
@@ -219,7 +220,7 @@ const FormInput = () => {
     alert("กรุณาตรวจสอบข้อมูลในแบบฟอร์มให้ครบถ้วน");
   };
 
-  // Show loading state when fetching form data for editing
+
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
