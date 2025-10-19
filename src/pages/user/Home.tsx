@@ -165,12 +165,14 @@ const Home = () => {
               <StaticFormCard
                 total={homeData?.total_forms || 0}
                 description={`รายวิชาที่ส่งแล้วในเดือน ${month}`}
-                graphData="graph"
+                graphData={homeData?.total_forms || 0}
+                maxValue={10}
               />
               <StaticFormCard
                 total={homeData?.totalHour || 0}
                 description={`ชั่วโมงการสอนสุทธิในเดือน ${month}`}
-                graphData="graph"
+                graphData={homeData?.totalHour || 0}
+                maxValue={200}
               />
             </div>
           </div>
