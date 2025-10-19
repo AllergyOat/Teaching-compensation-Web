@@ -11,6 +11,9 @@ import Profile from "@/pages/user/Profile";
 import Status from "@/pages/user/Status";
 import FormInput from "@/pages/user/FormInput";
 import ProfileEdit from "@/pages/user/ProfileEdit";
+import AdminHome from "@/pages/admin/Home";
+import UserList from "@/pages/admin/UserList";
+import AdminProfile from "@/pages/admin/Profile";
 
 const AppRoute = () => {
   return (
@@ -38,8 +41,9 @@ const AppRoute = () => {
 
         {/* Admin Section */}
         <Route path="admin" element={<LayoutAdmin />}>
-          <Route index element={<div>Dashboard</div>} />
-          <Route path="User" element={<div>User</div>} />
+          <Route index element={<AdminHome />} />
+          <Route path="user" element={<UserList />} />
+          <Route path="profile" element={<AdminProfile />} />
         </Route>
 
         <Route path="*" element={<div>404 Not Found</div>} />

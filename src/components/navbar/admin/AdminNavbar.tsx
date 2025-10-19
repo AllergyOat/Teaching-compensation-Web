@@ -1,6 +1,6 @@
+import Navbar from "./Navbar";
+
 const AdminNavbar = () => {
-  return (
-    <div>AdminNavbar</div>
-  )
-}
-export default AdminNavbar
+  return <Navbar />;
+};
+export default AdminNavbar;

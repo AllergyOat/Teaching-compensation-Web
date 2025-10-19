@@ -3,7 +3,7 @@ import { Outlet } from "react-router";
 
 const LayoutAdmin = () => {
   return (
-    <main>
+    <main className="min-h-screen bg-[#F7F7F7]">
       <AdminNavbar />
       <Outlet />
     </main>
