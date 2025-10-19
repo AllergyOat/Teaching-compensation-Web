@@ -33,6 +33,8 @@ export interface Form {
 export interface HomeResponse {
   total_forms: number;
   totalHour: number;
+  totalLectureHours: number;
+  totalLabHours: number;
   user: {
     id: string;
     firstName: string;

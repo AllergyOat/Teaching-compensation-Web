@@ -67,7 +67,7 @@ const StaticFormCard = (props: StaticFormCardProps) => {
               />
             </svg>
           </div>
-          <span className="text-xs font-medium text-gray-500">graph</span>
+          {/* <span className="text-xs font-medium text-gray-500">graph</span> */}
         </div>
       </div>
     </Card>

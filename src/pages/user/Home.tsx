@@ -163,16 +163,16 @@ const Home = () => {
             />
             <div className="grid h-50 grid-cols-2 gap-5">
               <StaticFormCard
-                total={homeData?.total_forms || 0}
-                description={`รายวิชาที่ส่งแล้วในเดือน ${month}`}
-                graphData={homeData?.total_forms || 0}
-                maxValue={10}
+                total={homeData?.totalLectureHours || 0}
+                description={`ชั่วโมงสอนบรรยายในเดือน ${month}`}
+                graphData={homeData?.totalLectureHours || 0}
+                maxValue={45}
               />
               <StaticFormCard
-                total={homeData?.totalHour || 0}
-                description={`ชั่วโมงการสอนสุทธิในเดือน ${month}`}
-                graphData={homeData?.totalHour || 0}
-                maxValue={200}
+                total={homeData?.totalLabHours || 0}
+                description={`ชั่วโมงสอนปฎิบัติในเดือน ${month}`}
+                graphData={homeData?.totalLabHours || 0}
+                maxValue={30}
               />
             </div>
           </div>
