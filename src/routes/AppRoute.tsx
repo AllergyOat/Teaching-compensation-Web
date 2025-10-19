@@ -31,6 +31,7 @@ const AppRoute = () => {
           <Route path="/status/:id" element={<div>EDIT STATUS</div>} />
           <Route path="/form" element={<Form />} />
           <Route path="/form/new" element={<FormInput />} />
+          <Route path="/form/edit/:id" element={<FormInput />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/edit" element={<ProfileEdit />} />
         </Route>

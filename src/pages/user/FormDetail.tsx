@@ -15,6 +15,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Trash2, Edit } from "lucide-react";
 
 const FormDetail = () => {
   const { formId } = useParams<{ formId: string }>();
@@ -22,6 +24,69 @@ const FormDetail = () => {
   const [formData, setFormData] = useState<FormDetailResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Function to handle form editing
+  const handleEditForm = () => {
+    if (!formId) return;
+    navigate(`/form/edit/${formId}`);
+  };
+
+  // Function to handle form deletion
+  const handleDeleteForm = async () => {
+    if (!formId) return;
+
+    const confirmDelete = window.confirm(
+      "คุณแน่ใจหรือไม่ที่จะลบแบบฟอร์มนี้? การดำเนินการนี้ไม่สามารถยกเลิกได้",
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      setIsDeleting(true);
+      const accessToken = localStorage.getItem("accessToken");
+
+      if (!accessToken) {
+        alert("กรุณาเข้าสู่ระบบก่อนลบแบบฟอร์ม");
+        navigate("/login");
+        return;
+      }
+
+      const response = await fetch(
+        `http://localhost:3000/api/forms/${formId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          alert("เซสชั่นหมดอายุ กรุณาเข้าสู่ระบบใหม่");
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("user");
+          navigate("/login");
+          return;
+        }
+        if (response.status === 403) {
+          alert("คุณไม่มีสิทธิ์ลบแบบฟอร์มนี้");
+          return;
+        }
+        throw new Error("เกิดข้อผิดพลาดในการลบแบบฟอร์ม");
+      }
+
+      alert("ลบแบบฟอร์มสำเร็จ!");
+      navigate("/home");
+    } catch (error: any) {
+      console.error("Delete form error:", error);
+      alert("ไม่สามารถลบแบบฟอร์มได้: " + error.message);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   useEffect(() => {
     const fetchFormDetail = async () => {
@@ -114,15 +179,34 @@ const FormDetail = () => {
           <Link to="/home" className="text-gray-700">
             ← กลับสู่หน้าหลัก
           </Link>
-          <Badge className={getStatusColor(form.status)}>
-            {form.status === "PENDING"
-              ? "รอการอนุมัติ"
-              : form.status === "APPROVED"
-                ? "อนุมัติแล้ว"
-                : form.status === "REJECTED"
-                  ? "ไม่อนุมัติ"
-                  : form.status}
-          </Badge>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              className="text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+              onClick={handleEditForm}
+            >
+              <Edit className="mr-2 h-4 w-4" />
+              แก้ไขแบบฟอร์ม
+            </Button>
+            <Button
+              variant="outline"
+              className="text-red-600 hover:bg-red-50 hover:text-red-700"
+              onClick={handleDeleteForm}
+              disabled={isDeleting}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              {isDeleting ? "กำลังลบ..." : "ลบแบบฟอร์ม"}
+            </Button>
+            <Badge className={getStatusColor(form.status)}>
+              {form.status === "PENDING"
+                ? "รอการอนุมัติ"
+                : form.status === "APPROVED"
+                  ? "อนุมัติแล้ว"
+                  : form.status === "REJECTED"
+                    ? "ไม่อนุมัติ"
+                    : form.status}
+            </Badge>
+          </div>
         </div>
 
         {/* Form Information */}
