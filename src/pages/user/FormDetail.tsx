@@ -172,7 +172,7 @@ const FormDetail = () => {
   };
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen bg-gray-50 p-6">
       <div className="mx-auto max-w-6xl space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -190,7 +190,7 @@ const FormDetail = () => {
             </Button>
             <Button
               variant="outline"
-              className="text-red-600 hover:bg-red-50 hover:text-red-700"
+              className="border-red-300 text-red-600 transition-all hover:bg-red-50 hover:text-red-700"
               onClick={handleDeleteForm}
               disabled={isDeleting}
             >
@@ -210,18 +210,18 @@ const FormDetail = () => {
         </div>
 
         {/* Form Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">
+        <Card className="border-none overflow-hidden border-0 p-0 shadow-lg transition-shadow hover:shadow-xl">
+          <CardHeader className="rounded-t-lg bg-gradient-to-r from-[#02BC77] to-[#006B42] p-4 text-white">
+            <CardTitle className="text-xl font-bold">
               {translateProgram(form.program)} -{" "}
               {translateSection(form.section)}
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <CardContent className="mt-4 mb-6">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 ">
               <div>
                 <h3 className="text-lg font-semibold">{form.subjectName}</h3>
-                <p className="text-gray-600">{form.subjectId}</p>
+                <p className="text-gray-600 font-semibold">{form.subjectId}</p>
               </div>
               <div>
                 <p>
@@ -254,68 +254,82 @@ const FormDetail = () => {
         </Card>
 
         {/* Schedule Details */}
-        <Card>
-          <CardHeader>
-            <CardTitle>ตารางการสอน</CardTitle>
+        <Card className="overflow-hidden border-0 p-0 shadow-lg transition-shadow hover:shadow-xl">
+          <CardHeader className="rounded-t-lg bg-gradient-to-r from-[#02BC77] to-[#006B42] p-6 text-white">
+            <CardTitle className="text-xl font-bold">ตารางการสอน</CardTitle>
           </CardHeader>
-          <CardContent>
-            {form.formScheduleDetails.map((section) => (
-              <div key={section.id} className="mb-8">
-                <h3 className="mb-4 text-lg font-semibold">
-                  หมู่เรียน {section.sectionId} ({section.kind})
-                </h3>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>ลำดับ</TableHead>
-                      <TableHead>วัน/เดือน/ปี</TableHead>
-                      <TableHead>เวลา</TableHead>
-                      <TableHead>จำนวนชั่วโมง</TableHead>
-                      <TableHead>หัวข้อ</TableHead>
-                      <TableHead>ห้องเรียน</TableHead>
-                      <TableHead>หมายเหตุ</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {section.schedules.map((schedule, scheduleIndex) => (
-                      <TableRow key={schedule.id}>
-                        <TableCell>{scheduleIndex + 1}</TableCell>
-                        <TableCell>{formatDate(schedule.date)}</TableCell>
-                        <TableCell>{schedule.time}</TableCell>
-                        <TableCell>{schedule.totalHour}</TableCell>
-                        <TableCell>{schedule.topic}</TableCell>
-                        <TableCell>{schedule.room}</TableCell>
-                        <TableCell>{schedule.note || "-"}</TableCell>
+          <CardContent className="mt-6">
+            {form.formScheduleDetails.map((section, index) => (
+              <div key={section.id} className={`${index > 0 ? 'mt-8' : ''}`}>
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="h-2 w-2 rounded-full bg-[#02BC77]"></div>
+                  <h3 className="text-lg font-semibold text-[#006B42]">
+                    หมู่เรียน {section.sectionId} ({section.kind})
+                  </h3>
+                </div>
+                <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-gradient-to-r from-[#006B42] to-[#02BC77]">
+                        <TableHead className="text-white">ลำดับ</TableHead>
+                        <TableHead className="text-white">วัน/เดือน/ปี</TableHead>
+                        <TableHead className="text-white">เวลา</TableHead>
+                        <TableHead className="text-white">จำนวนชั่วโมง</TableHead>
+                        <TableHead className="text-white">หัวข้อ</TableHead>
+                        <TableHead className="text-white">ห้องเรียน</TableHead>
+                        <TableHead className="text-white">หมายเหตุ</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {section.schedules.map((schedule, scheduleIndex) => (
+                        <TableRow 
+                          className={`transition-colors ${
+                            scheduleIndex % 2 === 0 ? 'bg-green-50/50' : 'bg-white'
+                          } hover:bg-green-100`} 
+                          key={schedule.id}
+                        >
+                          <TableCell className="font-medium">{scheduleIndex + 1}</TableCell>
+                          <TableCell>{formatDate(schedule.date)}</TableCell>
+                          <TableCell>{schedule.time}</TableCell>
+                          <TableCell className="font-medium">{schedule.totalHour}</TableCell>
+                          <TableCell>{schedule.topic}</TableCell>
+                          <TableCell>{schedule.room}</TableCell>
+                          <TableCell className="text-gray-500">{schedule.note || "-"}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
             ))}
+            <div className="mt-6 rounded-lg  p-4">
+              <div className="space-y-1 text-sm text-gray-600">
+                <p className="flex items-center gap-2">
+                  <span className="font-medium">สร้างเมื่อ:</span>
+                  <span>{formatDate(form.createdAt)}</span>
+                </p>
+                <p className="flex items-center gap-2">
+                  <span className="font-medium">แก้ไขล่าสุด:</span>
+                  <span>{formatDate(form.updatedAt)}</span>
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
         {/* Admin Comment */}
         {form.adminComment && (
-          <Card>
-            <CardHeader>
-              <CardTitle>ความเห็นจากผู้ดูแลระบบ</CardTitle>
+          <Card className="border-0 shadow-lg transition-shadow hover:shadow-xl">
+            <CardHeader className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+              <CardTitle className="text-xl font-bold">ความเห็นจากผู้ดูแลระบบ</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-gray-700">{form.adminComment}</p>
+            <CardContent className="mt-4">
+              <div className="rounded-lg bg-blue-50 p-4">
+                <p className="text-gray-800">{form.adminComment}</p>
+              </div>
             </CardContent>
           </Card>
         )}
-
-        {/* Timestamps */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="space-y-1 text-sm text-gray-500">
-              <p>สร้างเมื่อ: {formatDate(form.createdAt)}</p>
-              <p>แก้ไขล่าสุด: {formatDate(form.updatedAt)}</p>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
