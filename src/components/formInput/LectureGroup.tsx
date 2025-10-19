@@ -235,6 +235,7 @@ export const LectureGroup = ({
                 <TableCell>
                   <Input
                     type="number"
+                    disabled
                     className="w-15 bg-white"
                     min={0}
                     {...register(
@@ -296,7 +297,7 @@ export const LectureGroup = ({
             date: "",
             time: "",
             topic: "",
-            totalHour: 1,
+            totalHour: 0,
             room: "",
             note: null,
           })

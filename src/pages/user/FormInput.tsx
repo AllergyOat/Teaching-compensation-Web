@@ -3,7 +3,13 @@ import { Label } from "@/components/ui/label";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router";
 import { LectureGroup } from "@/components/formInput/LectureGroup";
-import type { FormData, MonthType, SemesterType } from "@/utils/types";
+import type {
+  FormData,
+  MonthType,
+  SemesterType,
+  ProgramType,
+  SectionType,
+} from "@/utils/types";
 import { Button } from "@/components/ui/button";
 import documentsImg from "@/assets/images/documents.png";
 import {
@@ -39,8 +45,8 @@ const FormInput = () => {
     resolver: zodResolver(formInputSchema),
     defaultValues: {
       form: {
-        program: program,
-        section: section,
+        program: (program as ProgramType) || "REGULAR_PROGRAM",
+        section: (section as SectionType) || "LECTURE",
         month: "มกราคม" as const,
         semester: "ภาคต้น" as const,
         year: new Date().getFullYear() + 543, // Buddhist year
@@ -89,7 +95,7 @@ const FormInput = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
           },
-          body: JSON.stringify(FormData),
+          body: JSON.stringify(data),
         },
       );
 
@@ -276,8 +282,8 @@ const FormInput = () => {
                   {
                     date: "",
                     time: "",
-                    topic: "",
                     totalHour: 1,
+                    topic: "",
                     room: "",
                     note: null,
                   },
