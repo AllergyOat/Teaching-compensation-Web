@@ -1,5 +1,5 @@
 import { useFieldArray } from "react-hook-form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
@@ -37,6 +37,34 @@ import type {
   UseFormSetValue,
 } from "react-hook-form";
 
+// Function to calculate total hours from time range
+const calculateTotalHours = (timeRange: string): number => {
+  if (!timeRange || !timeRange.includes("-")) {
+    return 0;
+  }
+
+  const [startTime, endTime] = timeRange.split("-").map((t) => t.trim());
+
+  const parseTime = (time: string): number => {
+    const [hours, minutes] = time.split(":").map(Number);
+    return hours + minutes / 60;
+  };
+
+  try {
+    const start = parseTime(startTime);
+    const end = parseTime(endTime);
+
+    // Handle cases where end time is on the next day (e.g., 23:00-01:00)
+    if (end < start) {
+      return 24 - start + end;
+    }
+
+    return Math.max(0, end - start);
+  } catch (error) {
+    return 0;
+  }
+};
+
 interface LectureGroupProps {
   control: Control<any>;
   index: number;
@@ -70,6 +98,29 @@ export const LectureGroup = ({
 
   const [searchParams] = useSearchParams();
   const section = searchParams.get("section") || "";
+
+  // Effect to calculate totalHour for existing time values
+  useEffect(() => {
+    fields.forEach((_, k) => {
+      const timeValue = watch(
+        `formScheduleDetails[${index}].schedules[${k}].time`,
+      );
+      const currentTotalHour = watch(
+        `formScheduleDetails[${index}].schedules[${k}].totalHour`,
+      );
+
+      if (timeValue && (!currentTotalHour || currentTotalHour === 0)) {
+        const calculatedHours = calculateTotalHours(timeValue);
+        if (calculatedHours > 0) {
+          setValue(
+            `formScheduleDetails[${index}].schedules[${k}].totalHour`,
+            calculatedHours,
+            { shouldValidate: false, shouldDirty: false },
+          );
+        }
+      }
+    });
+  }, [fields, index, setValue, watch]);
 
   return (
     <div className="lecture-group mt-9">
@@ -225,21 +276,46 @@ export const LectureGroup = ({
                 </TableCell>
                 <TableCell>
                   <Input
-                    placeholder="13:00 - 16:00"
+                    placeholder="13:00-16:00"
                     className="bg-white"
                     {...register(
                       `formScheduleDetails[${index}].schedules[${k}].time`,
                     )}
+                    onChange={(e) => {
+                      const timeValue = e.target.value;
+                      // Calculate and set total hours
+                      const totalHours = calculateTotalHours(timeValue);
+                      setValue(
+                        `formScheduleDetails[${index}].schedules[${k}].totalHour`,
+                        totalHours,
+                        { shouldValidate: true, shouldDirty: true },
+                      );
+
+                      // Also trigger the original onChange from register
+                      const originalOnChange = register(
+                        `formScheduleDetails[${index}].schedules[${k}].time`,
+                      ).onChange;
+                      if (originalOnChange) {
+                        originalOnChange(e);
+                      }
+                    }}
                   />
                 </TableCell>
                 <TableCell>
                   <Input
                     type="number"
-                    disabled
-                    className="w-15 bg-white"
+                    readOnly
+                    className="w-15 bg-gray-50 text-center"
                     min={0}
+                    step={0.5}
+                    value={
+                      watch(
+                        `formScheduleDetails[${index}].schedules[${k}].totalHour`,
+                      ) || 0
+                    }
                     {...register(
                       `formScheduleDetails[${index}].schedules[${k}].totalHour`,
+                      { valueAsNumber: true },
                     )}
                   />
                 </TableCell>
