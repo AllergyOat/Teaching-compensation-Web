@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { getProfile, type ProfileData } from "@/api/user/profile";
 
 const Profile = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<ProfileData>({
     firstName: "",
     lastName: "",
@@ -136,6 +137,20 @@ const Profile = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Logout Button */}
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <Button 
+                onClick={() => {
+                  localStorage.removeItem('accessToken');
+                  localStorage.removeItem('user');
+                  navigate('/login');
+                }}
+                className="w-full bg-red-500 hover:bg-red-400 text-white transition-colors"
+              >
+                ออกจากระบบ
+              </Button>
+            </div>
 
         {message && (
           <div className={`rounded p-3 ${message.includes("สำเร็จ") ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
