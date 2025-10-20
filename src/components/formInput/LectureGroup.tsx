@@ -73,6 +73,7 @@ interface LectureGroupProps {
   watch: UseFormWatch<any>;
   setValue: UseFormSetValue<any>;
   totalGroups: number;
+  errors?: any;
 }
 
 // This is the component for a single lecture group and its schedules
@@ -84,6 +85,7 @@ export const LectureGroup = ({
   watch,
   setValue,
   totalGroups,
+  errors,
 }: LectureGroupProps) => {
   // This is a NESTED field array for the schedules within this group
   const { fields, append, remove } = useFieldArray({
@@ -144,12 +146,20 @@ export const LectureGroup = ({
           <Label htmlFor={`formScheduleDetails[${index}].lectureId`}>
             หมู่เรียน
           </Label>
-          <Input
-            className="w-32 border-0 border-gray-400 bg-white shadow-md"
-            placeholder="กรอกเลขหมู่เรียน"
-            {...register(`formScheduleDetails[${index}].lectureId`)}
-          />
+          <div className="flex flex-col">
+            <Input
+              className="w-32 border-0 border-gray-400 bg-white shadow-md"
+              placeholder="กรอกเลขหมู่เรียน"
+              {...register(`formScheduleDetails[${index}].lectureId`)}
+            />
+            {errors?.lectureId && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.lectureId.message}
+              </p>
+            )}
+          </div>
         </div>
+
         {section === "LAB" && (
           <div className="my-4 gap-4">
             <Select
@@ -381,6 +391,45 @@ export const LectureGroup = ({
       >
         เพิ่มแถว
       </Button>
+
+      {/* Display validation errors */}
+      {errors && (
+        <div className="mt-2 space-y-1">
+          {errors.kind && (
+            <p className="text-sm text-red-500">
+              ประเภท: {errors.kind.message}
+            </p>
+          )}
+          {errors.schedules && Array.isArray(errors.schedules) && (
+            <div className="space-y-1">
+              {errors.schedules.map(
+                (scheduleError: any, scheduleIndex: number) => (
+                  <div key={scheduleIndex}>
+                    {scheduleError && (
+                      <p className="text-sm text-red-500">
+                        แถวที่ {scheduleIndex + 1}: กรุณากรอกข้อมูล
+                        {scheduleError.date &&
+                          ` ${scheduleError.date.message}`}
+                        {scheduleError.time &&
+                          ` ${scheduleError.time.message}`}
+                        {scheduleError.topic &&
+                          ` ${scheduleError.topic.message}`}
+                        {scheduleError.room &&
+                          ` ${scheduleError.room.message}`}
+                        {scheduleError.totalHour &&
+                          ` ${scheduleError.totalHour.message}`}
+                      </p>
+                    )}
+                  </div>
+                ),
+              )}
+            </div>
+          )}
+          {errors.message && (
+            <p className="text-sm text-red-500">{errors.message}</p>
+          )}
+        </div>
+      )}
     </div>
   );
 };

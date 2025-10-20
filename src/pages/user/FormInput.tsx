@@ -220,7 +220,6 @@ const FormInput = () => {
     alert("กรุณาตรวจสอบข้อมูลในแบบฟอร์มให้ครบถ้วน");
   };
 
-
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -370,6 +369,7 @@ const FormInput = () => {
               watch={watch}
               setValue={setValue}
               totalGroups={fields.length}
+              errors={errors.formScheduleDetails?.[index]}
             />
           ))}
 

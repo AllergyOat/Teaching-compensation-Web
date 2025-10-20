@@ -18,16 +18,16 @@ export const registerSchema = z.object({
 });
 
 export const scheduleSchema = z.object({
-  date: z.string().min(1, { message: "วันที่ไม่สามารถว่างได้" }),
-  time: z.string().min(1, { message: "เวลาไม่สามารถว่างได้" }),
+  date: z.string().min(1, { message: "วันที่" }),
+  time: z.string().min(1, { message: "เวลา" }),
   totalHour: z.number().optional(), // Optional since it's calculated from time
-  topic: z.string().min(1, { message: "หัวข้อการสอนไม่สามารถว่างได้" }),
-  room: z.string().min(1, { message: "ห้องเรียนไม่สามารถว่างได้" }),
+  topic: z.string().min(1, { message: "หัวข้อการสอน" }),
+  room: z.string().min(1, { message: "ห้องเรียน" }),
   note: z.string().nullable(),
 });
 
 export const lectureGroupSchema = z.object({
-  lectureId: z.string().min(1, { message: "รหัสหมู่เรียนไม่สามารถว่างได้" }),
+  lectureId: z.string().min(1, { message: "กรุณากรอกรหัสหมู่เรียน" }),
   kind: z.enum(["LECTURE", "LAB"], {
     message: "กรุณาเลือกประเภทการสอน",
   }),
