@@ -14,6 +14,7 @@ import ProfileEdit from "@/pages/user/ProfileEdit";
 import AdminHome from "@/pages/admin/Home";
 import UserList from "@/pages/admin/UserList";
 import AdminProfile from "@/pages/admin/Profile";
+import Test from "@/pages/admin/Test";
 
 const AppRoute = () => {
   return (
@@ -44,6 +45,7 @@ const AppRoute = () => {
           <Route index element={<AdminHome />} />
           <Route path="user" element={<UserList />} />
           <Route path="profile" element={<AdminProfile />} />
+          <Route path="test" element={<Test />} />
         </Route>
 
         <Route path="*" element={<div>404 Not Found</div>} />
