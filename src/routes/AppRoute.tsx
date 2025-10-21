@@ -14,6 +14,8 @@ import ProfileEdit from "@/pages/user/ProfileEdit";
 import AdminHome from "@/pages/admin/Home";
 import UserList from "@/pages/admin/UserList";
 import AdminProfile from "@/pages/admin/Profile";
+import AdminFormDetail from "@/pages/admin/FormDetail";
+import AdminEditFormDetail from "@/pages/admin/EditFormDetail";
 import Test from "@/pages/admin/Test";
 
 const AppRoute = () => {
@@ -44,6 +46,8 @@ const AppRoute = () => {
         <Route path="admin" element={<LayoutAdmin />}>
           <Route index element={<AdminHome />} />
           <Route path="user" element={<UserList />} />
+          <Route path="form/:formId" element={<AdminFormDetail />} />
+          <Route path="form/edit/:formId" element={<AdminEditFormDetail />} />
           <Route path="profile" element={<AdminProfile />} />
           <Route path="test" element={<Test />} />
         </Route>

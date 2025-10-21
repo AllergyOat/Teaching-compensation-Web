@@ -5,9 +5,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { getAdminHomeData, type Root } from "../../api/admin/home";
 
 const Home = () => {
+  const navigate = useNavigate();
   // Get current month and year in Thai
   const getCurrentMonth = () => {
     const monthNames = [
@@ -362,7 +364,10 @@ const Home = () => {
                             </span>
                           </TableCell>
                           <TableCell className="text-center">
-                            <button className="text-blue-600 hover:text-blue-800">
+                            <button 
+                              onClick={() => navigate(`/admin/form/${form.id}`)}
+                              className="text-blue-600 hover:text-blue-800 font-medium"
+                            >
                               ดูรายละเอียด
                             </button>
                           </TableCell>
