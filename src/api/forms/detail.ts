@@ -1,61 +1,65 @@
 import axios from "axios";
 
-export interface Schedule {
-  id: string;
-  formSectionId: string;
-  date: string;
-  time: string;
-  totalHour: number;
-  topic: string;
-  room: string;
-  note: string | null;
+export interface Root {
+  message: string
+  data: Data
+}
+
+export interface Data {
+  id: string
+  userId: string
+  isCompensated: boolean
+  program: string
+  section: string
+  month: string
+  semester: string
+  year: number
+  subjectId: string
+  subjectName: string
+  status: string
+  adminComment: any
+  createdAt: string
+  updatedAt: string
+  formScheduleDetails: FormScheduleDetail[]
+  user: User
+  totalHourAmount: number
+  grandTotal: number
 }
 
 export interface FormScheduleDetail {
-  id: string;
-  formId: string;
-  sectionId: string;
-  kind: string;
-  schedules: Schedule[];
-  compensation: any[];
+  id: string
+  formId: string
+  sectionId: string
+  kind: string
+  schedules: Schedule[]
+  compensation: any[]
+  totalHours: number
+  amount: number
+}
+
+export interface Schedule {
+  id: string
+  formSectionId: string
+  date: string
+  time: string
+  totalHour: number
+  topic: string
+  room: string
+  note: string | null
 }
 
 export interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  position: string;
-  department: string;
-}
-
-export interface FormDetail {
-  id: string;
-  userId: string;
-  isCompensated: boolean;
-  program: string;
-  section: string;
-  month: string;
-  semester: string;
-  year: number;
-  subjectId: string;
-  subjectName: string;
-  status: string;
-  adminComment: string | null;
-  createdAt: string;
-  updatedAt: string;
-  formScheduleDetails: FormScheduleDetail[];
-  user: User;
-}
-
-export interface FormDetailResponse {
-  message: string;
-  data: FormDetail;
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  position: string
+  department: string
 }
 
 export const getFormDetail = async (
   formId: string,
-): Promise<FormDetailResponse> => {
+): Promise<Root> => {
   try {
     const accessToken = localStorage.getItem("accessToken");
 
