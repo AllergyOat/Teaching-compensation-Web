@@ -99,7 +99,11 @@ export const LectureGroup = ({
   }>({});
 
   const [searchParams] = useSearchParams();
-  const section = searchParams.get("section") || "";
+  const urlSection = searchParams.get("section") || "";
+
+  // Get section from form data (for edit mode) or URL params (for create mode)
+  const formSection = watch("form.section");
+  const section = formSection || urlSection;
 
   // Effect to calculate totalHour for existing time values
   useEffect(() => {
@@ -408,14 +412,11 @@ export const LectureGroup = ({
                     {scheduleError && (
                       <p className="text-sm text-red-500">
                         แถวที่ {scheduleIndex + 1}: กรุณากรอกข้อมูล
-                        {scheduleError.date &&
-                          ` ${scheduleError.date.message}`}
-                        {scheduleError.time &&
-                          ` ${scheduleError.time.message}`}
+                        {scheduleError.date && ` ${scheduleError.date.message}`}
+                        {scheduleError.time && ` ${scheduleError.time.message}`}
                         {scheduleError.topic &&
                           ` ${scheduleError.topic.message}`}
-                        {scheduleError.room &&
-                          ` ${scheduleError.room.message}`}
+                        {scheduleError.room && ` ${scheduleError.room.message}`}
                         {scheduleError.totalHour &&
                           ` ${scheduleError.totalHour.message}`}
                       </p>
