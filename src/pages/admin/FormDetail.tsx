@@ -4,7 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { getFormDetail, type Root } from "../../api/forms/detail";
+import { updateFormStatus } from "../../api/forms/editStatus";
 import { translateProgram, translateSection } from "@/utils/programSectionUtils";
 import { CheckCircle, XCircle } from "lucide-react";
 
@@ -16,19 +20,31 @@ const FormDetail = () => {
   const [error, setError] = useState<string | null>(null);
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
+  
+  // Dialog states
+  const [showApproveDialog, setShowApproveDialog] = useState(false);
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [adminComment, setAdminComment] = useState("");
 
   // Function to handle form approval
   const handleApprove = async () => {
     if (!formId) return;
-    
-    const confirmApprove = window.confirm("คุณแน่ใจหรือไม่ที่จะอนุมัติแบบฟอร์มนี้?");
-    if (!confirmApprove) return;
+    setShowApproveDialog(true);
+  };
+
+  const confirmApprove = async () => {
+    if (!formId) return;
 
     try {
       setIsApproving(true);
-      // TODO: Add API call to approve form
+      await updateFormStatus(formId, {
+        status: "APPROVED",
+        adminComment: adminComment || undefined,
+      });
+      
       alert("อนุมัติแบบฟอร์มสำเร็จ!");
-      // Refresh form data
+      setShowApproveDialog(false);
+      setAdminComment("");
       window.location.reload();
     } catch (error: any) {
       console.error("Approve form error:", error);
@@ -41,15 +57,27 @@ const FormDetail = () => {
   // Function to handle form rejection
   const handleReject = async () => {
     if (!formId) return;
+    setShowRejectDialog(true);
+  };
+
+  const confirmReject = async () => {
+    if (!formId) return;
     
-    const reason = window.prompt("กรุณาระบุเหตุผลในการปฏิเสธ:");
-    if (!reason) return;
+    if (!adminComment.trim()) {
+      alert("กรุณาระบุเหตุผลในการปฏิเสธ");
+      return;
+    }
 
     try {
       setIsRejecting(true);
-      // TODO: Add API call to reject form
+      await updateFormStatus(formId, {
+        status: "REJECTED",
+        adminComment: adminComment,
+      });
+      
       alert("ปฏิเสธแบบฟอร์มสำเร็จ!");
-      // Refresh form data
+      setShowRejectDialog(false);
+      setAdminComment("");
       window.location.reload();
     } catch (error: any) {
       console.error("Reject form error:", error);
@@ -325,6 +353,127 @@ const FormDetail = () => {
           </Card>
         )}
       </div>
+
+      {/* Approve Dialog */}
+      <Dialog open={showApproveDialog} onOpenChange={setShowApproveDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>อนุมัติแบบฟอร์ม</DialogTitle>
+            <DialogDescription>
+              ตรวจสอบข้อมูลสรุปค่าตอบแทนก่อนอนุมัติ
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {/* Summary by Section */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-lg">สรุปค่าตอบแทนแต่ละหมู่เรียน</h3>
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50">
+                      <TableHead>หมู่เรียน</TableHead>
+                      <TableHead>ประเภท</TableHead>
+                      <TableHead className="text-right">จำนวนชั่วโมง</TableHead>
+                      <TableHead className="text-right">จำนวนเงิน (บาท)</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {form.formScheduleDetails.map((section: any) => (
+                      <TableRow key={section.id}>
+                        <TableCell className="font-medium">{section.sectionId}</TableCell>
+                        <TableCell>{section.kind === "LECTURE" ? "บรรยาย" : "ปฏิบัติการ"}</TableCell>
+                        <TableCell className="text-right">{section.totalHours.toFixed(2)}</TableCell>
+                        <TableCell className="text-right">{section.amount.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+
+            {/* Grand Total */}
+            <div className="bg-green-50 rounded-lg p-4 space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-gray-700">รวมจำนวนชั่วโมงทั้งสิ้น:</span>
+                <span className="text-xl font-bold text-green-700">
+                  {form.totalHourAmount.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ชั่วโมง
+                </span>
+              </div>
+              <div className="flex justify-between items-center pt-2 border-t border-green-200">
+                <span className="font-semibold text-gray-700">ยอดรวมสุทธิ:</span>
+                <span className="text-2xl font-bold text-green-800">
+                  {form.grandTotal.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} บาท
+                </span>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowApproveDialog(false);
+                setAdminComment("");
+              }}
+            >
+              ยกเลิก
+            </Button>
+            <Button
+              type="button"
+              onClick={confirmApprove}
+              disabled={isApproving}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {isApproving ? "กำลังดำเนินการ..." : "ยืนยันการอนุมัติ"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reject Dialog */}
+      <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>ปฏิเสธแบบฟอร์ม</DialogTitle>
+            <DialogDescription>
+              กรุณาระบุเหตุผลในการปฏิเสธแบบฟอร์มนี้
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="reject-comment">เหตุผล <span className="text-red-500">*</span></Label>
+              <Textarea
+                id="reject-comment"
+                placeholder="ระบุเหตุผลในการปฏิเสธ..."
+                value={adminComment}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setAdminComment(e.target.value)}
+                rows={4}
+                required
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowRejectDialog(false);
+                setAdminComment("");
+              }}
+            >
+              ยกเลิก
+            </Button>
+            <Button
+              type="button"
+              onClick={confirmReject}
+              disabled={isRejecting || !adminComment.trim()}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isRejecting ? "กำลังดำเนินการ..." : "ยืนยันการปฏิเสธ"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
