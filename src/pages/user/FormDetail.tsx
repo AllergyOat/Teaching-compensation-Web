@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router";
-import { getFormDetail, type FormDetailResponse } from "@/api/forms/detail";
+import { getFormDetail, type Root } from "@/api/forms/detail";
 import {
   translateProgram,
   translateSection,
@@ -21,7 +21,7 @@ import { Trash2, Edit } from "lucide-react";
 const FormDetail = () => {
   const { formId } = useParams<{ formId: string }>();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState<FormDetailResponse | null>(null);
+  const [formData, setFormData] = useState<Root | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);

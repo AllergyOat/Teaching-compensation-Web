@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getFormDetail, type Data as FormDetailType } from "../../api/forms/detail";
+import { getFormDetail, type FormDetailResponse as FormDetailType } from "../../api/forms/detail";
 import documentsImg from "@/assets/images/documents.png";
 import { LectureGroup } from "@/components/formInput/LectureGroup";
 import { useForm, useFieldArray } from "react-hook-form";

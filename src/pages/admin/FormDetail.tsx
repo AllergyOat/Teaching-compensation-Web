@@ -4,14 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { getFormDetail, type FormDetailResponse } from "../../api/forms/detail";
+import { getFormDetail, type Root } from "../../api/forms/detail";
 import { translateProgram, translateSection } from "@/utils/programSectionUtils";
 import { CheckCircle, XCircle } from "lucide-react";
 
 const FormDetail = () => {
   const { formId } = useParams<{ formId: string }>();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState<FormDetailResponse | null>(null);
+  const [formData, setFormData] = useState<Root | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isApproving, setIsApproving] = useState(false);

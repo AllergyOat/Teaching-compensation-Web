@@ -2,10 +2,10 @@ import axios from "axios";
 
 export interface Root {
   message: string
-  data: Data
+  data: FormDetailResponse
 }
 
-export interface Data {
+export interface FormDetailResponse {
   id: string
   userId: string
   isCompensated: boolean
