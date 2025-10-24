@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import emthyBoxImg from "@/assets/images/empty_box.png";
 import { Button } from "@/components/ui/button";
+import AmountInfoCard from "@/components/home/AmountInfoCard";
 
 const Home = () => {
   const [homeData, setHomeData] = useState<HomeResponse | null>(null);
@@ -214,7 +215,10 @@ const Home = () => {
                 type={homeData?.user.type || " "}
               />
             ) : (
-              <div>Hello</div>
+              <AmountInfoCard 
+                labAmount={homeData?.totalAmount.labAmount || 0}
+                lectureAmount={homeData?.totalAmount.lectureAmount || 0}
+              />
             )}
           </div>
         </div>

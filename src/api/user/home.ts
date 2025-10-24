@@ -30,11 +30,17 @@ export interface Form {
   formScheduleDetails: FormScheduleDetail[];
 }
 
+export interface TotalAmount {
+  labAmount: number
+  lectureAmount: number
+}
+
 export interface HomeResponse {
   total_forms: number;
   totalHour: number;
   totalLectureHours: number;
   totalLabHours: number;
+  totalAmount: TotalAmount
   user: {
     id: string;
     firstName: string;
