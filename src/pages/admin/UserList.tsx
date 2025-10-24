@@ -3,10 +3,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { getAdminUsers, type Root } from "../../api/admin/teachers";
 import { getAdminHomeData } from "../../api/admin/home";
 
 const UserList = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState<Root | null>(null);
   const [adminInfo, setAdminInfo] = useState<{ firstName: string; lastName: string } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -129,7 +131,10 @@ const UserList = () => {
 
                   {/* Button */}
                   <div className="mt-4 flex justify-end">
-                    <button className="bg-white px-6 py-2 rounded-lg text-sm font-semibold text-gray-900 hover:bg-gray-50 transition-colors shadow-md hover:shadow-lg border border-gray-200">
+                    <button 
+                      onClick={() => navigate(`/admin/user/${user.id}`)}
+                      className="bg-white px-6 py-2 rounded-lg text-sm font-semibold text-gray-900 hover:bg-gray-50 transition-colors shadow-md hover:shadow-lg border border-gray-200"
+                    >
                       ดูข้อมูล
                     </button>
                   </div>
