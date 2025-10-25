@@ -27,8 +27,8 @@ export const scheduleSchema = z.object({
 });
 
 export const compensationSchema = z.object({
-  originalDate: z.string().min(1, { message: "วันที่สอนทดแทน" }),
-  originalTime: z.string().min(1, { message: "เวลาสอนทดแทน" }),
+  originalDate: z.string().min(1, { message: "วันที่สอนเดิม" }),
+  originalTime: z.string().min(1, { message: "เวลาสอนเดิม" }),
   newDate: z.string().min(1, { message: "วันที่สอนจริง" }),
   newTime: z.string().min(1, { message: "เวลาสอนจริง" }),
   reason: z.string().min(1, { message: "เหตุผลการสอนทดแทน" }),
@@ -74,8 +74,8 @@ export const formInputSchema = z.object({
       message: "กรุณาเลือกภาคการศึกษา",
     }),
     year: z.number().min(2500, { message: "ปีการศึกษาไม่ถูกต้อง" }),
-    subjectId: z.string().min(1, { message: "รหัสรายวิชาไม่สามารถว่างได้" }),
-    subjectName: z.string().min(1, { message: "ชื่อรายวิชาไม่สามารถว่างได้" }),
+    subjectId: z.string().min(1, { message: "กรุณากรอกรหัสรายวิชา" }),
+    subjectName: z.string().min(1, { message: "กรุณากรอกชื่อรายวิชา" }),
   }),
   formScheduleDetails: z
     .array(lectureGroupSchema)

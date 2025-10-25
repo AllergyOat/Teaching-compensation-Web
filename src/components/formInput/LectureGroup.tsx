@@ -431,9 +431,45 @@ export const LectureGroup = ({
         เพิ่มแถว
       </Button>
 
+      {/* Display validation errors */}
+      {errors && (
+        <div className="mt-2 space-y-1">
+          {errors.kind && (
+            <p className="text-sm text-red-500">
+              ประเภท: {errors.kind.message}
+            </p>
+          )}
+          {errors.schedules && Array.isArray(errors.schedules) && (
+            <div className="space-y-1">
+              {errors.schedules.map(
+                (scheduleError: any, scheduleIndex: number) => (
+                  <div key={scheduleIndex}>
+                    {scheduleError && (
+                      <p className="text-sm text-red-500">
+                        แถวที่ {scheduleIndex + 1}: กรุณากรอกข้อมูล
+                        {scheduleError.date && ` ${scheduleError.date.message}`}
+                        {scheduleError.time && ` ${scheduleError.time.message}`}
+                        {scheduleError.topic &&
+                          ` ${scheduleError.topic.message}`}
+                        {scheduleError.room && ` ${scheduleError.room.message}`}
+                        {scheduleError.totalHour &&
+                          ` ${scheduleError.totalHour.message}`}
+                      </p>
+                    )}
+                  </div>
+                ),
+              )}
+            </div>
+          )}
+          {errors.message && (
+            <p className="text-sm text-red-500">{errors.message}</p>
+          )}
+        </div>
+      )}
+
       {/* Compensation Form Section */}
       {showCompensation && (
-        <div className="mt-6 rounded-lg border-2 border-orange-300 bg-orange-50 p-4">
+        <div className="mt-6 rounded-lg border-1 border-orange-300 bg-orange-50 p-4">
           <h3 className="mb-4 text-xl font-bold text-orange-700">
             บันทึกความชดเชย
           </h3>
@@ -517,6 +553,11 @@ export const LectureGroup = ({
                         </Popover>
                       );
                     })()}
+                    {errors?.compensation && errors.compensation[k] && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.compensation[k].originalDate?.message}
+                      </p>
+                    )}
                   </TableCell>
 
                   {/* Original Time */}
@@ -528,6 +569,11 @@ export const LectureGroup = ({
                         `formScheduleDetails[${index}].compensation[${k}].originalTime`,
                       )}
                     />
+                    {errors?.compensation && errors.compensation[k] && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.compensation[k].originalTime?.message}
+                      </p>
+                    )}
                   </TableCell>
 
                   {/* New Date */}
@@ -592,6 +638,11 @@ export const LectureGroup = ({
                         </Popover>
                       );
                     })()}
+                    {errors?.compensation && errors.compensation[k] && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.compensation[k].newDate?.message}
+                      </p>
+                    )}
                   </TableCell>
 
                   {/* New Time */}
@@ -603,6 +654,11 @@ export const LectureGroup = ({
                         `formScheduleDetails[${index}].compensation[${k}].newTime`,
                       )}
                     />
+                    {errors?.compensation && errors.compensation[k] && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.compensation[k].newTime?.message}
+                      </p>
+                    )}
                   </TableCell>
 
                   {/* Reason */}
@@ -614,6 +670,11 @@ export const LectureGroup = ({
                         `formScheduleDetails[${index}].compensation[${k}].reason`,
                       )}
                     />
+                    {errors?.compensation && errors.compensation[k] && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.compensation[k].reason?.message}
+                      </p>
+                    )}
                   </TableCell>
 
                   {/* Delete Button */}
@@ -648,42 +709,6 @@ export const LectureGroup = ({
           >
             เพิ่มบันทึกความชดเชย
           </Button>
-        </div>
-      )}
-
-      {/* Display validation errors */}
-      {errors && (
-        <div className="mt-2 space-y-1">
-          {errors.kind && (
-            <p className="text-sm text-red-500">
-              ประเภท: {errors.kind.message}
-            </p>
-          )}
-          {errors.schedules && Array.isArray(errors.schedules) && (
-            <div className="space-y-1">
-              {errors.schedules.map(
-                (scheduleError: any, scheduleIndex: number) => (
-                  <div key={scheduleIndex}>
-                    {scheduleError && (
-                      <p className="text-sm text-red-500">
-                        แถวที่ {scheduleIndex + 1}: กรุณากรอกข้อมูล
-                        {scheduleError.date && ` ${scheduleError.date.message}`}
-                        {scheduleError.time && ` ${scheduleError.time.message}`}
-                        {scheduleError.topic &&
-                          ` ${scheduleError.topic.message}`}
-                        {scheduleError.room && ` ${scheduleError.room.message}`}
-                        {scheduleError.totalHour &&
-                          ` ${scheduleError.totalHour.message}`}
-                      </p>
-                    )}
-                  </div>
-                ),
-              )}
-            </div>
-          )}
-          {errors.message && (
-            <p className="text-sm text-red-500">{errors.message}</p>
-          )}
         </div>
       )}
     </div>
