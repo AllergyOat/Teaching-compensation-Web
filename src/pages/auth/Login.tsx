@@ -27,11 +27,20 @@ const Login = () => {
         data.password,
       );
 
+      console.log("Login Response - User:", user);
+      console.log("User Role:", user.role);
+
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("user", JSON.stringify(user));
 
-      // Navigate to home page on success
-      navigate("/home");
+      // Navigate based on user role
+      if (user.role === "ADMIN" || user.role === "MAJOR_ADMIN") {
+        console.log("Navigating to /admin");
+        navigate("/admin");
+      } else {
+        console.log("Navigating to /home");
+        navigate("/home");
+      }
     } catch (error: any) {
       console.error("Login failed:", error);
 

@@ -18,6 +18,7 @@ import AdminProfile from "@/pages/admin/Profile";
 import AdminFormDetail from "@/pages/admin/FormDetail";
 import AdminEditFormDetail from "@/pages/admin/EditFormDetail";
 import Test from "@/pages/admin/Test";
+import ProtectRouteAdmin from "./ProtectRouteAdmin";
 
 const AppRoute = () => {
   return (
@@ -44,7 +45,7 @@ const AppRoute = () => {
         </Route>
 
         {/* Admin Section */}
-        <Route path="admin" element={<LayoutAdmin />}>
+        <Route path="admin" element={<ProtectRouteAdmin><LayoutAdmin /></ProtectRouteAdmin>}>
           <Route index element={<AdminHome />} />
           <Route path="user" element={<UserList />} />
           <Route path="user/:userId" element={<UserDetail />} />

@@ -10,6 +10,7 @@ export interface ProfileData {
   major: string;
   type: string;
   teachingLevel: string;
+  email: string;
 }
 
 export interface ProfileResponse {
