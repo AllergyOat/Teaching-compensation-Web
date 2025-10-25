@@ -215,7 +215,7 @@ const Home = () => {
                 type={homeData?.user.type || " "}
               />
             ) : (
-              <AmountInfoCard 
+              <AmountInfoCard
                 labAmount={homeData?.totalAmount.labAmount || 0}
                 lectureAmount={homeData?.totalAmount.lectureAmount || 0}
               />
@@ -292,20 +292,28 @@ const Home = () => {
 
         <div className="mt-4 grid gap-5 md:grid-cols-1 lg:grid-cols-2">
           {homeData?.forms && homeData.forms.length > 0 ? (
-            homeData.forms.map((form) => (
-              <Link to={`/home/${form.id}`} key={form.id}>
-                <SchedulesCard
-                  key={form.id}
-                  subjectId={form.subjectId}
-                  sectionId={form.formScheduleDetails[0]?.sectionId || ""}
-                  subjectName={form.subjectName}
-                  section={translateSection(form.section)}
-                  room={form.formScheduleDetails[0]?.schedules[0]?.room || ""}
-                  program={translateProgram(form.program)}
-                  sectionColorClass={getSectionColor(form.section)}
-                />
-              </Link>
-            ))
+            homeData.forms.map((form) => {
+              // Get all section IDs and join them with comma
+              const allSectionIds = form.formScheduleDetails
+                .map((detail) => detail.sectionId)
+                .filter(Boolean)
+                .join(", ");
+
+              return (
+                <Link to={`/home/${form.id}`} key={form.id}>
+                  <SchedulesCard
+                    key={form.id}
+                    subjectId={form.subjectId}
+                    sectionId={allSectionIds || ""}
+                    subjectName={form.subjectName}
+                    section={translateSection(form.section)}
+                    room={form.formScheduleDetails[0]?.schedules[0]?.room || ""}
+                    program={translateProgram(form.program)}
+                    sectionColorClass={getSectionColor(form.section)}
+                  />
+                </Link>
+              );
+            })
           ) : (
             <div className="col-span-full py-8 text-center text-gray-500">
               <img
@@ -317,7 +325,13 @@ const Home = () => {
             </div>
           )}
         </div>
-        <div className="mt-6 text-right">ทั้งหมด <span className="font-bold text-[#17C964]">{homeData?.forms.length || 0}</span> รายวิชา</div>
+        <div className="mt-6 text-right">
+          ทั้งหมด{" "}
+          <span className="font-bold text-[#17C964]">
+            {homeData?.forms.length || 0}
+          </span>{" "}
+          รายวิชา
+        </div>
       </div>
     </div>
   );
