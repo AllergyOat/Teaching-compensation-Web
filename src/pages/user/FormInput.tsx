@@ -392,7 +392,7 @@ const FormInput = () => {
 
           <Button
             type="button"
-            className="mt-4 h-15 w-full border-0 bg-[#F4F4F5] text-xl font-bold text-[#34C759]"
+            className="mt-4 h-15 w-full border-0 bg-[#F4F4F5] text-xl font-bold text-[#34C759] hover:bg-[#E5E5EA] hover:text-green-800"
             onClick={() =>
               append({
                 lectureId: "",

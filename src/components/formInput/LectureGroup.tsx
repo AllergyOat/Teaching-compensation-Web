@@ -26,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Trash2, ChevronDownIcon, Plus } from "lucide-react";
+import { Trash2, ChevronDownIcon, Plus, Minus } from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { useSearchParams } from "react-router";
@@ -160,7 +160,7 @@ export const LectureGroup = ({
           <Button
             type="button"
             variant={"outline"}
-            className="text-green-600"
+            className="text-blue-600"
             onClick={() => {
               if (!showCompensation && compensationFields.length === 0) {
                 appendCompensation({
@@ -171,11 +171,11 @@ export const LectureGroup = ({
                   reason: "",
                 });
               }
-              setShowCompensation(!showCompensation);
-            }}
-          >
-            <Plus />
-            {showCompensation ? "ซ่อนบันทึกความ" : "เพิ่มบันทึกความ"}
+                setShowCompensation(!showCompensation);
+              }}
+              >
+              <span className="mr-1">{showCompensation ? <Minus /> : <Plus />}</span>
+              {showCompensation ? "ซ่อนบันทึกความ" : "เพิ่มบันทึกความ"}
           </Button>
         </div>
       </div>
@@ -471,7 +471,7 @@ export const LectureGroup = ({
       {showCompensation && (
         <div className="mt-6 rounded-lg border-1 border-orange-300 bg-orange-50 p-4">
           <h3 className="mb-4 text-xl font-bold text-orange-700">
-            บันทึกความชดเชย
+            บันทึกความชดเชย (ตารางสอนที่ {index + 1})
           </h3>
 
           <Table>
@@ -683,6 +683,7 @@ export const LectureGroup = ({
                       type="button"
                       variant="outline"
                       className="text-red-600 hover:text-red-700"
+                      disabled={compensationFields.length <= 1}
                       onClick={() => removeCompensation(k)}
                     >
                       <Trash2 className="h-4 w-4" />
