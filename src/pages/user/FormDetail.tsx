@@ -16,7 +16,16 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Trash2, Edit } from "lucide-react";
+import { Trash2, Edit, Printer } from "lucide-react";
+import { generateSchedulesDocx } from "@/api/docx/schedulesDocx";
+import { generateCompensationDocx } from "@/api/docx/compesationDocx";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const FormDetail = () => {
   const { formId } = useParams<{ formId: string }>();
@@ -25,6 +34,50 @@ const FormDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedSection, setSelectedSection] = useState<string>("");
+
+  // Function to handle printing schedule for a specific section
+  const handlePrintSchedule = async () => {
+    if (!formId || !selectedSection) {
+      alert("กรุณาเลือกหมู่เรียนที่ต้องการปริ้น");
+      return;
+    }
+
+    try {
+      const blob = await generateSchedulesDocx(formId, selectedSection);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `schedule-${selectedSection}.docx`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to download schedule:", error);
+      alert(
+        "ไม่สามารถดาวน์โหลดตารางสอนได้",
+      );
+    }
+  };
+
+  const handlePrintCompensation = async () => {
+    if (!formId || !selectedSection) {
+      alert("กรุณาเลือกหมู่เรียนที่มีบันทึกความ");
+      return;
+    }
+
+    try {
+      const blob = await generateCompensationDocx(formId, selectedSection);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `compensation-${selectedSection}.docx`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Failed to download compensation:", error);
+      alert("ไม่สามารถดาวน์โหลดบันทึกความได้ กรุณาเลือกหมู่เรียนที่มีบันทึกความ");
+    }
+  };
 
   // Function to handle form editing
   const handleEditForm = () => {
@@ -210,7 +263,7 @@ const FormDetail = () => {
         </div>
 
         {/* Form Information */}
-        <Card className="border-none overflow-hidden border-0 p-0 shadow-lg transition-shadow hover:shadow-xl">
+        <Card className="overflow-hidden border-0 border-none p-0 shadow-lg transition-shadow hover:shadow-xl">
           <CardHeader className="rounded-t-lg bg-gradient-to-r from-[#02BC77] to-[#006B42] p-4 text-white">
             <CardTitle className="text-xl font-bold">
               {translateProgram(form.program)} -{" "}
@@ -218,10 +271,10 @@ const FormDetail = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="mt-4 mb-6">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 ">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               <div>
                 <h3 className="text-lg font-semibold">{form.subjectName}</h3>
-                <p className="text-gray-600 font-semibold">{form.subjectId}</p>
+                <p className="font-semibold text-gray-600">{form.subjectId}</p>
               </div>
               <div>
                 <p>
@@ -255,12 +308,48 @@ const FormDetail = () => {
 
         {/* Schedule Details */}
         <Card className="overflow-hidden border-0 p-0 shadow-lg transition-shadow hover:shadow-xl">
-          <CardHeader className="rounded-t-lg bg-gradient-to-r from-[#02BC77] to-[#006B42] p-6 text-white">
+          <CardHeader className="flex justify-between rounded-t-lg bg-gradient-to-r from-[#02BC77] to-[#006B42] p-6 text-white">
             <CardTitle className="text-xl font-bold">ตารางการสอน</CardTitle>
+            {/* Print Compensation Section Selector */}
+            <div className="flex items-center gap-2">
+              <Select
+                value={selectedSection}
+                onValueChange={setSelectedSection}
+              >
+                <SelectTrigger className="w-[180px] bg-white text-black">
+                  <SelectValue placeholder="เลือกหมู่เรียน" />
+                </SelectTrigger>
+                <SelectContent>
+                  {form.formScheduleDetails.map((section) => (
+                    <SelectItem key={section.id} value={section.sectionId}>
+                      หมู่เรียน {section.sectionId}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                className="text-orange-400 hover:bg-green-50 hover:text-orange-600"
+                onClick={handlePrintCompensation}
+                disabled={!selectedSection}
+              >
+                <Printer className="mr-2 h-4 w-4" />
+                ปริ้นบันทึกความ
+              </Button>
+              <Button
+                variant="outline"
+                className="text-green-600 hover:bg-green-50 hover:text-green-700"
+                onClick={handlePrintSchedule}
+                disabled={!selectedSection}
+              >
+                <Printer className="mr-2 h-4 w-4" />
+                ปริ้นตารางสอน
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="mt-6">
             {form.formScheduleDetails.map((section, index) => (
-              <div key={section.id} className={`${index > 0 ? 'mt-8' : ''}`}>
+              <div key={section.id} className={`${index > 0 ? "mt-8" : ""}`}>
                 <div className="mb-4 flex items-center gap-3">
                   <div className="h-2 w-2 rounded-full bg-[#02BC77]"></div>
                   <h3 className="text-lg font-semibold text-[#006B42]">
@@ -272,9 +361,13 @@ const FormDetail = () => {
                     <TableHeader>
                       <TableRow className="bg-gradient-to-r from-[#006B42] to-[#02BC77]">
                         <TableHead className="text-white">ลำดับ</TableHead>
-                        <TableHead className="text-white">วัน/เดือน/ปี</TableHead>
+                        <TableHead className="text-white">
+                          วัน/เดือน/ปี
+                        </TableHead>
                         <TableHead className="text-white">เวลา</TableHead>
-                        <TableHead className="text-white">จำนวนชั่วโมง</TableHead>
+                        <TableHead className="text-white">
+                          จำนวนชั่วโมง
+                        </TableHead>
                         <TableHead className="text-white">หัวข้อ</TableHead>
                         <TableHead className="text-white">ห้องเรียน</TableHead>
                         <TableHead className="text-white">หมายเหตุ</TableHead>
@@ -282,19 +375,27 @@ const FormDetail = () => {
                     </TableHeader>
                     <TableBody>
                       {section.schedules.map((schedule, scheduleIndex) => (
-                        <TableRow 
+                        <TableRow
                           className={`transition-colors ${
-                            scheduleIndex % 2 === 0 ? 'bg-green-50/50' : 'bg-white'
-                          } hover:bg-green-100`} 
+                            scheduleIndex % 2 === 0
+                              ? "bg-green-50/50"
+                              : "bg-white"
+                          } hover:bg-green-100`}
                           key={schedule.id}
                         >
-                          <TableCell className="font-medium">{scheduleIndex + 1}</TableCell>
+                          <TableCell className="font-medium">
+                            {scheduleIndex + 1}
+                          </TableCell>
                           <TableCell>{formatDate(schedule.date)}</TableCell>
                           <TableCell>{schedule.time}</TableCell>
-                          <TableCell className="font-medium">{schedule.totalHour}</TableCell>
+                          <TableCell className="font-medium">
+                            {schedule.totalHour}
+                          </TableCell>
                           <TableCell>{schedule.topic}</TableCell>
                           <TableCell>{schedule.room}</TableCell>
-                          <TableCell className="text-gray-500">{schedule.note || "-"}</TableCell>
+                          <TableCell className="text-gray-500">
+                            {schedule.note || "-"}
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -315,22 +416,36 @@ const FormDetail = () => {
                         <TableHeader>
                           <TableRow className="bg-gradient-to-r from-orange-400 to-orange-400">
                             <TableHead className="text-white">ลำดับ</TableHead>
-                            <TableHead className="text-white">จากเดิมวันที่</TableHead>
-                            <TableHead className="text-white">จากเดิมเวลา</TableHead>
-                            <TableHead className="text-white">ชดเชยเป็นวันที่</TableHead>
-                            <TableHead className="text-white">ขอชดเชยเป็นเวลา</TableHead>
+                            <TableHead className="text-white">
+                              จากเดิมวันที่
+                            </TableHead>
+                            <TableHead className="text-white">
+                              จากเดิมเวลา
+                            </TableHead>
+                            <TableHead className="text-white">
+                              ชดเชยเป็นวันที่
+                            </TableHead>
+                            <TableHead className="text-white">
+                              ขอชดเชยเป็นเวลา
+                            </TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {section.compensation.map((comp, compIndex) => (
-                            <TableRow 
+                            <TableRow
                               className={`transition-colors ${
-                                compIndex % 2 === 0 ? 'bg-orange-50/50' : 'bg-white'
-                              } hover:bg-orange-100`} 
+                                compIndex % 2 === 0
+                                  ? "bg-orange-50/50"
+                                  : "bg-white"
+                              } hover:bg-orange-100`}
                               key={compIndex}
                             >
-                              <TableCell className="font-medium">{compIndex + 1}</TableCell>
-                              <TableCell>{formatDate(comp.originalDate)}</TableCell>
+                              <TableCell className="font-medium">
+                                {compIndex + 1}
+                              </TableCell>
+                              <TableCell>
+                                {formatDate(comp.originalDate)}
+                              </TableCell>
                               <TableCell>{comp.originalTime}</TableCell>
                               <TableCell className="font-medium text-orange-600">
                                 {formatDate(comp.newDate)}
@@ -343,20 +458,24 @@ const FormDetail = () => {
                         </TableBody>
                       </Table>
                     </div>
-                    
+
                     {/* Reasons Section */}
                     <div className="mt-4">
                       <div className="flex items-center gap-2 text-base">
                         <div className="h-1.5 w-1.5 rounded-full bg-orange-500"></div>
-                        <span className="font-semibold text-orange-600">เหตุผล: </span>
-                        <span className="text-gray-700">{section.compensation[0]?.reason || "-"}</span>
+                        <span className="font-semibold text-orange-600">
+                          เหตุผล:{" "}
+                        </span>
+                        <span className="text-gray-700">
+                          {section.compensation[0]?.reason || "-"}
+                        </span>
                       </div>
                     </div>
                   </div>
                 )}
               </div>
             ))}
-            <div className="mt-6 rounded-lg  p-4">
+            <div className="mt-6 rounded-lg p-4">
               <div className="space-y-1 text-sm text-gray-600">
                 <p className="flex items-center gap-2">
                   <span className="font-medium">สร้างเมื่อ:</span>
@@ -375,7 +494,9 @@ const FormDetail = () => {
         {form.adminComment && (
           <Card className="border-0 shadow-lg transition-shadow hover:shadow-xl">
             <CardHeader className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-              <CardTitle className="text-xl font-bold">ความเห็นจากผู้ดูแลระบบ</CardTitle>
+              <CardTitle className="text-xl font-bold">
+                ความเห็นจากผู้ดูแลระบบ
+              </CardTitle>
             </CardHeader>
             <CardContent className="mt-4">
               <div className="rounded-lg bg-blue-50 p-4">
