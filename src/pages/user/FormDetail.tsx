@@ -35,7 +35,6 @@ const FormDetail = () => {
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [selectedSection, setSelectedSection] = useState<string>("");
-  const [selectedCompSection, setSelectedCompSection] = useState<string>("");
 
   // Function to handle printing schedule for a specific section
   const handlePrintSchedule = async () => {
@@ -54,27 +53,29 @@ const FormDetail = () => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Failed to download schedule:", error);
-      alert("ไม่สามารถดาวน์โหลดบันทึกความได้");
+      alert(
+        "ไม่สามารถดาวน์โหลดตารางสอนได้",
+      );
     }
   };
 
   const handlePrintCompensation = async () => {
-    if (!formId || !selectedCompSection) {
-      alert("กรุณาเลือกหมู่เรียนที่ต้องการปริ้น");
+    if (!formId || !selectedSection) {
+      alert("กรุณาเลือกหมู่เรียนที่มีบันทึกความ");
       return;
     }
 
     try {
-      const blob = await generateCompensationDocx(formId, selectedCompSection);
+      const blob = await generateCompensationDocx(formId, selectedSection);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `compensation-${selectedCompSection}.docx`;
+      link.download = `compensation-${selectedSection}.docx`;
       link.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Failed to download compensation:", error);
-      alert("ไม่สามารถดาวน์โหลดบันทึกความได้");
+      alert("ไม่สามารถดาวน์โหลดบันทึกความได้ กรุณาเลือกหมู่เรียนที่มีบันทึกความ");
     }
   };
 
@@ -232,33 +233,6 @@ const FormDetail = () => {
             ← กลับสู่หน้าหลัก
           </Link>
           <div className="flex items-center gap-3">
-            {/* Print Schedule Section Selector */}
-            <div className="flex items-center gap-2">
-              <Select
-                value={selectedSection}
-                onValueChange={setSelectedSection}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="เลือกหมู่เรียน" />
-                </SelectTrigger>
-                <SelectContent>
-                  {form.formScheduleDetails.map((section) => (
-                    <SelectItem key={section.id} value={section.sectionId}>
-                      หมู่เรียน {section.sectionId}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button
-                variant="outline"
-                className="text-green-600 hover:bg-green-50 hover:text-green-700"
-                onClick={handlePrintSchedule}
-                disabled={!selectedSection}
-              >
-                <Printer className="mr-2 h-4 w-4" />
-                ปริ้นตารางสอน
-              </Button>
-            </div>
             <Button
               variant="outline"
               className="text-blue-600 hover:bg-blue-50 hover:text-blue-700"
@@ -337,43 +311,41 @@ const FormDetail = () => {
           <CardHeader className="flex justify-between rounded-t-lg bg-gradient-to-r from-[#02BC77] to-[#006B42] p-6 text-white">
             <CardTitle className="text-xl font-bold">ตารางการสอน</CardTitle>
             {/* Print Compensation Section Selector */}
-            {form.formScheduleDetails.some(
-              (section) =>
-                section.compensation && section.compensation.length > 0,
-            ) && (
-              <div className="flex items-center gap-2">
-                <Select
-                  value={selectedCompSection}
-                  onValueChange={setSelectedCompSection}
-                >
-                  <SelectTrigger className="w-[180px] bg-white text-black">
-                    <SelectValue placeholder="เลือกหมู่เรียน" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {form.formScheduleDetails
-                      .filter(
-                        (section) =>
-                          section.compensation &&
-                          section.compensation.length > 0,
-                      )
-                      .map((section) => (
-                        <SelectItem key={section.id} value={section.sectionId}>
-                          หมู่เรียน {section.sectionId}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                <Button
-                  variant="outline"
-                  className="text-orange-400 hover:bg-green-50 hover:text-orange-500"
-                  onClick={handlePrintCompensation}
-                  disabled={!selectedCompSection}
-                >
-                  <Printer className="mr-2 h-4 w-4" />
-                  ปริ้นบันทึกความ
-                </Button>
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              <Select
+                value={selectedSection}
+                onValueChange={setSelectedSection}
+              >
+                <SelectTrigger className="w-[180px] bg-white text-black">
+                  <SelectValue placeholder="เลือกหมู่เรียน" />
+                </SelectTrigger>
+                <SelectContent>
+                  {form.formScheduleDetails.map((section) => (
+                    <SelectItem key={section.id} value={section.sectionId}>
+                      หมู่เรียน {section.sectionId}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                className="text-orange-400 hover:bg-green-50 hover:text-orange-600"
+                onClick={handlePrintCompensation}
+                disabled={!selectedSection}
+              >
+                <Printer className="mr-2 h-4 w-4" />
+                ปริ้นบันทึกความ
+              </Button>
+              <Button
+                variant="outline"
+                className="text-green-600 hover:bg-green-50 hover:text-green-700"
+                onClick={handlePrintSchedule}
+                disabled={!selectedSection}
+              >
+                <Printer className="mr-2 h-4 w-4" />
+                ปริ้นตารางสอน
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="mt-6">
             {form.formScheduleDetails.map((section, index) => (
