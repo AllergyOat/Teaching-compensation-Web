@@ -5,7 +5,6 @@ import type { Root, Form } from "../../api/admin/teacherDetail";
 import { getAdminHomeData } from "../../api/admin/home";
 import { Card, CardContent, CardHeader } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
-import { Badge } from "../../components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -103,30 +102,6 @@ const UserDetail = () => {
     );
   }
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "PENDING":
-        return (
-          <Badge className="bg-yellow-500 text-white hover:bg-yellow-600">
-            รอดำเนินการ
-          </Badge>
-        );
-      case "APPROVED":
-        return (
-          <Badge className="bg-green-500 text-white hover:bg-green-600">
-            อนุมัติ
-          </Badge>
-        );
-      case "REJECTED":
-        return (
-          <Badge className="bg-red-500 text-white hover:bg-red-600">
-            ปฏิเสธ
-          </Badge>
-        );
-      default:
-        return <Badge>{status}</Badge>;
-    }
-  };
 
   // ใช้ข้อมูลกราฟจาก API โดยตรง
   const chartData = data?.graph1 || [];

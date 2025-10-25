@@ -182,10 +182,10 @@ const Home = () => {
             <div className="grid h-12 w-full grid-cols-2">
               <Button
                 onClick={() => setActiveTab("user")}
-                className={`h-full w-full rounded-l-md rounded-r-none ${
+                className={`h-full w-full rounded-l-md rounded-r-none transition-colors ${
                   activeTab === "user"
-                    ? "bg-[#0BA678] text-white"
-                    : "bg-[#E4E4E4] text-black"
+                    ? "bg-[#0BA678] text-white hover:bg-[#099963]"
+                    : "bg-[#E4E4E4] text-gray-700 hover:bg-[#C8F5E5] hover:text-[#0BA678]"
                 }`}
               >
                 ข้อมูลผู้ใช้
@@ -193,10 +193,10 @@ const Home = () => {
 
               <Button
                 onClick={() => setActiveTab("money")}
-                className={`h-full w-full rounded-l-none rounded-r-md ${
+                className={`h-full w-full rounded-l-none rounded-r-md transition-colors ${
                   activeTab === "money"
-                    ? "bg-[#0BA678] text-white"
-                    : "bg-[#E4E4E4] text-black"
+                    ? "bg-[#0BA678] text-white hover:bg-[#099963]"
+                    : "bg-[#E4E4E4] text-gray-700 hover:bg-[#C8F5E5] hover:text-[#0BA678]"
                 }`}
               >
                 จำนวนเงินที่ได้รับ
