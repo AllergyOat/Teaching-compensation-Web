@@ -118,6 +118,13 @@ export const LectureGroup = ({
   const formSection = watch("form.section");
   const section = formSection || urlSection;
 
+  // Effect to show compensation section if there's existing compensation data
+  useEffect(() => {
+    if (compensationFields.length > 0) {
+      setShowCompensation(true);
+    }
+  }, [compensationFields.length]);
+
   // Effect to calculate totalHour for existing time values
   useEffect(() => {
     fields.forEach((_, k) => {
@@ -171,11 +178,13 @@ export const LectureGroup = ({
                   reason: "",
                 });
               }
-                setShowCompensation(!showCompensation);
-              }}
-              >
-              <span className="mr-1">{showCompensation ? <Minus /> : <Plus />}</span>
-              {showCompensation ? "ซ่อนบันทึกความ" : "เพิ่มบันทึกความ"}
+              setShowCompensation(!showCompensation);
+            }}
+          >
+            <span className="mr-1">
+              {showCompensation ? <Minus /> : <Plus />}
+            </span>
+            {showCompensation ? "ซ่อนบันทึกความ" : "เพิ่มบันทึกความ"}
           </Button>
         </div>
       </div>
@@ -482,7 +491,7 @@ export const LectureGroup = ({
                 <TableHead>เวลาเดิม</TableHead>
                 <TableHead>วันที่ใหม่</TableHead>
                 <TableHead>เวลาใหม่</TableHead>
-                <TableHead>เหตุผล</TableHead>
+                <TableHead>เหตุผลในการสอนชดเชย</TableHead>
                 <TableHead className="text-center">จัดการ</TableHead>
               </TableRow>
             </TableHeader>
