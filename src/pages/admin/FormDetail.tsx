@@ -365,6 +365,15 @@ const FormDetail = () => {
                         </TableBody>
                       </Table>
                     </div>
+                    
+                    {/* Reasons Section */}
+                    <div className="mt-4">
+                      <div className="flex items-center gap-2 text-base">
+                        <div className="h-1.5 w-1.5 rounded-full bg-orange-500"></div>
+                        <span className="font-semibold text-orange-600">เหตุผล: </span>
+                        <span className="text-gray-700">{section.compensation[0]?.reason || "-"}</span>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
