@@ -14,9 +14,11 @@ import {
   getProfile,
   type ProfileData,
 } from "@/api/user/profile";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { toast } from "sonner";
 
 const ProfileEdit = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<ProfileData>({
     firstName: "",
     lastName: "",
@@ -27,10 +29,10 @@ const ProfileEdit = () => {
     major: "",
     type: "",
     teachingLevel: "",
+    email: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
   const [isFetching, setIsFetching] = useState(true);
 
   useEffect(() => {
@@ -40,7 +42,9 @@ const ProfileEdit = () => {
         const profileData = await getProfile();
         setFormData(profileData);
       } catch (error: any) {
-        setMessage("ไม่สามารถโหลดข้อมูลได้: " + error.message);
+        toast.error("เกิดข้อผิดพลาด", {
+          description: "ไม่สามารถโหลดข้อมูลได้",
+        });
       } finally {
         setIsFetching(false);
       }
@@ -66,14 +70,50 @@ const ProfileEdit = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation - ตรวจสอบข้อมูลที่จำเป็น
+    if (!formData.firstName || !formData.lastName) {
+      toast.warning("ข้อมูลไม่ครบถ้วน", {
+        description: "กรุณากรอกชื่อและนามสกุล",
+      });
+      return;
+    }
+
+    if (!formData.degree || !formData.position) {
+      toast.warning("ข้อมูลไม่ครบถ้วน", {
+        description: "กรุณากรอกวุฒิการศึกษาและตำแหน่ง",
+      });
+      return;
+    }
+
+    if (!formData.department || !formData.faculty || !formData.major) {
+      toast.warning("ข้อมูลไม่ครบถ้วน", {
+        description: "กรุณากรอกภาควิชา คณะ และสาขาวิชา",
+      });
+      return;
+    }
+
+    if (!formData.type || !formData.teachingLevel) {
+      toast.warning("ข้อมูลไม่ครบถ้วน", {
+        description: "กรุณาเลือกประเภทอาจารย์และระดับการสอน",
+      });
+      return;
+    }
+
     setIsLoading(true);
-    setMessage(null);
 
     try {
       await updateProfile(formData);
-      setMessage("บันทึกข้อมูลสำเร็จ");
+      toast.success("บันทึกข้อมูลสำเร็จ!", {
+        description: "กำลังนำคุณกลับไปหน้าโปรไฟล์",
+      });
+      setTimeout(() => {
+        navigate("/profile");
+      }, 1500);
     } catch (error: any) {
-      setMessage("เกิดข้อผิดพลาด: " + error.message);
+      toast.error("เกิดข้อผิดพลาด", {
+        description: error.message || "ไม่สามารถบันทึกข้อมูลได้",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -105,7 +145,9 @@ const ProfileEdit = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <Label htmlFor="firstName">ชื่อ</Label>
+                <Label htmlFor="firstName">
+                  ชื่อ <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   className="bg-white"
                   id="firstName"
@@ -116,7 +158,9 @@ const ProfileEdit = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="lastName">นามสกุล</Label>
+                <Label htmlFor="lastName">
+                  นามสกุล <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   className="bg-white"
                   id="lastName"
@@ -130,7 +174,9 @@ const ProfileEdit = () => {
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <Label htmlFor="degree">วุฒิการศึกษา</Label>
+                <Label htmlFor="degree">
+                  วุฒิการศึกษา <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   className="bg-white"
                   id="degree"
@@ -141,7 +187,9 @@ const ProfileEdit = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="position">ตำแหน่ง</Label>
+                <Label htmlFor="position">
+                  ตำแหน่ง <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   className="bg-white"
                   id="position"
@@ -155,7 +203,9 @@ const ProfileEdit = () => {
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <Label htmlFor="department">ภาควิชา</Label>
+                <Label htmlFor="department">
+                  ภาควิชา <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   className="bg-white"
                   id="department"
@@ -166,7 +216,9 @@ const ProfileEdit = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="faculty">คณะ</Label>
+                <Label htmlFor="faculty">
+                  คณะ <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   className="bg-white"
                   id="faculty"
@@ -179,7 +231,9 @@ const ProfileEdit = () => {
             </div>
 
             <div>
-              <Label htmlFor="major">สาขาวิชา</Label>
+              <Label htmlFor="major">
+                สาขาวิชา <span className="text-red-500">*</span>
+              </Label>
               <Input
                 className="bg-white"
                 id="major"
@@ -192,7 +246,9 @@ const ProfileEdit = () => {
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <Label htmlFor="type">ประเภทอาจารย์</Label>
+                <Label htmlFor="type">
+                  ประเภทอาจารย์ <span className="text-red-500">*</span>
+                </Label>
                 <Select
                   value={formData.type}
                   onValueChange={(value) => handleSelectChange("type", value)}
@@ -207,7 +263,9 @@ const ProfileEdit = () => {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="teachingLevel">ระดับการสอน</Label>
+                <Label htmlFor="teachingLevel">
+                  ระดับการสอน <span className="text-red-500">*</span>
+                </Label>
                 <Select
                   value={formData.teachingLevel}
                   onValueChange={(value) =>
@@ -225,21 +283,23 @@ const ProfileEdit = () => {
               </div>
             </div>
 
-            {message && (
-              <div
-                className={`rounded p-3 ${message.includes("สำเร็จ") ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                variant="destructive"
+                className="flex-1"
+                onClick={() => navigate("/profile")}
               >
-                {message}
-              </div>
-            )}
-
-            <Button
-              type="submit"
-              className="w-full bg-green-600 hover:bg-green-700"
-              disabled={isLoading}
-            >
-              {isLoading ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
-            </Button>
+                ยกเลิก
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1 bg-green-600 hover:bg-green-700"
+                disabled={isLoading}
+              >
+                {isLoading ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
+              </Button>
+            </div>
           </form>
         </div>
       </div>

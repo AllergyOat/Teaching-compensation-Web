@@ -26,6 +26,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const FormDetail = () => {
   const { formId } = useParams<{ formId: string }>();
@@ -35,11 +44,14 @@ const FormDetail = () => {
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [selectedSection, setSelectedSection] = useState<string>("");
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   // Function to handle printing schedule for a specific section
   const handlePrintSchedule = async () => {
     if (!formId || !selectedSection) {
-      alert("กรุณาเลือกหมู่เรียนที่ต้องการปริ้น");
+      toast.warning("กรุณาเลือกหมู่เรียนที่ต้องการปริ้น", {
+        description: "เลือกหมู่เรียนจากรายการด้านบน",
+      });
       return;
     }
 
@@ -51,17 +63,20 @@ const FormDetail = () => {
       link.download = `schedule-${selectedSection}.docx`;
       link.click();
       window.URL.revokeObjectURL(url);
+      toast.success("ดาวน์โหลดตารางสอนสำเร็จ!");
     } catch (error) {
       console.error("Failed to download schedule:", error);
-      alert(
-        "ไม่สามารถดาวน์โหลดตารางสอนได้",
-      );
+      toast.error("ไม่สามารถดาวน์โหลดตารางสอนได้", {
+        description: "กรุณาลองใหม่อีกครั้ง",
+      });
     }
   };
 
   const handlePrintCompensation = async () => {
     if (!formId || !selectedSection) {
-      alert("กรุณาเลือกหมู่เรียนที่มีบันทึกความ");
+      toast.warning("กรุณาเลือกหมู่เรียนที่มีบันทึกความ", {
+        description: "เลือกหมู่เรียนจากรายการด้านบน",
+      });
       return;
     }
 
@@ -73,9 +88,12 @@ const FormDetail = () => {
       link.download = `compensation-${selectedSection}.docx`;
       link.click();
       window.URL.revokeObjectURL(url);
+      toast.success("ดาวน์โหลดบันทึกความสำเร็จ!");
     } catch (error) {
       console.error("Failed to download compensation:", error);
-      alert("ไม่สามารถดาวน์โหลดบันทึกความได้ กรุณาเลือกหมู่เรียนที่มีบันทึกความ");
+      toast.error("ไม่สามารถดาวน์โหลดบันทึกความได้", {
+        description: "กรุณาเลือกหมู่เรียนที่มีบันทึกความ",
+      });
     }
   };
 
@@ -86,22 +104,23 @@ const FormDetail = () => {
   };
 
   // Function to handle form deletion
-  const handleDeleteForm = async () => {
+  const handleDeleteForm = () => {
     if (!formId) return;
+    setShowDeleteDialog(true);
+  };
 
-    const confirmDelete = window.confirm(
-      "คุณแน่ใจหรือไม่ที่จะลบแบบฟอร์มนี้? การดำเนินการนี้ไม่สามารถยกเลิกได้",
-    );
-
-    if (!confirmDelete) return;
+  const confirmDeleteForm = async () => {
+    if (!formId) return;
 
     try {
       setIsDeleting(true);
       const accessToken = localStorage.getItem("accessToken");
 
       if (!accessToken) {
-        alert("กรุณาเข้าสู่ระบบก่อนลบแบบฟอร์ม");
-        navigate("/login");
+        toast.error("ไม่สามารถดำเนินการได้", {
+          description: "กรุณาเข้าสู่ระบบ",
+        });
+        setTimeout(() => navigate("/login"), 2000);
         return;
       }
 
@@ -118,24 +137,34 @@ const FormDetail = () => {
 
       if (!response.ok) {
         if (response.status === 401) {
-          alert("เซสชั่นหมดอายุ กรุณาเข้าสู่ระบบใหม่");
+          toast.error("เซสชั่นหมดอายุ", {
+            description: "กรุณาเข้าสู่ระบบใหม่",
+          });
           localStorage.removeItem("accessToken");
           localStorage.removeItem("user");
-          navigate("/login");
+          setTimeout(() => navigate("/login"), 2000);
           return;
         }
         if (response.status === 403) {
-          alert("คุณไม่มีสิทธิ์ลบแบบฟอร์มนี้");
+          toast.error("ไม่มีสิทธิ์", {
+            description: "คุณไม่มีสิทธิ์ลบแบบฟอร์มนี้",
+          });
           return;
         }
         throw new Error("เกิดข้อผิดพลาดในการลบแบบฟอร์ม");
       }
 
-      alert("ลบแบบฟอร์มสำเร็จ!");
-      navigate("/home");
+      toast.success("ลบแบบฟอร์มสำเร็จ!", {
+        description: "กำลังนำคุณกลับไปหน้าหลัก",
+      });
+      setShowDeleteDialog(false);
+      setTimeout(() => navigate("/home"), 1500);
     } catch (error: any) {
       console.error("Delete form error:", error);
-      alert("ไม่สามารถลบแบบฟอร์มได้: " + error.message);
+      toast.error("ไม่สามารถลบแบบฟอร์มได้", {
+        description: error.message,
+      });
+      setShowDeleteDialog(false);
     } finally {
       setIsDeleting(false);
     }
@@ -506,6 +535,36 @@ const FormDetail = () => {
           </Card>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="text-red-600">ยืนยันการลบแบบฟอร์ม</DialogTitle>
+            <DialogDescription className="text-gray-600">
+              คุณแน่ใจหรือไม่ที่จะลบแบบฟอร์มนี้? การดำเนินการนี้ไม่สามารถยกเลิกได้
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+              disabled={isDeleting}
+            >
+              ยกเลิก
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={confirmDeleteForm}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "กำลังลบ..." : "ลบแบบฟอร์ม"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

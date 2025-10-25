@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formInputSchema } from "@/utils/schemas";
+import { toast } from "sonner";
 
 const FormInput = () => {
   const [searchParams] = useSearchParams();
@@ -144,8 +145,10 @@ const FormInput = () => {
         if (error.message.includes("login")) {
           navigate("/login");
         } else {
-          alert("ไม่สามารถโหลดข้อมูลแบบฟอร์มได้");
-          navigate("/home");
+          toast.error("เกิดข้อผิดพลาด", {
+            description: "โหลดข้อมูลไม่สำเร็จ",
+          });
+          setTimeout(() => navigate("/home"), 2000);
         }
       } finally {
         setIsLoading(false);
@@ -159,16 +162,19 @@ const FormInput = () => {
     console.log("Form data:", JSON.stringify(data, null, 2));
 
     const isEdit = !!formId;
-    const alertMessage = isEdit
-      ? "แบบฟอร์มผ่านการตรวจสอบแล้ว! กำลังอัปเดต..."
-      : "แบบฟอร์มผ่านการตรวจสอบแล้ว! กำลังส่ง...";
-    alert(alertMessage);
+    
+    // Show processing toast
+    toast.info(isEdit ? "กำลังอัปเดตแบบฟอร์ม" : "กำลังส่งแบบฟอร์ม", {
+      description: "กำลังดำเนินการ...",
+    });
 
     try {
       const accessToken = localStorage.getItem("accessToken");
       if (!accessToken) {
-        alert("กรุณาเข้าสู่ระบบก่อนส่งแบบฟอร์ม");
-        navigate("/login");
+        toast.error("ไม่สามารถดำเนินการได้", {
+          description: "กรุณาเข้าสู่ระบบ",
+        });
+        setTimeout(() => navigate("/login"), 2000);
         return;
       }
 
@@ -189,14 +195,18 @@ const FormInput = () => {
 
       if (!response.ok) {
         if (response.status === 401) {
-          alert("เซสชั่นหมดอายุ กรุณาเข้าสู่ระบบใหม่");
+          toast.error("เซสชั่นหมดอายุ", {
+            description: "กรุณาเข้าสู่ระบบใหม่",
+          });
           localStorage.removeItem("accessToken");
           localStorage.removeItem("user");
-          navigate("/login");
+          setTimeout(() => navigate("/login"), 2000);
           return;
         }
         if (response.status === 403) {
-          alert("คุณไม่มีสิทธิ์ในการดำเนินการนี้");
+          toast.error("ไม่มีสิทธิ์เข้าถึง", {
+            description: "คุณไม่มีสิทธิ์",
+          });
           return;
         }
         throw new Error(
@@ -206,29 +216,31 @@ const FormInput = () => {
         );
       }
 
-      const successMessage = isEdit
-        ? "อัปเดตแบบฟอร์มสำเร็จ!"
-        : "ส่งแบบฟอร์มสำเร็จ!";
-      alert(successMessage);
+      toast.success("สำเร็จ!", {
+        description: isEdit ? "อัปเดตแล้ว" : "ส่งแบบฟอร์มแล้ว",
+      });
 
-      // Navigate back to form detail page if editing, or home if creating
-      if (isEdit) {
-        navigate(`/home/${formId}`);
-      } else {
-        navigate("/home");
-      }
+      // Navigate after toast
+      setTimeout(() => {
+        if (isEdit) {
+          navigate(`/home/${formId}`);
+        } else {
+          navigate("/home");
+        }
+      }, 1500);
     } catch (error) {
-      const errorMessage = isEdit
-        ? "ไม่สามารถอัปเดตแบบฟอร์มได้"
-        : "ไม่สามารถส่งแบบฟอร์มได้";
-      alert(errorMessage);
+      toast.error("เกิดข้อผิดพลาด", {
+        description: isEdit ? "อัปเดตไม่สำเร็จ" : "ส่งไม่สำเร็จ",
+      });
       console.error(error);
     }
   };
 
   const onError = (errors: any) => {
     console.log("Form validation errors:", errors);
-    alert("กรุณาตรวจสอบข้อมูลในแบบฟอร์มให้ครบถ้วน");
+    toast.warning("ข้อมูลไม่ครบถ้วน", {
+      description: "กรุณากรอกข้อมูลให้ครบถ้วน",
+    });
   };
 
   if (isLoading) {
