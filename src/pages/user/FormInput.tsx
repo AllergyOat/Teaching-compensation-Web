@@ -78,6 +78,7 @@ const FormInput = () => {
               note: null,
             },
           ],
+          compensation: [],
         },
       ],
     },
@@ -123,6 +124,16 @@ const FormInput = () => {
               room: schedule.room,
               note: schedule.note,
             })),
+            compensation:
+              section.compensation?.map((comp) => ({
+                originalDate: new Date(comp.originalDate)
+                  .toISOString()
+                  .split("T")[0],
+                originalTime: comp.originalTime,
+                newDate: new Date(comp.newDate).toISOString().split("T")[0],
+                newTime: comp.newTime,
+                reason: comp.reason,
+              })) || [],
           })),
         };
 
@@ -381,7 +392,7 @@ const FormInput = () => {
 
           <Button
             type="button"
-            className="mt-4 h-15 w-full border-0 bg-[#F4F4F5] text-xl font-bold text-[#34C759]"
+            className="mt-4 h-15 w-full border-0 bg-[#F4F4F5] text-xl font-bold text-[#34C759] hover:bg-[#E5E5EA] hover:text-green-800"
             onClick={() =>
               append({
                 lectureId: "",
@@ -390,12 +401,13 @@ const FormInput = () => {
                   {
                     date: "",
                     time: "",
-                    totalHour: 1,
+                    totalHour: 0,
                     topic: "",
                     room: "",
                     note: null,
                   },
                 ],
+                compensation: [],
               })
             }
           >

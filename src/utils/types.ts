@@ -39,10 +39,19 @@ export type Schedule = {
   note: string | null;
 };
 
+export type Compensations = {
+  originalDate: string;
+  originalTime: string;
+  newDate: string;
+  newTime: string;
+  reason: string;
+}
+
 export type LectureGroup = {
   lectureId: string;
   kind: KindType;
   schedules: Schedule[];
+  compensation?: Compensations[];
 };
 
 export type FormData = {

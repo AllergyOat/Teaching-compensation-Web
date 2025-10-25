@@ -11,9 +11,18 @@ export interface Schedule {
   note: string | null;
 }
 
+export interface Compensations {
+  originalDate: string;
+  originalTime: string;
+  newDate: string;
+  newTime: string;
+  reason: string;
+}
+
 export interface FormScheduleDetail {
   sectionId: string;
   schedules: Schedule[];
+  compensation: Compensations[]; 
 }
 
 export interface Form {
