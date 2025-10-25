@@ -9,6 +9,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
+      position="top-right"
+      expand={true}
+      richColors
       style={
         {
           "--normal-bg": "var(--popover)",
@@ -16,6 +19,19 @@ const Toaster = ({ ...props }: ToasterProps) => {
           "--normal-border": "var(--border)",
         } as React.CSSProperties
       }
+      toastOptions={{
+        classNames: {
+          success:
+            "bg-gradient-to-r from-green-50 to-white border-l-4 border-l-green-500 shadow-lg",
+          error:
+            "bg-gradient-to-r from-red-50 to-white border-l-4 border-l-red-500 shadow-lg",
+          warning:
+            "bg-gradient-to-r from-yellow-50 to-white border-l-4 border-l-yellow-500 shadow-lg",
+          info: "bg-gradient-to-r from-blue-50 to-white border-l-4 border-l-blue-500 shadow-lg",
+          title: "text-gray-900 font-semibold",
+          description: "text-gray-700",
+        },
+      }}
       {...props}
     />
   )

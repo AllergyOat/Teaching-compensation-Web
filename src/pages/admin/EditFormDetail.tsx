@@ -11,6 +11,15 @@ import { useForm, useFieldArray } from "react-hook-form";
 import type { FormData } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formInputSchema } from "@/utils/schemas";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const FormDetail = () => {
   const { formId } = useParams<{ formId: string }>();
@@ -19,6 +28,7 @@ const FormDetail = () => {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   const { register, control, watch, setValue, reset, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(formInputSchema),
@@ -50,8 +60,10 @@ const FormDetail = () => {
       const accessToken = localStorage.getItem("accessToken");
 
       if (!accessToken) {
-        alert("กรุณาเข้าสู่ระบบก่อนแก้ไขแบบฟอร์ม");
-        navigate("/login");
+        toast.error("ไม่สามารถดำเนินการได้", {
+          description: "กรุณาเข้าสู่ระบบ",
+        });
+        setTimeout(() => navigate("/login"), 2000);
         return;
       }
 
@@ -74,10 +86,12 @@ const FormDetail = () => {
         console.error("API Error:", errorData);
         
         if (response.status === 401) {
-          alert("เซสชั่นหมดอายุ กรุณาเข้าสู่ระบบใหม่");
+          toast.error("เซสชั่นหมดอายุ", {
+            description: "กรุณาเข้าสู่ระบบใหม่",
+          });
           localStorage.removeItem("accessToken");
           localStorage.removeItem("user");
-          navigate("/login");
+          setTimeout(() => navigate("/login"), 2000);
           return;
         }
         throw new Error(errorData.message || `ไม่สามารถอัปเดตแบบฟอร์มได้: ${response.status}`);
@@ -85,11 +99,15 @@ const FormDetail = () => {
 
       const result = await response.json();
       console.log("Update success:", result);
-      alert("บันทึกการแก้ไขสำเร็จ!");
-      navigate(`/admin/form/${formId}`);
+      toast.success("บันทึกการแก้ไขสำเร็จ!", {
+        description: "กำลังนำคุณกลับไปหน้ารายละเอียด",
+      });
+      setTimeout(() => navigate(`/admin/form/${formId}`), 1500);
     } catch (error: any) {
       console.error("Update form error:", error);
-      alert("ไม่สามารถบันทึกการแก้ไขได้: " + error.message);
+      toast.error("ไม่สามารถบันทึกการแก้ไขได้", {
+        description: error.message,
+      });
     } finally {
       setIsSaving(false);
     }
@@ -97,13 +115,18 @@ const FormDetail = () => {
 
   const onError = (errors: any) => {
     console.log("Form validation errors:", errors);
-    alert("กรุณาตรวจสอบข้อมูลในแบบฟอร์มให้ครบถ้วน");
+    toast.warning("ข้อมูลไม่ครบถ้วน", {
+      description: "กรุณากรอกข้อมูลให้ครบถ้วน",
+    });
   };
 
   const handleCancel = () => {
-    if (window.confirm("คุณต้องการยกเลิกการแก้ไข? การเปลี่ยนแปลงจะไม่ถูกบันทึก")) {
-      navigate(`/admin/form/${formId}`);
-    }
+    setShowCancelDialog(true);
+  };
+
+  const confirmCancel = () => {
+    setShowCancelDialog(false);
+    navigate(`/admin/form/${formId}`);
   };
 
   useEffect(() => {
@@ -326,6 +349,34 @@ const FormDetail = () => {
           </div>
         </div>
       </main>
+
+      {/* Cancel Confirmation Dialog */}
+      <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="text-yellow-600">ยืนยันการยกเลิก</DialogTitle>
+            <DialogDescription className="text-gray-600">
+              คุณต้องการยกเลิกการแก้ไข? การเปลี่ยนแปลงจะไม่ถูกบันทึก
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowCancelDialog(false)}
+            >
+              ไม่ยกเลิก
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={confirmCancel}
+            >
+              ยืนยันยกเลิก
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </form>
   );
 };

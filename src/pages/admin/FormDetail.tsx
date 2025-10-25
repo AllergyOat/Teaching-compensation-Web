@@ -11,6 +11,7 @@ import { getFormDetail, type Root } from "../../api/forms/detail";
 import { updateFormStatus } from "../../api/forms/editStatus";
 import { translateProgram, translateSection } from "@/utils/programSectionUtils";
 import { CheckCircle, XCircle } from "lucide-react";
+import { toast } from "sonner";
 
 const FormDetail = () => {
   const { formId } = useParams<{ formId: string }>();
@@ -42,13 +43,17 @@ const FormDetail = () => {
         adminComment: adminComment || undefined,
       });
       
-      alert("อนุมัติแบบฟอร์มสำเร็จ!");
+      toast.success("อนุมัติแบบฟอร์มสำเร็จ!", {
+        description: "แบบฟอร์มได้รับการอนุมัติแล้ว",
+      });
       setShowApproveDialog(false);
       setAdminComment("");
-      window.location.reload();
+      setTimeout(() => window.location.reload(), 1000);
     } catch (error: any) {
       console.error("Approve form error:", error);
-      alert("ไม่สามารถอนุมัติแบบฟอร์มได้: " + error.message);
+      toast.error("ไม่สามารถอนุมัติแบบฟอร์มได้", {
+        description: error.message,
+      });
     } finally {
       setIsApproving(false);
     }
@@ -64,7 +69,9 @@ const FormDetail = () => {
     if (!formId) return;
     
     if (!adminComment.trim()) {
-      alert("กรุณาระบุเหตุผลในการปฏิเสธ");
+      toast.warning("กรุณาระบุเหตุผล", {
+        description: "กรุณาระบุเหตุผลในการปฏิเสธแบบฟอร์ม",
+      });
       return;
     }
 
@@ -75,13 +82,17 @@ const FormDetail = () => {
         adminComment: adminComment,
       });
       
-      alert("ปฏิเสธแบบฟอร์มสำเร็จ!");
+      toast.success("ปฏิเสธแบบฟอร์มสำเร็จ!", {
+        description: "แบบฟอร์มได้รับการปฏิเสธแล้ว",
+      });
       setShowRejectDialog(false);
       setAdminComment("");
-      window.location.reload();
+      setTimeout(() => window.location.reload(), 1000);
     } catch (error: any) {
       console.error("Reject form error:", error);
-      alert("ไม่สามารถปฏิเสธแบบฟอร์มได้: " + error.message);
+      toast.error("ไม่สามารถปฏิเสธแบบฟอร์มได้", {
+        description: error.message,
+      });
     } finally {
       setIsRejecting(false);
     }
