@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Table,
@@ -498,7 +499,6 @@ export const LectureGroup = ({
                 <TableHead>เวลาเดิม</TableHead>
                 <TableHead>วันที่ใหม่</TableHead>
                 <TableHead>เวลาใหม่</TableHead>
-                <TableHead>เหตุผลในการสอนชดเชย</TableHead>
                 <TableHead className="text-center">จัดการ</TableHead>
               </TableRow>
             </TableHeader>
@@ -677,22 +677,6 @@ export const LectureGroup = ({
                     )}
                   </TableCell>
 
-                  {/* Reason */}
-                  <TableCell>
-                    <Input
-                      placeholder="เหตุผลการชดเชย"
-                      className="bg-gray-100"
-                      {...register(
-                        `formScheduleDetails[${index}].compensation[${k}].reason`,
-                      )}
-                    />
-                    {errors?.compensation && errors.compensation[k] && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {errors.compensation[k].reason?.message}
-                      </p>
-                    )}
-                  </TableCell>
-
                   {/* Delete Button */}
                   <TableCell className="text-center">
                     <Button
@@ -709,7 +693,6 @@ export const LectureGroup = ({
               ))}
             </TableBody>
           </Table>
-
           <Button
             type="button"
             variant="outline"
@@ -724,8 +707,45 @@ export const LectureGroup = ({
               })
             }
           >
-            เพิ่มบันทึกความชดเชย
+            เพิ่มแถวบันทึกความสอนชดเชย
           </Button>
+
+          {/* Reason Textarea - Shared for all compensations */}
+          <div className="mt-4">
+            <Label
+              htmlFor={`formScheduleDetails[${index}].compensation.reason`}
+              className="text-sm font-medium text-orange-700"
+            >
+              ทั้งนี้เนื่องจาก (โปรดระบุเหตุผลในการสอนชดเชย)
+            </Label>
+            <Textarea
+              id={`formScheduleDetails[${index}].compensation.reason`}
+              placeholder="กรุณาระบุเหตุผลในการสอนชดเชย..."
+              className="mt-2 w-full rounded-md border border-orange-300 bg-white p-3 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 focus:outline-none"
+              rows={3}
+              value={
+                watch(`formScheduleDetails[${index}].compensation[0].reason`) ||
+                ""
+              }
+              onChange={(e) => {
+                const newReason = e.target.value;
+                // Update reason for all compensation rows
+                compensationFields.forEach((_, k) => {
+                  setValue(
+                    `formScheduleDetails[${index}].compensation[${k}].reason`,
+                    newReason,
+                  );
+                });
+              }}
+            />
+            {errors?.compensation && errors.compensation[0]?.reason && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.compensation[0].reason?.message}
+              </p>
+            )}
+          </div>
+
+          
         </div>
       )}
     </div>
