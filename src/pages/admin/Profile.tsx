@@ -56,7 +56,7 @@ const Profile = () => {
         </Link>
 
         {/* Page Title */}
-        <h1 className="text-2xl font-bold">ข้อมูลผู้ใช้</h1>
+        <h1 className="text-2xl font-bold">ข้อมูลเจ้าหน้าที่</h1>
 
         {/* Profile Header Card */}
         <Card className="border-0 shadow-md">

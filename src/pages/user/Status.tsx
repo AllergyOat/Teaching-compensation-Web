@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getStatus } from "@/api/user/status";
+import { Link } from "react-router";
 
 type StatusCounts = {
   PENDING: number;
@@ -191,14 +192,17 @@ const Status = () => {
           {statusData?.forms && statusData.forms.length > 0 ? (
             <div className="space-y-4">
               {statusData.forms.map((form) => (
-                <div
+                <Link
                   key={form.id}
-                  className={`group flex items-start justify-between rounded-xl border-0 p-6 shadow-md transition-all duration-300 hover:scale-[1.01] hover:shadow-xl ${getCardBackground(form.status)}`}
+                  to={`/home/${form.id}`}
+                  className={`group flex items-start justify-between rounded-xl border-0 p-6 shadow-md transition-all duration-300 hover:scale-[1.01] hover:shadow-xl cursor-pointer ${getCardBackground(form.status)}`}
                 >
                   <div className="flex-1">
                     <div className="mb-3 flex items-center gap-3">
                       <div className="h-1.5 w-1.5 rounded-full bg-[#02BC77]"></div>
-                      <h3 className="text-lg font-semibold text-gray-800">{form.subjectName}</h3>
+                      <h3 className="text-lg font-semibold text-gray-800 group-hover:text-[#02BC77] transition-colors">
+                        {form.subjectName}
+                      </h3>
                     </div>
                     <div className="ml-4 space-y-1.5">
                       <p className="text-sm font-medium text-gray-600">
@@ -228,7 +232,7 @@ const Status = () => {
                       {getStatusText(form.status)}
                     </span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           ) : (
