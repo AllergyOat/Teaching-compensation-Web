@@ -26,13 +26,21 @@ export interface FormDetailResponse {
   grandTotal: number
 }
 
+export interface Compensations {
+  originalDate: string;
+  originalTime: string;
+  newDate: string;
+  newTime: string;
+  reason: string;
+}
+
 export interface FormScheduleDetail {
   id: string
   formId: string
   sectionId: string
   kind: string
   schedules: Schedule[]
-  compensation: any[]
+  compensation: Compensations[]
   totalHours: number
   amount: number
 }

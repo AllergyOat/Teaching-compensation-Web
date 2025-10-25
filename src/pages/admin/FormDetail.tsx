@@ -322,6 +322,60 @@ const FormDetail = () => {
                     </TableBody>
                   </Table>
                 </div>
+
+                {/* Compensation Records Table */}
+                {section.compensation && section.compensation.length > 0 && (
+                  <div className="mt-6">
+                    <div className="mb-3 flex items-center gap-2">
+                      <div className="h-1.5 w-1.5 rounded-full bg-orange-500"></div>
+                      <h4 className="text-base font-semibold text-orange-600">
+                        บันทึกความการสอนชดเชย (หมู่เรียน {section.sectionId})
+                      </h4>
+                    </div>
+                    <div className="overflow-hidden rounded-lg border border-orange-200 shadow-sm">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-gradient-to-r from-orange-400 to-orange-400">
+                            <TableHead className="text-white">ลำดับ</TableHead>
+                            <TableHead className="text-white">จากเดิมวันที่</TableHead>
+                            <TableHead className="text-white">จากเดิมเวลา</TableHead>
+                            <TableHead className="text-white">ชดเชยเป็นวันที่</TableHead>
+                            <TableHead className="text-white">ขอชดเชยเป็นเวลา</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {section.compensation.map((comp: any, compIndex: number) => (
+                            <TableRow 
+                              className={`transition-colors ${
+                                compIndex % 2 === 0 ? 'bg-orange-50/50' : 'bg-white'
+                              } hover:bg-orange-100`} 
+                              key={compIndex}
+                            >
+                              <TableCell className="font-medium">{compIndex + 1}</TableCell>
+                              <TableCell>{formatDate(comp.originalDate)}</TableCell>
+                              <TableCell>{comp.originalTime}</TableCell>
+                              <TableCell className="font-medium text-orange-600">
+                                {formatDate(comp.newDate)}
+                              </TableCell>
+                              <TableCell className="font-medium text-orange-600">
+                                {comp.newTime}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    
+                    {/* Reasons Section */}
+                    <div className="mt-4">
+                      <div className="flex items-center gap-2 text-base">
+                        <div className="h-1.5 w-1.5 rounded-full bg-orange-500"></div>
+                        <span className="font-semibold text-orange-600">เหตุผล: </span>
+                        <span className="text-gray-700">{section.compensation[0]?.reason || "-"}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
             <div className="mt-6 rounded-lg  p-4">
