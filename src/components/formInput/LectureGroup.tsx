@@ -148,6 +148,12 @@ export const LectureGroup = ({
     });
   }, [fields, index, setValue, watch]);
 
+  // Check if at least one schedule has a note (required for compensation)
+  const hasAtLeastOneNote = fields.some((_, k) => {
+    const note = watch(`formScheduleDetails[${index}].schedules[${k}].note`);
+    return note && note.trim().length > 0;
+  });
+
   return (
     <div className="lecture-group mt-9">
       <div className="flex items-center justify-between">
@@ -168,6 +174,7 @@ export const LectureGroup = ({
             type="button"
             variant={"outline"}
             className="text-blue-600"
+            disabled={!hasAtLeastOneNote && !showCompensation}
             onClick={() => {
               if (!showCompensation && compensationFields.length === 0) {
                 appendCompensation({
