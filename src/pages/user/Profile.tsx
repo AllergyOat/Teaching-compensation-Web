@@ -16,6 +16,7 @@ const Profile = () => {
     major: "",
     type: "",
     teachingLevel: "",
+    email: "",
   });
 
   const [message, setMessage] = useState<string | null>(null);
@@ -73,7 +74,7 @@ const Profile = () => {
                 {/* User Info */}
                 <div>
                   <p className="text-base font-semibold">{formData.firstName} {formData.lastName}</p>
-                  <p className="text-sm text-gray-600">somchai.de@gmail.com</p>
+                  <p className="text-sm text-gray-600">{formData.email}</p>
                 </div>
               </div>
               

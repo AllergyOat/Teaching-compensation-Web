@@ -15,6 +15,9 @@ export const registerSchema = z.object({
   confirmPassword: z
     .string()
     .min(6, { message: "Password must be at least 6 characters" }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "รหัสผ่านไม่ตรงกัน",
+  path: ["confirmPassword"],
 });
 
 export const scheduleSchema = z.object({
