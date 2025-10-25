@@ -78,6 +78,7 @@ const FormInput = () => {
               note: null,
             },
           ],
+          compensation: [],
         },
       ],
     },
@@ -123,6 +124,16 @@ const FormInput = () => {
               room: schedule.room,
               note: schedule.note,
             })),
+            compensation:
+              section.compensation?.map((comp) => ({
+                originalDate: new Date(comp.originalDate)
+                  .toISOString()
+                  .split("T")[0],
+                originalTime: comp.originalTime,
+                newDate: new Date(comp.newDate).toISOString().split("T")[0],
+                newTime: comp.newTime,
+                reason: comp.reason,
+              })) || [],
           })),
         };
 
@@ -390,12 +401,13 @@ const FormInput = () => {
                   {
                     date: "",
                     time: "",
-                    totalHour: 1,
+                    totalHour: 0,
                     topic: "",
                     room: "",
                     note: null,
                   },
                 ],
+                compensation: [],
               })
             }
           >

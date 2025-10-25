@@ -26,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Trash2, ChevronDownIcon } from "lucide-react";
+import { Trash2, ChevronDownIcon, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { useSearchParams } from "react-router";
@@ -93,10 +93,23 @@ export const LectureGroup = ({
     name: `formScheduleDetails[${index}].schedules`,
   });
 
+  // Field array for compensation
+  const {
+    fields: compensationFields,
+    append: appendCompensation,
+    remove: removeCompensation,
+  } = useFieldArray({
+    control,
+    name: `formScheduleDetails[${index}].compensation`,
+  });
+
   // State for managing date pickers (each row has its own state)
   const [datePickerStates, setDatePickerStates] = useState<{
     [key: string]: boolean;
   }>({});
+
+  // State for showing/hiding compensation form
+  const [showCompensation, setShowCompensation] = useState(false);
 
   const [searchParams] = useSearchParams();
   const urlSection = searchParams.get("section") || "";
@@ -131,18 +144,40 @@ export const LectureGroup = ({
   return (
     <div className="lecture-group mt-9">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">ตารางสอน {index + 1} </h2>
-        {totalGroups > 1 && (
+        <h2 className="text-2xl font-bold">ตารางสอน {index + 1}</h2>
+        <div className="flex items-center gap-2">
+          {totalGroups > 1 && (
+            <Button
+              type="button"
+              className="text-red-600 hover:text-red-700"
+              variant="outline"
+              onClick={() => removeLectureGroup(index)}
+            >
+              <Trash2 className="mr-1 h-4 w-4" />
+              ลบหมู่เรียน
+            </Button>
+          )}
           <Button
             type="button"
-            className="text-red-600 hover:text-red-700"
             variant={"outline"}
-            onClick={() => removeLectureGroup(index)}
+            className="text-green-600"
+            onClick={() => {
+              if (!showCompensation && compensationFields.length === 0) {
+                appendCompensation({
+                  originalDate: "",
+                  originalTime: "",
+                  newDate: "",
+                  newTime: "",
+                  reason: "",
+                });
+              }
+              setShowCompensation(!showCompensation);
+            }}
           >
-            <Trash2 className="mr-1 h-4 w-4" />
-            ลบหมู่เรียน
+            <Plus />
+            {showCompensation ? "ซ่อนบันทึกความ" : "เพิ่มบันทึกความ"}
           </Button>
-        )}
+        </div>
       </div>
 
       <div className="flex gap-4">
@@ -395,6 +430,226 @@ export const LectureGroup = ({
       >
         เพิ่มแถว
       </Button>
+
+      {/* Compensation Form Section */}
+      {showCompensation && (
+        <div className="mt-6 rounded-lg border-2 border-orange-300 bg-orange-50 p-4">
+          <h3 className="mb-4 text-xl font-bold text-orange-700">
+            บันทึกความชดเชย
+          </h3>
+
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-orange-100">
+                <TableHead className="text-center">ลำดับ</TableHead>
+                <TableHead>วันที่เดิม</TableHead>
+                <TableHead>เวลาเดิม</TableHead>
+                <TableHead>วันที่ใหม่</TableHead>
+                <TableHead>เวลาใหม่</TableHead>
+                <TableHead>เหตุผล</TableHead>
+                <TableHead className="text-center">จัดการ</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {compensationFields.map((item, k) => (
+                <TableRow key={item.id} className="bg-white">
+                  <TableCell className="text-center">{k + 1}</TableCell>
+
+                  {/* Original Date */}
+                  <TableCell>
+                    {(() => {
+                      const dateKey = `comp-orig-${index}-${k}`;
+                      const isOpen = datePickerStates[dateKey] || false;
+                      const currentDate = watch(
+                        `formScheduleDetails[${index}].compensation[${k}].originalDate`,
+                      );
+
+                      return (
+                        <Popover
+                          open={isOpen}
+                          onOpenChange={(open) =>
+                            setDatePickerStates((prev) => ({
+                              ...prev,
+                              [dateKey]: open,
+                            }))
+                          }
+                        >
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="w-35 justify-between border-0 bg-gray-100 font-normal"
+                            >
+                              {currentDate
+                                ? new Date(currentDate).toLocaleDateString(
+                                    "th-TH",
+                                    {
+                                      year: "numeric",
+                                      month: "short",
+                                      day: "numeric",
+                                    },
+                                  )
+                                : "เลือกวันที่"}
+                              <ChevronDownIcon className="ml-2 h-4 w-4" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              selected={
+                                currentDate ? new Date(currentDate) : undefined
+                              }
+                              onSelect={(date) => {
+                                if (date) {
+                                  const isoDate = format(date, "yyyy-MM-dd");
+                                  setValue(
+                                    `formScheduleDetails[${index}].compensation[${k}].originalDate`,
+                                    isoDate,
+                                  );
+                                  setDatePickerStates((prev) => ({
+                                    ...prev,
+                                    [dateKey]: false,
+                                  }));
+                                }
+                              }}
+                              locale={th}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      );
+                    })()}
+                  </TableCell>
+
+                  {/* Original Time */}
+                  <TableCell>
+                    <Input
+                      placeholder="08:00-10:00"
+                      className="w-32 bg-gray-100"
+                      {...register(
+                        `formScheduleDetails[${index}].compensation[${k}].originalTime`,
+                      )}
+                    />
+                  </TableCell>
+
+                  {/* New Date */}
+                  <TableCell>
+                    {(() => {
+                      const dateKey = `comp-new-${index}-${k}`;
+                      const isOpen = datePickerStates[dateKey] || false;
+                      const currentDate = watch(
+                        `formScheduleDetails[${index}].compensation[${k}].newDate`,
+                      );
+
+                      return (
+                        <Popover
+                          open={isOpen}
+                          onOpenChange={(open) =>
+                            setDatePickerStates((prev) => ({
+                              ...prev,
+                              [dateKey]: open,
+                            }))
+                          }
+                        >
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="w-35 justify-between border-0 bg-gray-100 font-normal"
+                            >
+                              {currentDate
+                                ? new Date(currentDate).toLocaleDateString(
+                                    "th-TH",
+                                    {
+                                      year: "numeric",
+                                      month: "short",
+                                      day: "numeric",
+                                    },
+                                  )
+                                : "เลือกวันที่"}
+                              <ChevronDownIcon className="ml-2 h-4 w-4" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              selected={
+                                currentDate ? new Date(currentDate) : undefined
+                              }
+                              onSelect={(date) => {
+                                if (date) {
+                                  const isoDate = format(date, "yyyy-MM-dd");
+                                  setValue(
+                                    `formScheduleDetails[${index}].compensation[${k}].newDate`,
+                                    isoDate,
+                                  );
+                                  setDatePickerStates((prev) => ({
+                                    ...prev,
+                                    [dateKey]: false,
+                                  }));
+                                }
+                              }}
+                              locale={th}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      );
+                    })()}
+                  </TableCell>
+
+                  {/* New Time */}
+                  <TableCell>
+                    <Input
+                      placeholder="10:00-12:00"
+                      className="w-32 bg-gray-100"
+                      {...register(
+                        `formScheduleDetails[${index}].compensation[${k}].newTime`,
+                      )}
+                    />
+                  </TableCell>
+
+                  {/* Reason */}
+                  <TableCell>
+                    <Input
+                      placeholder="เหตุผลการชดเชย"
+                      className="bg-gray-100"
+                      {...register(
+                        `formScheduleDetails[${index}].compensation[${k}].reason`,
+                      )}
+                    />
+                  </TableCell>
+
+                  {/* Delete Button */}
+                  <TableCell className="text-center">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="text-red-600 hover:text-red-700"
+                      onClick={() => removeCompensation(k)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-2 w-full border-0 font-bold text-orange-600 hover:bg-orange-100"
+            onClick={() =>
+              appendCompensation({
+                originalDate: "",
+                originalTime: "",
+                newDate: "",
+                newTime: "",
+                reason: "",
+              })
+            }
+          >
+            เพิ่มบันทึกความชดเชย
+          </Button>
+        </div>
+      )}
 
       {/* Display validation errors */}
       {errors && (

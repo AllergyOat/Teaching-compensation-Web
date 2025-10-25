@@ -26,6 +26,14 @@ export const scheduleSchema = z.object({
   note: z.string().nullable(),
 });
 
+export const compensationSchema = z.object({
+  originalDate: z.string().min(1, { message: "วันที่สอนทดแทน" }),
+  originalTime: z.string().min(1, { message: "เวลาสอนทดแทน" }),
+  newDate: z.string().min(1, { message: "วันที่สอนจริง" }),
+  newTime: z.string().min(1, { message: "เวลาสอนจริง" }),
+  reason: z.string().min(1, { message: "เหตุผลการสอนทดแทน" }),
+});
+
 export const lectureGroupSchema = z.object({
   lectureId: z.string().min(1, { message: "กรุณากรอกรหัสหมู่เรียน" }),
   kind: z.enum(["LECTURE", "LAB"], {
@@ -34,6 +42,7 @@ export const lectureGroupSchema = z.object({
   schedules: z
     .array(scheduleSchema)
     .min(1, { message: "ต้องมีตารางสอนอย่างน้อย 1 รายการ" }),
+  compensation: z.array(compensationSchema).optional(),
 });
 
 export const formInputSchema = z.object({
