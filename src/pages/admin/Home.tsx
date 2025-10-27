@@ -345,7 +345,7 @@ const Home = () => {
                       <TableRow className="bg-gray-100">
                         <TableHead className="font-semibold">DocumentID</TableHead>
                         <TableHead className="font-semibold">ประเภท</TableHead>
-                        <TableHead className="font-semibold">หลักสูตร</TableHead>
+                        <TableHead className="font-semibold">ชื่อวิชา</TableHead>
                         <TableHead className="font-semibold">วันที่ส่ง</TableHead>
                         <TableHead className="font-semibold">สถานะ</TableHead>
                         <TableHead className="font-semibold text-center">Action</TableHead>
@@ -356,7 +356,7 @@ const Home = () => {
                         <TableRow key={form.id} className="bg-[#F0F9F6] hover:bg-[#E0F2EC]">
                           <TableCell className="font-medium">{form.subjectId}</TableCell>
                           <TableCell>{translateSection(form.section)}</TableCell>
-                          <TableCell>{translateProgram(form.program)}</TableCell>
+                          <TableCell>{form.subjectName}</TableCell>
                           <TableCell>{formatDate(form.createdAt)}</TableCell>
                           <TableCell>
                             <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${getStatusBadge(form.status)}`}>
