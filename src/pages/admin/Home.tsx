@@ -325,6 +325,7 @@ const Home = () => {
 
               return matchesProgram && matchesMonth && matchesYear && matchesStatus;
             });
+            // console.log("userForms", userForms);
 
             if (userForms.length === 0) return null;
 
@@ -343,9 +344,10 @@ const Home = () => {
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-gray-100">
-                        <TableHead className="font-semibold">DocumentID</TableHead>
+                        <TableHead className="font-semibold">รหัสวิชา</TableHead>
+                        <TableHead className="font-semibold">ชื่อรายวิชา</TableHead>
                         <TableHead className="font-semibold">ประเภท</TableHead>
-                        <TableHead className="font-semibold">ชื่อวิชา</TableHead>
+                        <TableHead className="font-semibold">หมู่เรียน</TableHead>
                         <TableHead className="font-semibold">วันที่ส่ง</TableHead>
                         <TableHead className="font-semibold">สถานะ</TableHead>
                         <TableHead className="font-semibold text-center">Action</TableHead>
@@ -355,8 +357,9 @@ const Home = () => {
                       {userForms.map((form) => (
                         <TableRow key={form.id} className="bg-[#F0F9F6] hover:bg-[#E0F2EC]">
                           <TableCell className="font-medium">{form.subjectId}</TableCell>
-                          <TableCell>{translateSection(form.section)}</TableCell>
                           <TableCell>{form.subjectName}</TableCell>
+                          <TableCell>{translateSection(form.section)}</TableCell>
+                          <TableCell>{form.formScheduleDetails.map((detail) => (detail.sectionId)).join(", ")}</TableCell>
                           <TableCell>{formatDate(form.createdAt)}</TableCell>
                           <TableCell>
                             <span className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${getStatusBadge(form.status)}`}>
