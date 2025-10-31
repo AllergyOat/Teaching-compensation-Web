@@ -102,10 +102,11 @@ const FormInput = () => {
     const semester = watch("form.semester");
     const year = watch("form.year");
     const program = watch("form.program");
+    const section = watch("form.section");
     if (!semester || !year) return;
 
     try {
-      const res = await getSemesterTracking(semester, year, program);
+      const res = await getSemesterTracking(semester, year, program, section);
       const tracking = res.data || [];
       setTrackingData(tracking);
 
