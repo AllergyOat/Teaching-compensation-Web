@@ -2,7 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useSearchParams, useParams, useNavigate } from "react-router";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { getFormDetail } from "@/api/forms/detail";
 import { LectureGroup } from "@/components/formInput/LectureGroup";
 import type {
