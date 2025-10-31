@@ -31,12 +31,17 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formInputSchema } from "@/utils/schemas";
 import { toast } from "sonner";
+import { subjectIds, type Subject } from "@/utils/subjectid";
 
 const FormInput = () => {
   const [searchParams] = useSearchParams();
   const { id: formId } = useParams<{ id?: string }>();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(!!formId);
+  
+  // State สำหรับ autocomplete
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [filteredSubjects, setFilteredSubjects] = useState<Subject[]>([]);
 
   const program = searchParams.get("program") || "";
   const section = searchParams.get("section") || "";
@@ -157,6 +162,44 @@ const FormInput = () => {
 
     fetchFormData();
   }, [formId, reset, navigate]);
+
+  // ปิด autocomplete เมื่อคลิกข้างนอก
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest("#subjectId") && !target.closest(".autocomplete-dropdown")) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Function สำหรับค้นหารหัสวิชา
+  const handleSubjectSearch = (value: string) => {
+    setValue("form.subjectId", value);
+
+    if (value.length > 0) {
+      const filtered = subjectIds.filter(
+        (subject) =>
+          subject.code.startsWith(value) ||
+          subject.name.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredSubjects(filtered);
+      setShowSuggestions(filtered.length > 0);
+    } else {
+      setFilteredSubjects([]);
+      setShowSuggestions(false);
+    }
+  };
+
+  // Function เมื่อเลือกรหัสวิชา
+  const handleSelectSubject = (subject: Subject) => {
+    setValue("form.subjectId", subject.code);
+    setValue("form.subjectName", subject.name);
+    setShowSuggestions(false);
+  };
 
   const onSubmit = async (data: FormData) => {
     console.log("Form data:", JSON.stringify(data, null, 2));
@@ -351,18 +394,45 @@ const FormInput = () => {
               )}
             </div>
 
-            <div>
+            <div className="relative">
               <Label htmlFor="subjectId">รหัสรายวิชา</Label>
               <Input
                 id="subjectId"
                 className="mt-1 bg-white shadow-md"
-                placeholder="เช่น 02739200"
-                {...register("form.subjectId")}
+                placeholder="เช่น 02739"
+                value={watch("form.subjectId") || ""}
+                onChange={(e) => handleSubjectSearch(e.target.value)}
+                onFocus={() => {
+                  if (watch("form.subjectId")) {
+                    handleSubjectSearch(watch("form.subjectId") || "");
+                  }
+                }}
+                autoComplete="off"
               />
               {errors.form?.subjectId && (
                 <p className="mt-1 text-sm text-red-500">
                   {errors.form.subjectId.message}
                 </p>
+              )}
+              
+              {/* Autocomplete Dropdown */}
+              {showSuggestions && filteredSubjects.length > 0 && (
+                <div className="autocomplete-dropdown absolute z-50 mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg max-h-60 overflow-auto">
+                  {filteredSubjects.map((subject) => (
+                    <div
+                      key={subject.code}
+                      className="cursor-pointer px-4 py-2 hover:bg-blue-50 border-b border-gray-100 last:border-b-0 transition-colors"
+                      onClick={() => handleSelectSubject(subject)}
+                    >
+                      <div className="font-semibold text-blue-600 mb-1">
+                        {subject.code}
+                      </div>
+                      <div className="text-sm text-gray-600 whitespace-pre-line">
+                        {subject.name}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
 
