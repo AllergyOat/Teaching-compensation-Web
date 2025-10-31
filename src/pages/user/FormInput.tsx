@@ -32,6 +32,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { formInputSchema } from "@/utils/schemas";
 import { toast } from "sonner";
 import { getSemesterTracking } from "@/api/forms/semesterTracking";
+import SubjectAutocompleteInput from "@/components/formInput/SubjectAutocompleteInput";
 
 const FormInput = () => {
   const [searchParams] = useSearchParams();
@@ -95,10 +96,18 @@ const FormInput = () => {
     name: "formScheduleDetails",
   });
 
-  const handleSubjectIdBlur = useCallback(async () => {
-    const subjectId = watch("form.subjectId").trim();
-    if (!subjectId) return;
+  useEffect(() => {
+    fetchTrackingData();
+  }, [
+    watch("form.semester"),
+    watch("form.year"),
+    watch("form.program"),
+    watch("form.section"),
+  ]);
 
+  // console.log(trackingData)
+
+  const fetchTrackingData = async () => {
     const semester = watch("form.semester");
     const year = watch("form.year");
     const program = watch("form.program");
@@ -109,41 +118,31 @@ const FormInput = () => {
       const res = await getSemesterTracking(semester, year, program, section);
       const tracking = res.data || [];
       setTrackingData(tracking);
+    } catch (error) {
+      setTrackingData([]);
+      console.error("Error fetching semester tracking data:", error);
+    }
+  };
 
-      const found = tracking.find(
-        (item) => String(item.subjectId).trim() === subjectId,
-      );
-      if (found) {
-        setValue("form.subjectName", found.subjectName);
+  function handleSubjectSelect(
+    subjectId: string,
+    trackingData: any[],
+    setValue: any,
+  ) {
+    const found = trackingData.find(
+      (item) => String(item.subjectId).trim() === subjectId,
+    );
+    if (found) {
+      setValue("form.subjectId", subjectId);
+      setValue("form.subjectName", found.subjectName);
 
-        if (found.sections && found.sections.length > 0) {
-          setValue(
-            "formScheduleDetails",
-            found.sections.map((section: any) => ({
-              lectureId: section.sectionId,
-              kind: section.kind,
-              totalHours: section.hoursRemaining,
-              schedules: [
-                {
-                  date: "",
-                  time: "",
-                  totalHour: 0,
-                  topic: "",
-                  room: "",
-                  note: null,
-                },
-              ],
-              compensation: [],
-            })),
-          );
-        }
-      } else {
-        setValue("form.subjectName", "");
-        setValue("formScheduleDetails", [
-          {
-            lectureId: "",
-            kind: "LECTURE",
-            totalHours: 0,
+      if (found.sections && found.sections.length > 0) {
+        setValue(
+          "formScheduleDetails",
+          found.sections.map((section: any) => ({
+            lectureId: section.sectionId,
+            kind: section.kind,
+            totalHours: section.hoursRemaining,
             schedules: [
               {
                 date: "",
@@ -155,11 +154,11 @@ const FormInput = () => {
               },
             ],
             compensation: [],
-          },
-        ]);
+          })),
+        );
       }
-    } catch (error) {
-      setTrackingData([]);
+    } else {
+      setValue("form.subjectId", subjectId);
       setValue("form.subjectName", "");
       setValue("formScheduleDetails", [
         {
@@ -180,7 +179,7 @@ const FormInput = () => {
         },
       ]);
     }
-  }, [watch, setValue]);
+  }
 
   // console.log("Tracking Data:", trackingData);
 
@@ -449,7 +448,17 @@ const FormInput = () => {
 
             <div>
               <Label htmlFor="subjectId">รหัสรายวิชา</Label>
-              <Input
+              <SubjectAutocompleteInput
+                value={watch("form.subjectId")}
+                subjects={trackingData}
+                onChange={(subjectId) => {
+                  handleSubjectSelect(subjectId, trackingData, setValue);
+                }}
+                error={errors.form?.subjectId?.message}
+                placeholder="เช่น 02739200"
+              />
+
+              {/* <Input
                 id="subjectId"
                 className="mt-1 bg-white shadow-md"
                 placeholder="เช่น 02739200"
@@ -460,7 +469,7 @@ const FormInput = () => {
                 <p className="mt-1 text-sm text-red-500">
                   {errors.form.subjectId.message}
                 </p>
-              )}
+              )} */}
             </div>
 
             <div>
