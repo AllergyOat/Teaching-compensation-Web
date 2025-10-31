@@ -42,6 +42,7 @@ export const lectureGroupSchema = z.object({
   kind: z.enum(["LECTURE", "LAB"], {
     message: "กรุณาเลือกประเภทการสอน",
   }),
+  totalHours: z.number().min(1, { message: "กรุณากรอกจำนวนชั่วโมงการสอนทั้งหมด" }),
   schedules: z
     .array(scheduleSchema)
     .min(1, { message: "ต้องมีตารางสอนอย่างน้อย 1 รายการ" }),

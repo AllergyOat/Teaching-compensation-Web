@@ -20,7 +20,8 @@ export interface Section {
 
 export const getSemesterTracking = async (
   semester: string,
-  year: string,
+  year: number,
+  program: string,
 ): Promise<Root> => {
   try {
     const accessToken = localStorage.getItem("accessToken");
@@ -30,7 +31,7 @@ export const getSemesterTracking = async (
     }
 
     const response = await axios.get(
-      `http://localhost:3000/api/forms/tracking?semester=${semester}&year=${year}`,
+      `http://localhost:3000/api/forms/tracking?semester=${semester}&year=${year}&program=${program}`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
