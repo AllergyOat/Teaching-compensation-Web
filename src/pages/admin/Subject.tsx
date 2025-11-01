@@ -1,14 +1,33 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import emptyBoxImage from "@/assets/images/students.png";
 import { getAdminHomeData, type Root } from "../../api/admin/home";
 import TableSubjects from "@/components/subject/TableSubjects";
-import { getSemesterTracking } from "@/api/forms/semesterTracking";
+import { listSubjectSectionRates } from "@/api/admin/subject";
+
+// Types for TableSubjects component
+interface SectionData {
+  id: string;
+  sectionId: string;
+  kind: string;
+  totalHoursRequired: number;
+  hoursUsed: number;
+  hoursRemaining: number;
+}
+
+interface SubjectData {
+  id: string;
+  subjectId: string;
+  subjectName: string;
+  program: string;
+  section: string;
+  sections: SectionData[];
+}
 
 const Subject = () => {
   const [data, setData] = useState<Root | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
-  const [trackingData, setTrackingData] = useState<any[]>([]);
+  const [filteredData, setFilteredData] = useState<SubjectData[]>([]);
 
   // Filter states - ใช้ค่าเป็นคำตามที่เก็บในฐานข้อมูล
   const [semester, setSemester] = useState<string>("ภาคต้น"); // default ภาคต้น
@@ -19,20 +38,59 @@ const Subject = () => {
   }, []);
 
   useEffect(() => {
-    fetchTrackingData();
-  }, [semester, selectedYear]);
+    fetchSubjectData();
+  }, [semester]);
 
-  const fetchTrackingData = async () => {
-    if (!semester || !selectedYear) return;
+  const fetchSubjectData = async () => {
+    if (!semester) return;
 
     try {
-      // ส่ง semester เป็นคำ (ภาคต้น, ภาคปลาย, ภาคฤดูร้อน) และ year เป็น number
-      const res = await getSemesterTracking(semester, Number(selectedYear));
-      const tracking = res.data || [];
-      setTrackingData(tracking);
+      setLoading(true);
+      // ส่ง semester เป็น query parameter
+      const response = await listSubjectSectionRates(semester);
+      
+      if (response.success && response.data) {
+        // Transform data และรวมวิชาที่มี subjectId เดียวกัน
+        const groupedBySubject = response.data.reduce((acc, item) => {
+          const key = item.subjectId;
+          
+          if (!acc[key]) {
+            // สร้าง entry ใหม่สำหรับวิชานี้
+            acc[key] = {
+              id: item.id,
+              subjectId: item.subjectId,
+              subjectName: item.subjectName,
+              program: item.program,
+              section: item.section, // เก็บ section แรกที่เจอ (LECTURE หรือ LAB)
+              sections: []
+            };
+          }
+          
+          // รวม sections จากทุก record ที่มี subjectId เดียวกัน
+          const transformedSections = item.sections.map((section) => ({
+            id: section.id,
+            sectionId: section.sectionId,
+            kind: section.kind,
+            totalHoursRequired: section.MaxTotalHours,
+            hoursUsed: section.teacherTotalHours || 0,
+            hoursRemaining: section.MaxTotalHours - (section.teacherTotalHours || 0),
+          }));
+          
+          acc[key].sections.push(...transformedSections);
+          
+          return acc;
+        }, {} as Record<string, SubjectData>);
+        
+        // แปลง object กลับเป็น array
+        const transformed = Object.values(groupedBySubject);
+        
+        setFilteredData(transformed);
+      }
     } catch (error) {
-      setTrackingData([]);
-      console.error("Error fetching semester tracking data:", error);
+      console.error("Error fetching subject data:", error);
+      setFilteredData([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -74,12 +132,13 @@ const Subject = () => {
       {/* ContentSection */}
       <div className="mx-auto max-w-7xl px-4 py-6">
         <TableSubjects
-          trackingData={trackingData}
+          trackingData={filteredData}
           semester={semester}
           year={selectedYear}
           onSemesterChange={setSemester}
           onYearChange={setSelectedYear}
           loading={loading}
+          onRefresh={fetchSubjectData}
         />
       </div>
     </div>
