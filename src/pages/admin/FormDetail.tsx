@@ -32,6 +32,7 @@ import { toast } from "sonner";
 import {
   genereteOutput1Docx,
   genereteOutput2Docx,
+  generateOutput3Docx,
 } from "../../api/docx/adminDocx";
 import {
   Select,
@@ -184,6 +185,39 @@ const FormDetail = () => {
       const link = document.createElement("a");
       link.href = url;
       link.download = `payment_evidence_${formId}_${selectedSectionForEvidence}.docx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success("ดาวน์โหลดเอกสารสำเร็จ!");
+    } catch (error: any) {
+      console.error("Print payment error:", error);
+      toast.error("ไม่สามารถสร้างเอกสารได้", {
+        description: error.message,
+      });
+    }
+  };
+
+  const handlePrintSummarySchedule = async () => {
+    if (!formId || !selectedSectionForEvidence) {
+      toast.warning("กรุณาเลือกหมู่เรียน", {
+        description: "กรุณาเลือกหมู่เรียนที่ต้องการพิมพ์เอกสาร",
+      });
+      return;
+    }
+
+    try {
+      const blob = await generateOutput3Docx(
+        formId,
+        selectedSectionForEvidence,
+      );
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `summary_schedule_${formId}_${selectedSectionForEvidence}.docx`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -425,6 +459,15 @@ const FormDetail = () => {
                 >
                   <Printer className="mr-2 h-4 w-4" />
                   พิมพ์หลักฐานการสอนชดเชย
+                </Button>
+                <Button
+                  variant="outline"
+                  className="bg-white text-blue-500 hover:bg-gray-100"
+                  onClick={handlePrintSummarySchedule}
+                  disabled={!selectedSectionForEvidence}
+                >
+                  <Printer className="mr-2 h-4 w-4" />
+                  พิมพ์ตารางสอน
                 </Button>
               </div>
             </div>

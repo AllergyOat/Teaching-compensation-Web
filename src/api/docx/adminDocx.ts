@@ -48,7 +48,7 @@ export const genereteOutput2Docx = async (formId: string, sectionId: string): Pr
   } 
 };
 
-export const generateSummaryScheduleDocx = async (formId: string, sectionId: string): Promise<Blob> => {
+export const generateOutput3Docx = async (formId: string, sectionId: string): Promise<Blob> => {
   try {
     const accessToken = localStorage.getItem("accessToken");
     if (!accessToken) {
