@@ -22,14 +22,6 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
-} from "../../components/ui/chart";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, LabelList, Pie, PieChart } from "recharts";
 import emptyBoxImage from "@/assets/images/students.png";
 import SemesterHoursChart from "../../components/admin/dashboard/SemesterHoursChart";
 
@@ -39,7 +31,7 @@ const UserDetail = () => {
   const [data, setData] = useState<Root | null>(null);
   const [adminInfo, setAdminInfo] = useState<{ firstName: string; lastName: string } | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedYear, ] = useState(new Date().getFullYear());
   const [selectedProgram, setSelectedProgram] = useState<"ภาคปกติ" | "ภาคพิเศษ">("ภาคปกติ");
   const [selectedMonth, setSelectedMonth] = useState<string>("ทั้งหมด");
   const [selectedDisplayYear, setSelectedDisplayYear] = useState<string>((new Date().getFullYear() + 543).toString());
@@ -162,21 +154,30 @@ const UserDetail = () => {
   // ใช้ข้อมูลกราฟ graph3 จาก API โดยตรง
   const graph3Data = data?.graph3 || [];
   
-  // Get unique subjects from approved forms
+  // Get unique subjects from approved forms filtered by selected semester
   const approvedForms = data?.forms?.filter((form) => form.status === 'APPROVED') || [];
   
   const uniqueSubjects = Array.from(
     new Map(
-      approvedForms.map((form) => [
-        form.subjectId,
-        { subjectId: form.subjectId, subjectName: form.subjectName }
-      ])
+      approvedForms
+        .filter((form) => form.semester === selectedSemester) // กรองตามภาคเรียนที่เลือก
+        .map((form) => [
+          form.subjectId,
+          { subjectId: form.subjectId, subjectName: form.subjectName }
+        ])
     ).values()
   ).sort((a, b) => a.subjectId.localeCompare(b.subjectId));
 
-  // Set default subject if not selected
+  // Set default subject if not selected or if selected subject is not in current semester
   if (!selectedSubject && uniqueSubjects.length > 0) {
     setSelectedSubject(uniqueSubjects[0].subjectId);
+  } else if (selectedSubject && !uniqueSubjects.find(s => s.subjectId === selectedSubject)) {
+    // ถ้าวิชาที่เลือกไว้ไม่มีในภาคเรียนที่เลือกใหม่ ให้เลือกวิชาแรก
+    if (uniqueSubjects.length > 0) {
+      setSelectedSubject(uniqueSubjects[0].subjectId);
+    } else {
+      setSelectedSubject("");
+    }
   }
 
   // Filter forms based on program, month, year, and subject
@@ -600,6 +601,9 @@ const UserDetail = () => {
                         ประเภท
                       </TableHead>
                       <TableHead className="text-white py-3 px-4 font-semibold">
+                        หมู่เรียน
+                      </TableHead>
+                      <TableHead className="text-white py-3 px-4 font-semibold">
                         รหัสวิชา
                       </TableHead>
                       <TableHead className="text-white py-3 px-4 font-semibold">
@@ -638,6 +642,11 @@ const UserDetail = () => {
                           }`}>
                             {form.section}
                           </span>
+                        </TableCell>
+                        <TableCell className="py-3 px-4 font-medium text-gray-900">
+                          {form.formScheduleDetails && form.formScheduleDetails.length > 0
+                            ? form.formScheduleDetails.map(detail => detail.sectionId).join(', ')
+                            : '-'}
                         </TableCell>
                         <TableCell className="py-3 px-4 font-medium text-gray-900">
                           {form.subjectId}

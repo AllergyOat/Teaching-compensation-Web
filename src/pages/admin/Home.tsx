@@ -336,8 +336,9 @@ const Home = () => {
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-gray-100">
-                        <TableHead className="font-semibold">DocumentID</TableHead>
                         <TableHead className="font-semibold">ประเภท</TableHead>
+                        <TableHead className="font-semibold">หมู่เรียน</TableHead>
+                        <TableHead className="font-semibold">รหัสรายวิชา</TableHead>
                         <TableHead className="font-semibold">ชื่อวิชา</TableHead>
                         <TableHead className="font-semibold">วันที่ส่ง</TableHead>
                         <TableHead className="font-semibold">สถานะ</TableHead>
@@ -347,8 +348,13 @@ const Home = () => {
                     <TableBody>
                       {userForms.map((form) => (
                         <TableRow key={form.id} className="bg-[#F0F9F6] hover:bg-[#E0F2EC]">
-                          <TableCell className="font-medium">{form.subjectId}</TableCell>
                           <TableCell>{translateSection(form.section)}</TableCell>
+                          <TableCell className="font-medium">
+                            {form.formScheduleDetails && form.formScheduleDetails.length > 0
+                              ? form.formScheduleDetails.map(detail => detail.sectionId).join(', ')
+                              : '-'}
+                          </TableCell>
+                          <TableCell className="font-medium">{form.subjectId}</TableCell>
                           <TableCell>{form.subjectName}</TableCell>
                           <TableCell>{formatDate(form.createdAt)}</TableCell>
                           <TableCell>
