@@ -17,8 +17,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Trash2, Edit, Printer } from "lucide-react";
-import { generateSchedulesDocx } from "@/api/docx/schedulesDocx";
-import { generateCompensationDocx } from "@/api/docx/compesationDocx";
+import { generateSchedulesDocx, generateCompensationDocx } from "@/api/docx/userDocx";
 import {
   Select,
   SelectContent,
