@@ -1,9 +1,8 @@
 import emptyBoxImage from "@/assets/images/students.png";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search } from "lucide-react";
+import SelectTeacher from "@/components/admin/home/SelectTeacher";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { getAdminHomeData, type Root } from "../../api/admin/home";
@@ -29,7 +28,7 @@ const Home = () => {
   const [data, setData] = useState<Root | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
-  const [searchName, setSearchName] = useState("");
+  const [selectedTeacher, setSelectedTeacher] = useState("ทั้งหมด");
   const [selectedProgram, setSelectedProgram] = useState("ทั้งหมด");
   const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth());
   const [selectedYear, setSelectedYear] = useState(getCurrentYear());
@@ -68,15 +67,13 @@ const Home = () => {
   if (err) return <div className="p-4 text-red-600">Error: {err}</div>;
   if (!data) return <div className="p-4">No data</div>;
 
-  // Filter users and forms based on search, program, month, year, and status
+  // Filter users and forms based on teacher selection, program, month, year, and status
   const filteredUsers = data.usersWithForms.filter((user) => {
-    // Search filter
-    const searchLower = searchName.toLowerCase();
-    const matchesSearch = searchName === "" || 
-      user.userName.toLowerCase().includes(searchLower) ||
-      user.userId.toLowerCase().includes(searchLower);
+    // Teacher filter
+    const matchesTeacher = selectedTeacher === "ทั้งหมด" || 
+      user.userId === selectedTeacher;
 
-    if (!matchesSearch) return false;
+    if (!matchesTeacher) return false;
 
     // Check if user has forms matching the filters
     const hasForms = user.forms.some((form) => {
@@ -119,10 +116,6 @@ const Home = () => {
       default:
         return status;
     }
-  };
-
-  const translateProgram = (program: string) => {
-    return program === "REGULAR_PROGRAM" ? "ภาคปกติ" : "ภาคพิเศษ";
   };
 
   const translateSection = (section: string) => {
@@ -239,18 +232,18 @@ const Home = () => {
           )}
           
           <div className="flex items-center justify-between gap-4">
-            {/* Left side - Search and Program Filter */}
+            {/* Left side - Teacher and Program Filter */}
             <div className="flex items-center gap-4">
-              {/* Search by Name */}
-              <div className="relative w-[400px]">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                <Input
-                  placeholder="Search by name or ID..."
-                  value={searchName}
-                  onChange={(e) => setSearchName(e.target.value)}
-                  className="pl-10 bg-white"
-                />
-              </div>
+              {/* Teacher Selector */}
+              <SelectTeacher
+                teachers={data.usersWithForms.map((user) => ({
+                  userId: user.userId,
+                  userName: user.userName,
+                  formCount: user.forms.length,
+                }))}
+                selectedTeacher={selectedTeacher}
+                onTeacherChange={setSelectedTeacher}
+              />
               
               {/* Program Filter */}
               <Select value={selectedProgram} onValueChange={setSelectedProgram}>
