@@ -2,6 +2,7 @@ import WelcomeCard from "@/components/home/WelcomeCard";
 import StaticFormCard from "@/components/home/StaticFormCard";
 import UserInfoCard from "@/components/home/UserInfoCard";
 import SchedulesCard from "@/components/home/SchedulesCard";
+import ProfileDialog from "@/components/home/ProfileDialog";
 import { useState, useEffect } from "react";
 import { getHomeData, type HomeResponse } from "@/api/user/home";
 import { Link, useNavigate, useSearchParams } from "react-router";
@@ -30,6 +31,9 @@ const Home = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<"user" | "money">("user");
+  
+  // Profile Dialog State
+  const [showProfileDialog, setShowProfileDialog] = useState(false);
 
   // Get current date for defaults
   const currentDate = new Date();
@@ -66,6 +70,15 @@ const Home = () => {
       setSearchParams(newSearchParams, { replace: true });
     }
   }, [searchParams, setSearchParams, currentMonth, currentYear]);
+
+  // Check for profile dialog flag from registration
+  useEffect(() => {
+    const shouldShowDialog = localStorage.getItem("showProfileDialog");
+    if (shouldShowDialog === "true") {
+      setShowProfileDialog(true);
+      localStorage.removeItem("showProfileDialog");
+    }
+  }, []);
 
   useEffect(() => {
     // Only fetch data if we have month and year values (either from URL or defaults)
@@ -333,6 +346,12 @@ const Home = () => {
           รายวิชา
         </div>
       </div>
+
+      {/* Profile Dialog */}
+      <ProfileDialog 
+        open={showProfileDialog} 
+        onOpenChange={setShowProfileDialog}
+      />
     </div>
   );
 };
