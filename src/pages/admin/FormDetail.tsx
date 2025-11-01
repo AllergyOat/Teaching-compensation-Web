@@ -35,6 +35,10 @@ import {
   generateOutput3Docx,
 } from "../../api/docx/adminDocx";
 import {
+  generateSchedulesDocx,
+  generateCompensationDocx,
+} from "../../api/docx/userDocx";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -59,6 +63,7 @@ const FormDetail = () => {
   // Print states
   const [selectedSectionForEvidence, setSelectedSectionForEvidence] =
     useState<string>("");
+  const [selectedDocumentType, setSelectedDocumentType] = useState<string>("");
 
   // Function to handle form approval
   const handleApprove = async () => {
@@ -131,8 +136,8 @@ const FormDetail = () => {
     }
   };
 
-  // Function to handle printing compensation evidence
-  const handlePrintEvidence = async () => {
+  // Function to handle printing selected document
+  const handlePrintDocument = async () => {
     if (!formId || !selectedSectionForEvidence) {
       toast.warning("กรุณาเลือกหมู่เรียน", {
         description: "กรุณาเลือกหมู่เรียนที่ต้องการพิมพ์เอกสาร",
@@ -140,17 +145,40 @@ const FormDetail = () => {
       return;
     }
 
+    if (!selectedDocumentType) {
+      toast.warning("กรุณาเลือกประเภทเอกสาร", {
+        description: "กรุณาเลือกประเภทเอกสารที่ต้องการพิมพ์",
+      });
+      return;
+    }
+
     try {
-      const blob = await genereteOutput1Docx(
-        formId,
-        selectedSectionForEvidence,
-      );
+      let blob: Blob;
+      let filename: string;
+
+      switch (selectedDocumentType) {
+        case "evidence":
+          blob = await genereteOutput1Docx(formId, selectedSectionForEvidence);
+          filename = `compensation_evidence_${formId}_${selectedSectionForEvidence}.docx`;
+          break;
+        case "payment":
+          blob = await genereteOutput2Docx(formId, selectedSectionForEvidence);
+          filename = `payment_evidence_${formId}_${selectedSectionForEvidence}.docx`;
+          break;
+        case "summary":
+          blob = await generateOutput3Docx(formId, selectedSectionForEvidence);
+          filename = `summary_schedule_${formId}_${selectedSectionForEvidence}.docx`;
+          break;
+        default:
+          toast.error("ประเภทเอกสารไม่ถูกต้อง");
+          return;
+      }
 
       // Create download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `compensation_evidence_${formId}_${selectedSectionForEvidence}.docx`;
+      link.download = filename;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -158,15 +186,15 @@ const FormDetail = () => {
 
       toast.success("ดาวน์โหลดเอกสารสำเร็จ!");
     } catch (error: any) {
-      console.error("Print evidence error:", error);
+      console.error("Print document error:", error);
       toast.error("ไม่สามารถสร้างเอกสารได้", {
         description: error.message,
       });
     }
   };
 
-  // Function to handle printing payment form
-  const handlePrintPayment = async () => {
+  // Function to handle printing user schedules document
+  const handlePrintUserSchedules = async () => {
     if (!formId || !selectedSectionForEvidence) {
       toast.warning("กรุณาเลือกหมู่เรียน", {
         description: "กรุณาเลือกหมู่เรียนที่ต้องการพิมพ์เอกสาร",
@@ -175,7 +203,7 @@ const FormDetail = () => {
     }
 
     try {
-      const blob = await genereteOutput2Docx(
+      const blob = await generateSchedulesDocx(
         formId,
         selectedSectionForEvidence,
       );
@@ -184,7 +212,7 @@ const FormDetail = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `payment_evidence_${formId}_${selectedSectionForEvidence}.docx`;
+      link.download = `teaching_report_${formId}_${selectedSectionForEvidence}.docx`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -192,14 +220,15 @@ const FormDetail = () => {
 
       toast.success("ดาวน์โหลดเอกสารสำเร็จ!");
     } catch (error: any) {
-      console.error("Print payment error:", error);
+      console.error("Print user schedules error:", error);
       toast.error("ไม่สามารถสร้างเอกสารได้", {
         description: error.message,
       });
     }
   };
 
-  const handlePrintSummarySchedule = async () => {
+  // Function to handle printing user compensation document
+  const handlePrintUserCompensation = async () => {
     if (!formId || !selectedSectionForEvidence) {
       toast.warning("กรุณาเลือกหมู่เรียน", {
         description: "กรุณาเลือกหมู่เรียนที่ต้องการพิมพ์เอกสาร",
@@ -208,7 +237,7 @@ const FormDetail = () => {
     }
 
     try {
-      const blob = await generateOutput3Docx(
+      const blob = await generateCompensationDocx(
         formId,
         selectedSectionForEvidence,
       );
@@ -217,7 +246,7 @@ const FormDetail = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `summary_schedule_${formId}_${selectedSectionForEvidence}.docx`;
+      link.download = `compensation_memo_${formId}_${selectedSectionForEvidence}.docx`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -225,7 +254,7 @@ const FormDetail = () => {
 
       toast.success("ดาวน์โหลดเอกสารสำเร็จ!");
     } catch (error: any) {
-      console.error("Print payment error:", error);
+      console.error("Print user compensation error:", error);
       toast.error("ไม่สามารถสร้างเอกสารได้", {
         description: error.message,
       });
@@ -386,36 +415,61 @@ const FormDetail = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="mt-4 mb-6">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              <div>
-                <h3 className="text-lg font-semibold">{form.subjectName}</h3>
-                <p className="font-semibold text-gray-600">{form.subjectId}</p>
+            <div className="flex items-start justify-between gap-4">
+              <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div>
+                  <h3 className="text-lg font-semibold">{form.subjectName}</h3>
+                  <p className="font-semibold text-gray-600">
+                    {form.subjectId}
+                  </p>
+                </div>
+                <div>
+                  <p>
+                    <span className="font-medium">เดือน:</span> {form.month}
+                  </p>
+                  <p>
+                    <span className="font-medium">ภาคการศึกษา:</span>{" "}
+                    {form.semester}
+                  </p>
+                  <p>
+                    <span className="font-medium">ปีการศึกษา:</span> {form.year}
+                  </p>
+                </div>
+                <div>
+                  <p>
+                    <span className="font-medium">ผู้สอน:</span>{" "}
+                    {form.user.position} {form.user.firstName}{" "}
+                    {form.user.lastName}
+                  </p>
+                  <p>
+                    <span className="font-medium">หน่วยงาน:</span>{" "}
+                    {form.user.department}
+                  </p>
+                  <p>
+                    <span className="font-medium">อีเมล:</span>{" "}
+                    {form.user.email}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p>
-                  <span className="font-medium">เดือน:</span> {form.month}
-                </p>
-                <p>
-                  <span className="font-medium">ภาคการศึกษา:</span>{" "}
-                  {form.semester}
-                </p>
-                <p>
-                  <span className="font-medium">ปีการศึกษา:</span> {form.year}
-                </p>
-              </div>
-              <div>
-                <p>
-                  <span className="font-medium">ผู้สอน:</span>{" "}
-                  {form.user.position} {form.user.firstName}{" "}
-                  {form.user.lastName}
-                </p>
-                <p>
-                  <span className="font-medium">หน่วยงาน:</span>{" "}
-                  {form.user.department}
-                </p>
-                <p>
-                  <span className="font-medium">อีเมล:</span> {form.user.email}
-                </p>
+              <div className="flex flex-col gap-2">
+                <Button
+                  variant="outline"
+                  className="bg-white text-purple-500 hover:bg-gray-100"
+                  onClick={handlePrintUserSchedules}
+                  disabled={!selectedSectionForEvidence}
+                >
+                  <Printer className="mr-2 h-4 w-4" />
+                  พิมพ์แบบรายงานการสอน
+                </Button>
+                <Button
+                  variant="outline"
+                  className="bg-white text-indigo-500 hover:bg-gray-100"
+                  onClick={handlePrintUserCompensation}
+                  disabled={!selectedSectionForEvidence}
+                >
+                  <Printer className="mr-2 h-4 w-4" />
+                  พิมพ์บันทึกข้อความชดเชย
+                </Button>
               </div>
             </div>
           </CardContent>
@@ -424,8 +478,8 @@ const FormDetail = () => {
         {/* Schedule Details */}
         <Card className="overflow-hidden border-0 p-0 shadow-lg transition-shadow hover:shadow-xl">
           <CardHeader className="rounded-t-lg bg-gradient-to-r from-[#02BC77] to-[#006B42] p-6 text-white">
-            <CardTitle className="text-xl font-bold">ตารางการสอน</CardTitle>
-            <div className="mt-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl font-bold">ตารางการสอน</CardTitle>
               <div className="flex items-center gap-2">
                 <Select
                   value={selectedSectionForEvidence}
@@ -442,32 +496,31 @@ const FormDetail = () => {
                     ))}
                   </SelectContent>
                 </Select>
+                <Select
+                  value={selectedDocumentType}
+                  onValueChange={setSelectedDocumentType}
+                >
+                  <SelectTrigger className="w-[280px] bg-white text-gray-900">
+                    <SelectValue placeholder="เลือกประเภทเอกสาร" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="evidence">แบบเบิกเงินค่าสอน</SelectItem>
+                    <SelectItem value="payment">
+                      หลักฐานการเบิกจ่ายเงินค่าสอน
+                    </SelectItem>
+                    <SelectItem value="summary">ตารางสอน</SelectItem>
+                  </SelectContent>
+                </Select>
                 <Button
                   variant="outline"
-                  className="bg-white text-orange-500 hover:bg-gray-100"
-                  onClick={handlePrintEvidence}
-                  disabled={!selectedSectionForEvidence}
+                  className="bg-white text-blue-600 hover:bg-blue-50"
+                  onClick={handlePrintDocument}
+                  disabled={
+                    !selectedSectionForEvidence || !selectedDocumentType
+                  }
                 >
                   <Printer className="mr-2 h-4 w-4" />
-                  พิมพ์ใบเบิกเงินค่าสอน
-                </Button>
-                <Button
-                  variant="outline"
-                  className="bg-white text-blue-500 hover:bg-gray-100"
-                  onClick={handlePrintPayment}
-                  disabled={!selectedSectionForEvidence}
-                >
-                  <Printer className="mr-2 h-4 w-4" />
-                  พิมพ์หลักฐานการสอนชดเชย
-                </Button>
-                <Button
-                  variant="outline"
-                  className="bg-white text-blue-500 hover:bg-gray-100"
-                  onClick={handlePrintSummarySchedule}
-                  disabled={!selectedSectionForEvidence}
-                >
-                  <Printer className="mr-2 h-4 w-4" />
-                  พิมพ์ตารางสอน
+                  พิมพ์เอกสาร
                 </Button>
               </div>
             </div>

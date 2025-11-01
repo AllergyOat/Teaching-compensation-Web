@@ -244,39 +244,26 @@ export const LectureGroup = ({
             </Select>
           </div>
         )}
-        <div className="flex gap-4">
-          <Label htmlFor={`formScheduleDetails[${index}].totalHours`}>
-            {isFromTracking
-              ? "จำนวนชั่วโมงการสอนคงเหลืออยู่"
-              : "จำนวนชั่วโมงการสอนทั้งหมด"}
-          </Label>
-          <div className="flex">
-            {isFromTracking ? (
+        {isFromTracking && (
+          <div className="flex gap-4">
+            <Label htmlFor={`formScheduleDetails[${index}].totalHours`}>
+              จำนวนชั่วโมงการสอนคงเหลืออยู่
+            </Label>
+            <div className="flex">
               <Label>
                 <span className="font-bold">
                   {watch(`formScheduleDetails[${index}].totalHours`)}
                 </span>
                 ชั่วโมง
               </Label>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Input
-                  className="w-10 border-0 border-gray-400 bg-white shadow-md"
-                  placeholder="กรอกชั่วโมงการสอนทั้งหมด"
-                  {...register(`formScheduleDetails[${index}].totalHours`, {
-                    valueAsNumber: true,
-                  })}
-                />
-                <p>ชั่วโมง</p>
-              </div>
-            )}
-            {errors?.totalHours && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.totalHours.message}
-              </p>
-            )}
+              {errors?.totalHours && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.totalHours.message}
+                </p>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <div>

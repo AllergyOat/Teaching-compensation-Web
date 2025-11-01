@@ -479,6 +479,7 @@ const FormInput = () => {
                 className="mt-1 bg-white shadow-md"
                 placeholder="เช่น Computer Programming"
                 {...register("form.subjectName")}
+                readOnly
               />
               {errors.form?.subjectName && (
                 <p className="mt-1 text-sm text-red-500">
