@@ -196,7 +196,7 @@ export const LectureGroup = ({
             <span className="mr-1">
               {showCompensation ? <Minus /> : <Plus />}
             </span>
-            {showCompensation ? "ซ่อนบันทึกความ" : "เพิ่มบันทึกความ"}
+            {showCompensation ? "ซ่อนบันทึกข้อความ" : "เพิ่มบันทึกข้อความ"}
           </Button>
         </div>
       </div>

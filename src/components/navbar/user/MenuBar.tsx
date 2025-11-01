@@ -20,7 +20,7 @@ const MenuBar = ({ mobile = false, onItemClick }: MenuBarProps) => {
         : "block px-4 py-3 text-lg hover:bg-gray-50 text-gray-700";
     }
     return isActive(path) 
-      ? "font-bold border-b-[6px] border-[#048C59] pb-[calc(1rem-6px)]" 
+      ? "font-bold border-b-[6px] border-[#048C59] pb-[calc(1rem-4.5px)]" 
       : "hover:text-gray-600 pb-4";
   };
 

@@ -358,21 +358,21 @@ const FormDetail = () => {
               </Select>
               <Button
                 variant="outline"
-                className="text-orange-400 hover:bg-green-50 hover:text-orange-600"
-                onClick={handlePrintCompensation}
-                disabled={!selectedSection}
-              >
-                <Printer className="mr-2 h-4 w-4" />
-                ปริ้นบันทึกความ
-              </Button>
-              <Button
-                variant="outline"
                 className="text-green-600 hover:bg-green-50 hover:text-green-700"
                 onClick={handlePrintSchedule}
                 disabled={!selectedSection}
               >
                 <Printer className="mr-2 h-4 w-4" />
                 ปริ้นตารางสอน
+              </Button>
+              <Button
+                variant="outline"
+                className="text-orange-400 hover:bg-green-50 hover:text-orange-600"
+                onClick={handlePrintCompensation}
+                disabled={!selectedSection}
+              >
+                <Printer className="mr-2 h-4 w-4" />
+                ปริ้นบันทึกข้อความ
               </Button>
             </div>
           </CardHeader>
@@ -540,9 +540,12 @@ const FormDetail = () => {
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle className="text-red-600">ยืนยันการลบแบบฟอร์ม</DialogTitle>
+            <DialogTitle className="text-red-600">
+              ยืนยันการลบแบบฟอร์ม
+            </DialogTitle>
             <DialogDescription className="text-gray-600">
-              คุณแน่ใจหรือไม่ที่จะลบแบบฟอร์มนี้? การดำเนินการนี้ไม่สามารถยกเลิกได้
+              คุณแน่ใจหรือไม่ที่จะลบแบบฟอร์มนี้?
+              การดำเนินการนี้ไม่สามารถยกเลิกได้
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">

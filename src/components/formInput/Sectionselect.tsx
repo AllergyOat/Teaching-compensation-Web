@@ -14,7 +14,7 @@ const Sectionselect = ({ name }: { name: string }) => {
         <Card className="mt-2 h-16 w-full cursor-pointer border-0 shadow-md transition-all duration-200 hover:scale-[1.02] hover:bg-gray-100 hover:shadow-lg">
           <CardContent className="flex h-full items-center">
             <p>
-              กรอกแบบฟอร์มการสอนหมู่บรรยาย <BadgeComponent />
+              <span className="mr-4">กรอกแบบฟอร์มการสอนหมู่บรรยาย</span> <BadgeComponent />
             </p>
           </CardContent>
         </Card>
@@ -23,7 +23,7 @@ const Sectionselect = ({ name }: { name: string }) => {
         <Card className="mt-4 h-16 w-full cursor-pointer border-0 shadow-md transition-all duration-200 hover:scale-[1.02] hover:bg-gray-100 hover:shadow-lg">
           <CardContent className="flex h-full items-center">
             <p>
-              กรอกแบบฟอร์มการสอนหมู่ปฏิบัติ <BadgeComponent />
+              <span className="mr-4">กรอกแบบฟอร์มการสอนหมู่ปฏิบัติ</span> <BadgeComponent />
             </p>
           </CardContent>
         </Card>

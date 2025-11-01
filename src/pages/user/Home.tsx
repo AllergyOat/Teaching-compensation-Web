@@ -23,6 +23,7 @@ import {
 import emthyBoxImg from "@/assets/images/empty_box.png";
 import { Button } from "@/components/ui/button";
 import AmountInfoCard from "@/components/home/AmountInfoCard";
+import { RotateCcw } from 'lucide-react';
 
 const Home = () => {
   const [homeData, setHomeData] = useState<HomeResponse | null>(null);
@@ -297,7 +298,8 @@ const Home = () => {
                 onClick={clearFilters}
                 className="rounded bg-[#02BC77] px-3 py-2 text-sm font-bold text-white hover:bg-green-800"
               >
-                รีเซ็ตเป็นเดือนปัจจุบัน
+                <RotateCcw className="h-4" />
+                รีเซ็ต
               </Button>
             )}
           </div>
