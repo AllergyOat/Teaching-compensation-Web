@@ -75,6 +75,8 @@ interface LectureGroupProps {
   setValue: UseFormSetValue<any>;
   totalGroups: number;
   errors?: any;
+  isFromTracking?: boolean;
+  sectionId?: string;
 }
 
 // This is the component for a single lecture group and its schedules
@@ -87,6 +89,8 @@ export const LectureGroup = ({
   setValue,
   totalGroups,
   errors,
+  isFromTracking = false,
+  sectionId,
 }: LectureGroupProps) => {
   // This is a NESTED field array for the schedules within this group
   const { fields, append, remove } = useFieldArray({
@@ -156,11 +160,11 @@ export const LectureGroup = ({
   });
 
   return (
-    <div className="lecture-group mt-9">
+    <div className="lecture-group mt-9" id={`section-${sectionId}`}>
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">ตารางสอน {index + 1}</h2>
         <div className="flex items-center gap-2">
-          {totalGroups > 1 && (
+          {totalGroups > 1 && isFromTracking === false && (
             <Button
               type="button"
               className="text-red-600 hover:text-red-700"
@@ -240,6 +244,39 @@ export const LectureGroup = ({
             </Select>
           </div>
         )}
+        <div className="flex gap-4">
+          <Label htmlFor={`formScheduleDetails[${index}].totalHours`}>
+            {isFromTracking
+              ? "จำนวนชั่วโมงการสอนคงเหลืออยู่"
+              : "จำนวนชั่วโมงการสอนทั้งหมด"}
+          </Label>
+          <div className="flex">
+            {isFromTracking ? (
+              <Label>
+                <span className="font-bold">
+                  {watch(`formScheduleDetails[${index}].totalHours`)}
+                </span>
+                ชั่วโมง
+              </Label>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Input
+                  className="w-10 border-0 border-gray-400 bg-white shadow-md"
+                  placeholder="กรอกชั่วโมงการสอนทั้งหมด"
+                  {...register(`formScheduleDetails[${index}].totalHours`, {
+                    valueAsNumber: true,
+                  })}
+                />
+                <p>ชั่วโมง</p>
+              </div>
+            )}
+            {errors?.totalHours && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.totalHours.message}
+              </p>
+            )}
+          </div>
+        </div>
       </div>
 
       <div>
@@ -272,7 +309,6 @@ export const LectureGroup = ({
                           `formScheduleDetails[${index}].schedules[${k}].date`,
                         )
                       : "";
-
                     return (
                       <Popover
                         open={isOpen}
@@ -744,8 +780,6 @@ export const LectureGroup = ({
               </p>
             )}
           </div>
-
-          
         </div>
       )}
     </div>
