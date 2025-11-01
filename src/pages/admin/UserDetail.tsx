@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router";
 import { getAdminTeacherDetail } from "../../api/admin/teacherDetail";
 import type { Root, Form } from "../../api/admin/teacherDetail";
 import { getAdminHomeData } from "../../api/admin/home";
+import { getSemesterTracking } from "../../api/form/tracking";
+import type { SemesterTrackingData } from "../../api/form/tracking";
 import { Card, CardContent, CardHeader } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import {
@@ -29,6 +31,7 @@ import {
 } from "../../components/ui/chart";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, LabelList, Pie, PieChart } from "recharts";
 import emptyBoxImage from "@/assets/images/students.png";
+import SemesterHoursChart from "../../components/admin/dashboard/SemesterHoursChart";
 
 const UserDetail = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -40,7 +43,9 @@ const UserDetail = () => {
   const [selectedProgram, setSelectedProgram] = useState<"ภาคปกติ" | "ภาคพิเศษ">("ภาคปกติ");
   const [selectedMonth, setSelectedMonth] = useState<string>("ทั้งหมด");
   const [selectedDisplayYear, setSelectedDisplayYear] = useState<string>((new Date().getFullYear() + 543).toString());
+  const [selectedSubject, setSelectedSubject] = useState<string>("");
   const [selectedSemester, setSelectedSemester] = useState<string>("ภาคต้น");
+  const [trackingData, setTrackingData] = useState<SemesterTrackingData[]>([]);
 
   // Month and Year options
   const months = [
@@ -69,13 +74,18 @@ const UserDetail = () => {
         // แปลงปี ค.ศ. เป็น พ.ศ. สำหรับ API (เพิ่ม 543)
         const buddhistYear = selectedYear + 543;
         
-        const [result, adminRes] = await Promise.all([
+        const [result, adminRes, trackingRes] = await Promise.all([
           getAdminTeacherDetail(userId, buddhistYear),
-          getAdminHomeData()
+          getAdminHomeData(),
+          getSemesterTracking({
+            semester: "ภาคต้น", // ดึงทั้งสองภาค
+            year: buddhistYear,
+          }).catch(() => ({ data: [] })) // ถ้า error ให้ return empty array
         ]);
         
         setData(result);
         setAdminInfo(adminRes.myInformation);
+        setTrackingData(trackingRes.data || []);
       } catch (error) {
         console.error("Error fetching teacher detail:", error);
       } finally {
@@ -152,7 +162,24 @@ const UserDetail = () => {
   // ใช้ข้อมูลกราฟ graph3 จาก API โดยตรง
   const graph3Data = data?.graph3 || [];
   
-  // Filter forms based on program, month, and year
+  // Get unique subjects from approved forms
+  const approvedForms = data?.forms?.filter((form) => form.status === 'APPROVED') || [];
+  
+  const uniqueSubjects = Array.from(
+    new Map(
+      approvedForms.map((form) => [
+        form.subjectId,
+        { subjectId: form.subjectId, subjectName: form.subjectName }
+      ])
+    ).values()
+  ).sort((a, b) => a.subjectId.localeCompare(b.subjectId));
+
+  // Set default subject if not selected
+  if (!selectedSubject && uniqueSubjects.length > 0) {
+    setSelectedSubject(uniqueSubjects[0].subjectId);
+  }
+
+  // Filter forms based on program, month, year, and subject
   const filteredForms = (data?.forms?.filter((form) => {
     const matchesStatus = form.status === 'APPROVED';
     
@@ -167,7 +194,10 @@ const UserDetail = () => {
     // เช็คปี - Backend เก็บปีเป็น พ.ศ. อยู่แล้ว ไม่ต้องแปลง
     const matchesYear = form.year === parseInt(selectedDisplayYear);
     
-    return matchesStatus && matchesProgram && matchesMonth && matchesYear;
+    // กรองตามวิชาที่เลือก (ต้องเลือกวิชา)
+    const matchesSubject = selectedSubject ? form.subjectId === selectedSubject : false;
+    
+    return matchesStatus && matchesProgram && matchesMonth && matchesYear && matchesSubject;
   }) || []).sort((a, b) => {
     // เรียงตามเดือน
     const monthOrder = [
@@ -209,19 +239,6 @@ const UserDetail = () => {
                   ฿{data.summary.grand.totalAmount.toLocaleString()}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm opacity-90">ปีการศึกษา:</span>
-                <Select value={selectedYear.toString()} onValueChange={(value) => setSelectedYear(Number(value))}>
-                  <SelectTrigger className="w-[100px] bg-white text-gray-900 font-semibold border-2 border-white hover:bg-gray-50">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white">
-                    <SelectItem value="2025" className="text-gray-900">2568</SelectItem>
-                    <SelectItem value="2024" className="text-gray-900">2567</SelectItem>
-                    <SelectItem value="2023" className="text-gray-900">2566</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
           </div>
           <div>
@@ -235,11 +252,50 @@ const UserDetail = () => {
       </div>
 
       <div className="mx-auto max-w-7xl px-10 pt-8 pb-8">
-        {/* Title */}
-        <h2 className="text-xl font-bold text-[#0E8240] mb-4">ข้อมูลฟอร์ม</h2>
+        {/* Title and Filters */}
+        <div className="mb-4">
+          <h2 className="text-xl font-bold text-[#0E8240] mb-3">ข้อมูลฟอร์ม</h2>
+          
+          {/* Subject and Semester Selectors */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-base font-semibold text-[#006B42]">เลือกวิชา:</span>
+              <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+                <SelectTrigger className="w-[300px] bg-white text-gray-900 border-2 border-[#006B42] font-medium">
+                  <SelectValue placeholder="เลือกรหัสวิชา - ชื่อวิชา" />
+                </SelectTrigger>
+                <SelectContent className="bg-white max-h-[300px]">
+                  {uniqueSubjects.map((subject) => (
+                    <SelectItem 
+                      key={subject.subjectId} 
+                      value={subject.subjectId} 
+                      className="text-gray-900"
+                    >
+                      {subject.subjectId} - {subject.subjectName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-base font-semibold text-[#006B42]">เลือกภาคเรียน:</span>
+              <Select value={selectedSemester} onValueChange={setSelectedSemester}>
+                <SelectTrigger className="w-[140px] bg-white text-gray-900 border-2 border-[#006B42] font-medium">
+                  <SelectValue placeholder="เลือกภาค" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  <SelectItem value="ภาคต้น" className="text-gray-900">ภาคต้น</SelectItem>
+                  <SelectItem value="ภาคปลาย" className="text-gray-900">ภาคปลาย</SelectItem>
+                  <SelectItem value="ภาคฤดูร้อน" className="text-gray-900">ภาคฤดูร้อน</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
 
         {/* Chart Section - Lecture vs Lab Comparison */}
-        <Card className="shadow-lg mb-6 overflow-hidden border-2 border-[#006B42] rounded-xl bg-transparent p-0">
+        {/* <Card className="shadow-lg mb-6 overflow-hidden border-2 border-[#006B42] rounded-xl bg-transparent p-0">
           <CardHeader className="bg-gradient-to-r from-[#006B42] to-[#02BC77] p-4">
             <h3 className="text-lg font-semibold text-white">
               กราฟเปรียบเทียบจำนวนรายวิชา Lecture และ Lab
@@ -298,12 +354,12 @@ const UserDetail = () => {
               </div>
             )}
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Additional Charts Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div className="mb-6">
           {/* Horizontal Bar Chart - Monthly Amount */}
-          <Card className="shadow-lg overflow-hidden border-2 border-[#006B42] rounded-xl bg-transparent p-0">
+          {/* <Card className="shadow-lg overflow-hidden border-2 border-[#006B42] rounded-xl bg-transparent p-0">
             <CardHeader className="bg-gradient-to-r from-[#006B42] to-[#02BC77] p-4">
               <h3 className="text-lg font-semibold text-white">
                 จำนวนเงินที่เบิกในแต่ละเดือน
@@ -360,139 +416,15 @@ const UserDetail = () => {
                 </div>
               )}
             </CardContent>
-          </Card>
+          </Card> */}
 
-          {/* Pie Chart - Hours by Semester */}
-          <Card className="shadow-lg overflow-hidden border-2 border-[#006B42] rounded-xl bg-transparent p-0">
-            <CardHeader className="bg-gradient-to-r from-[#006B42] to-[#02BC77] p-4">
-              <h3 className="text-lg font-semibold text-white">
-                จำนวนชั่วโมงที่ส่งฟอร์มต่อภาค
-              </h3>
-            </CardHeader>
-            <CardContent className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 relative">
-              {graph3Data && graph3Data.length > 0 ? (
-                (() => {
-                  const semesterData = graph3Data.find(item => item.semester === selectedSemester);
-                  if (!semesterData) {
-                    return (
-                      <div className="text-center py-8">
-                        <p className="text-gray-500">ไม่มีข้อมูลสำหรับภาคเรียนนี้</p>
-                      </div>
-                    );
-                  }
-
-                  const pieChartData = [
-                    {
-                      type: "Lecture",
-                      hours: semesterData.totalLectureHours,
-                      fill: "#fbbf24", // yellow-400
-                    },
-                    {
-                      type: "Lab",
-                      hours: semesterData.totalLabHours,
-                      fill: "#a855f7", // purple-500
-                    },
-                  ];
-
-                  const chartConfig = {
-                    hours: {
-                      label: "ชั่วโมง",
-                    },
-                    Lecture: {
-                      label: "Lecture",
-                      color: "#fbbf24",
-                    },
-                    Lab: {
-                      label: "Lab",
-                      color: "#a855f7",
-                    },
-                  };
-
-                  return (
-                    <div className="flex flex-col items-center w-full">
-                      {/* Semester Selector - Top Right */}
-                      <div className="absolute top-4 right-4 z-10">
-                        <Select value={selectedSemester} onValueChange={setSelectedSemester}>
-                          <SelectTrigger className="w-[120px] bg-white text-gray-900 font-semibold shadow-md">
-                            <SelectValue placeholder="เลือกภาค" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white">
-                            <SelectItem value="ภาคต้น" className="text-gray-900">ภาคต้น</SelectItem>
-                            <SelectItem value="ภาคปลาย" className="text-gray-900">ภาคปลาย</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="w-full h-[240px] flex items-center justify-center">
-                        <ChartContainer
-                          config={chartConfig}
-                          className="w-[240px] h-[240px]"
-                        >
-                          <PieChart>
-                            <Pie
-                              data={pieChartData}
-                              dataKey="hours"
-                              nameKey="type"
-                              cx="50%"
-                              cy="50%"
-                              outerRadius={70}
-                              label
-                            />
-                            <ChartLegend
-                              content={<ChartLegendContent nameKey="type" />}
-                              className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
-                            />
-                          </PieChart>
-                        </ChartContainer>
-                      </div>
-
-                      {/* Summary Cards */}
-                      <div className="mt-4 w-full grid grid-cols-2 gap-3">
-                        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 p-3 rounded-lg border-2 border-yellow-400">
-                          <p className="text-xs text-gray-600 font-medium">Lecture</p>
-                          <p className="text-xl font-bold text-yellow-600">
-                            {semesterData.totalLectureHours}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            / {semesterData.maxLectureHours} ชั่วโมง
-                          </p>
-                          <div className="mt-2 w-full bg-gray-200 rounded-full h-1.5">
-                            <div
-                              className="bg-yellow-500 h-1.5 rounded-full"
-                              style={{
-                                width: `${(semesterData.totalLectureHours / semesterData.maxLectureHours) * 100}%`,
-                              }}
-                            />
-                          </div>
-                        </div>
-                        <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-3 rounded-lg border-2 border-purple-500">
-                          <p className="text-xs text-gray-600 font-medium">Lab</p>
-                          <p className="text-xl font-bold text-purple-600">
-                            {semesterData.totalLabHours}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            / {semesterData.maxLabHours} ชั่วโมง
-                          </p>
-                          <div className="mt-2 w-full bg-gray-200 rounded-full h-1.5">
-                            <div
-                              className="bg-purple-500 h-1.5 rounded-full"
-                              style={{
-                                width: `${(semesterData.totalLabHours / semesterData.maxLabHours) * 100}%`,
-                              }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">ไม่มีข้อมูลกราฟ</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {/* Pie Chart - Hours by Section */}
+          <SemesterHoursChart 
+            filteredForms={filteredForms}
+            selectedSubject={selectedSubject}
+            selectedSemester={selectedSemester}
+            trackingData={trackingData}
+          />
         </div>
 
         {/* ==================== Summary Cards Section ==================== */}
