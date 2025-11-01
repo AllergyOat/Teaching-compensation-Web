@@ -43,6 +43,10 @@ const FormSubject = () => {
   const [includeRegularProgram, setIncludeRegularProgram] = useState(true);
   const [includeSpecialProgram, setIncludeSpecialProgram] = useState(true);
   
+  // State to store program data when unchecked (to restore when checked back)
+  const [savedRegularProgram, setSavedRegularProgram] = useState<any>(null);
+  const [savedSpecialProgram, setSavedSpecialProgram] = useState<any>(null);
+  
   const {
     register,
     control,
@@ -156,42 +160,73 @@ const FormSubject = () => {
 
   // Update programs based on checkbox selection
   useEffect(() => {
+    const currentPrograms = watch("programs") || [];
     const newPrograms = [];
     
     if (includeRegularProgram) {
-      newPrograms.push({
-        program: "REGULAR_PROGRAM" as const,
-        sections: [
-          {
-            sectionId: "",
-            kind: "LECTURE" as const,
-            ratePerHour: 0,
-            maxTotalHours: 0,
-            teacherTotalHours: null,
-          },
-        ],
-      });
+      // Try to restore from saved data or find existing data
+      const existingRegular = currentPrograms.find(p => p.program === "REGULAR_PROGRAM");
+      const regularData = savedRegularProgram || existingRegular;
+      
+      if (regularData) {
+        newPrograms.push(regularData);
+      } else {
+        // Create new with default values
+        newPrograms.push({
+          program: "REGULAR_PROGRAM" as const,
+          sections: [
+            {
+              sectionId: "",
+              kind: "LECTURE" as const,
+              ratePerHour: 0,
+              maxTotalHours: 0,
+              teacherTotalHours: null,
+            },
+          ],
+        });
+      }
+    } else {
+      // Save current regular program data before removing
+      const existingRegular = currentPrograms.find(p => p.program === "REGULAR_PROGRAM");
+      if (existingRegular) {
+        setSavedRegularProgram(existingRegular);
+      }
     }
     
     if (includeSpecialProgram) {
-      newPrograms.push({
-        program: "SPECIAL_PROGRAM" as const,
-        sections: [
-          {
-            sectionId: "",
-            kind: "LECTURE" as const,
-            ratePerHour: 0,
-            maxTotalHours: 0,
-            teacherTotalHours: null,
-          },
-        ],
-      });
+      // Try to restore from saved data or find existing data
+      const existingSpecial = currentPrograms.find(p => p.program === "SPECIAL_PROGRAM");
+      const specialData = savedSpecialProgram || existingSpecial;
+      
+      if (specialData) {
+        newPrograms.push(specialData);
+      } else {
+        // Create new with default values
+        newPrograms.push({
+          program: "SPECIAL_PROGRAM" as const,
+          sections: [
+            {
+              sectionId: "",
+              kind: "LECTURE" as const,
+              ratePerHour: 0,
+              maxTotalHours: 0,
+              teacherTotalHours: null,
+            },
+          ],
+        });
+      }
+    } else {
+      // Save current special program data before removing
+      const existingSpecial = currentPrograms.find(p => p.program === "SPECIAL_PROGRAM");
+      if (existingSpecial) {
+        setSavedSpecialProgram(existingSpecial);
+      }
     }
     
     if (newPrograms.length > 0) {
       replacePrograms(newPrograms);
     }
-  }, [includeRegularProgram, includeSpecialProgram, replacePrograms]);
+  }, [includeRegularProgram, includeSpecialProgram]);
 
   const onSubmit = async (data: FormSubjectData) => {
     console.log("Form data:", JSON.stringify(data, null, 2));

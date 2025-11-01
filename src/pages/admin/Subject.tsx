@@ -19,6 +19,7 @@ interface SubjectData {
   subjectId: string;
   subjectName: string;
   program: string;
+  semester?: string;
   section: string;
   sections: SectionData[];
 }
@@ -30,7 +31,7 @@ const Subject = () => {
   const [filteredData, setFilteredData] = useState<SubjectData[]>([]);
 
   // Filter states - ใช้ค่าเป็นคำตามที่เก็บในฐานข้อมูล
-  const [semester, setSemester] = useState<string>("ภาคต้น"); // default ภาคต้น
+  const [semester, setSemester] = useState<string>("ทั้งหมด"); // default ทั้งหมด
   const [selectedYear, setSelectedYear] = useState<string>("2568");
 
   useEffect(() => {
@@ -42,17 +43,21 @@ const Subject = () => {
   }, [semester]);
 
   const fetchSubjectData = async () => {
-    if (!semester) return;
-
     try {
       setLoading(true);
-      // ส่ง semester เป็น query parameter
-      const response = await listSubjectSectionRates(semester);
+      // ถ้าเลือก "ทั้งหมด" ไม่ต้องส่ง semester parameter
+      const response = semester === "ทั้งหมด" 
+        ? await listSubjectSectionRates()
+        : await listSubjectSectionRates(semester);
       
       if (response.success && response.data) {
-        // Transform data และรวมวิชาที่มี subjectId เดียวกัน
+        // Transform data และรวมวิชาที่มี subjectId + semester เดียวกัน
         const groupedBySubject = response.data.reduce((acc, item) => {
-          const key = item.subjectId;
+          // ถ้าเลือก "ทั้งหมด" ให้ group ตาม subjectId + semester
+          // ถ้าเลือกภาคเฉพาะให้ group ตาม subjectId เท่านั้น
+          const key = semester === "ทั้งหมด" 
+            ? `${item.subjectId}_${item.semester}`
+            : item.subjectId;
           
           if (!acc[key]) {
             // สร้าง entry ใหม่สำหรับวิชานี้
@@ -61,6 +66,7 @@ const Subject = () => {
               subjectId: item.subjectId,
               subjectName: item.subjectName,
               program: item.program,
+              semester: item.semester,
               section: item.section, // เก็บ section แรกที่เจอ (LECTURE หรือ LAB)
               sections: []
             };
