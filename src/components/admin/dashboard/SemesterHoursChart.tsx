@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+﻿import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "../../ui/card";
 import {
   Select,
@@ -20,6 +20,7 @@ interface FormScheduleDetail {
 
 interface Form {
   id: string;
+  subjectId: string;
   section: string;
   semester: string;
   totalHours: number;
@@ -53,13 +54,15 @@ interface SemesterHoursChartProps {
 const SemesterHoursChart = ({ filteredForms, selectedSubject, selectedSemester, trackingData }: SemesterHoursChartProps) => {
   const [selectedSection, setSelectedSection] = useState<string>("");
 
-  // ดึงรายการหมู่เรียนจาก filteredForms
   const availableSections = useMemo(() => {
     if (!selectedSubject || !selectedSemester) return [];
     
     const sections = new Set<string>();
     filteredForms
-      .filter(form => form.semester === selectedSemester)
+      .filter(form => 
+        form.semester === selectedSemester && 
+        form.subjectId === selectedSubject  // เพิ่ม filter ตามวิชาที่เลือก
+      )
       .forEach(form => {
         form.formScheduleDetails?.forEach(detail => {
           if (detail.sectionId) {
@@ -71,62 +74,74 @@ const SemesterHoursChart = ({ filteredForms, selectedSubject, selectedSemester, 
     return Array.from(sections).sort();
   }, [filteredForms, selectedSubject, selectedSemester]);
 
-  // Set default section
   if (!selectedSection && availableSections.length > 0) {
     setSelectedSection(availableSections[0]);
   }
 
-  // คำนวณข้อมูลชั่วโมงจาก filteredForms และ trackingData
   const calculateSemesterData = useMemo(() => {
-    if (!selectedSubject || !selectedSemester) {
+    if (!selectedSubject || !selectedSemester || !selectedSection) {
       return null;
     }
 
-    // หาข้อมูล tracking ของวิชาที่เลือก
+   
+
     const subjectTracking = trackingData.filter(
       track => track.subjectId === selectedSubject && track.semester === selectedSemester
     );
 
-    // คำนวณ max hours จาก tracking
-    let maxLecture = 45;
-    let maxLab = 30;
+  
+    
+    const subjectForms = filteredForms.filter(form => 
+      form.subjectId === selectedSubject && form.semester === selectedSemester
+    );
+    
+    
+    let sectionKind: string | null = null;
+    let maxHours = 0;
+    let totalHours = 0;  // ใช้ hoursUsed จาก tracking data
     
     subjectTracking.forEach((track) => {
       track.sections.forEach((section) => {
-        if (section.kind === "LECTURE") {
-          maxLecture = Math.max(maxLecture, section.totalHoursRequired);
-        } else if (section.kind === "LAB") {
-          maxLab = Math.max(maxLab, section.totalHoursRequired);
+        console.log("Checking section:", section);
+        if (section.sectionId === selectedSection) {
+          console.log("Found matching section:", section.sectionId, "kind:", section.kind);
+          sectionKind = section.kind;
+          maxHours = section.totalHoursRequired;
+          totalHours = section.hoursUsed;  // ใช้ hoursUsed จาก tracking data
         }
       });
     });
     
-    // คำนวณชั่วโมงที่ส่งฟอร์มมาสำหรับภาคและหมู่เรียนที่เลือก
-    let totalLecture = 0;
-    let totalLab = 0;
     
-    filteredForms
-      .filter(form => form.semester === selectedSemester)
-      .forEach((form) => {
-        // ถ้าเลือกหมู่เรียนแล้ว ให้กรองเฉพาะหมู่นั้น
-        if (selectedSection) {
-          const hasSection = form.formScheduleDetails?.some(detail => detail.sectionId === selectedSection);
-          if (!hasSection) return;
-        }
-        
-        if (form.section === "LECTURE") {
-          totalLecture += form.totalHours;
-        } else if (form.section === "LAB") {
-          totalLab += form.totalHours;
-        }
-      });
 
-    return {
-      totalLectureHours: totalLecture,
-      totalLabHours: totalLab,
-      maxLectureHours: maxLecture,
-      maxLabHours: maxLab,
-    };
+    // ถ้าไม่เจอ kind จาก tracking data ให้แสดงข้อความแจ้งเตือน
+    if (!sectionKind) {
+      console.log("No tracking data found for this section");
+      return {
+        totalLectureHours: 0,
+        totalLabHours: 0,
+        maxLectureHours: 0,
+        maxLabHours: 0,
+      };
+    }
+
+    if (sectionKind === "LECTURE") {
+      return {
+        totalLectureHours: totalHours,
+        totalLabHours: 0,
+        maxLectureHours: maxHours || 45,
+        maxLabHours: 0,
+      };
+    } else if (sectionKind === "LAB") {
+      return {
+        totalLectureHours: 0,
+        totalLabHours: totalHours,
+        maxLectureHours: 0,
+        maxLabHours: maxHours || 30,
+      };
+    }
+
+    return null;
   }, [selectedSubject, selectedSemester, selectedSection, filteredForms, trackingData]);
 
   return (
@@ -145,12 +160,12 @@ const SemesterHoursChart = ({ filteredForms, selectedSubject, selectedSemester, 
               {
                 type: "Lecture",
                 hours: semesterData.totalLectureHours,
-                fill: "#fbbf24", // yellow-400
+                fill: "#fbbf24",
               },
               {
                 type: "Lab",
                 hours: semesterData.totalLabHours,
-                fill: "#a855f7", // purple-500
+                fill: "#a855f7",
               },
             ];
 
@@ -170,7 +185,6 @@ const SemesterHoursChart = ({ filteredForms, selectedSubject, selectedSemester, 
 
             return (
               <div className="flex flex-col items-center w-full">
-                {/* Section Selector - Top Right */}
                 <div className="absolute top-4 right-4 z-10">
                   <Select value={selectedSection} onValueChange={setSelectedSection}>
                     <SelectTrigger className="w-[140px] bg-white text-gray-900 font-semibold shadow-md">
@@ -215,7 +229,6 @@ const SemesterHoursChart = ({ filteredForms, selectedSubject, selectedSemester, 
                   </ChartContainer>
                 </div>
 
-                {/* Summary Cards */}
                 <div className="mt-3 w-full grid grid-cols-2 gap-2 px-8">
                   <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 p-2 rounded-lg border-2 border-yellow-400">
                     <p className="text-xs text-gray-600 font-medium">Lecture</p>
@@ -227,9 +240,11 @@ const SemesterHoursChart = ({ filteredForms, selectedSubject, selectedSemester, 
                     </p>
                     <div className="mt-1 w-full bg-gray-200 rounded-full h-1">
                       <div
-                        className="bg-yellow-500 h-1 rounded-full transition-all"
+                        className="bg-yellow-500 h-1 rounded-full transition-all duration-300"
                         style={{
-                          width: `${Math.min((semesterData.totalLectureHours / semesterData.maxLectureHours) * 100, 100)}%`,
+                          width: semesterData.maxLectureHours > 0 
+                            ? `${Math.min((semesterData.totalLectureHours / semesterData.maxLectureHours) * 100, 100)}%`
+                            : '0%',
                         }}
                       />
                     </div>
@@ -247,9 +262,11 @@ const SemesterHoursChart = ({ filteredForms, selectedSubject, selectedSemester, 
                     </p>
                     <div className="mt-1 w-full bg-gray-200 rounded-full h-1">
                       <div
-                        className="bg-purple-500 h-1 rounded-full transition-all"
+                        className="bg-purple-500 h-1 rounded-full transition-all duration-300"
                         style={{
-                          width: `${Math.min((semesterData.totalLabHours / semesterData.maxLabHours) * 100, 100)}%`,
+                          width: semesterData.maxLabHours > 0
+                            ? `${Math.min((semesterData.totalLabHours / semesterData.maxLabHours) * 100, 100)}%`
+                            : '0%',
                         }}
                       />
                     </div>

@@ -66,18 +66,41 @@ const UserDetail = () => {
         // แปลงปี ค.ศ. เป็น พ.ศ. สำหรับ API (เพิ่ม 543)
         const buddhistYear = selectedYear + 543;
         
-        const [result, adminRes, trackingRes] = await Promise.all([
+        console.log('=== Fetching Data ===');
+        console.log('userId:', userId);
+        console.log('buddhistYear:', buddhistYear);
+        
+        // ดึงข้อมูล tracking ทั้ง 2 ภาค
+        const [result, adminRes, trackingTon, trackingPlaai] = await Promise.all([
           getAdminTeacherDetail(userId, buddhistYear),
           getAdminHomeData(),
           getSemesterTracking({
-            semester: "ภาคต้น", // ดึงทั้งสองภาค
+            semester: "ภาคต้น",
             year: buddhistYear,
-          }).catch(() => ({ data: [] })) // ถ้า error ให้ return empty array
+          }).catch(() => ({ data: [] })),
+          getSemesterTracking({
+            semester: "ภาคปลาย",
+            year: buddhistYear,
+          }).catch(() => ({ data: [] }))
         ]);
+        
+        console.log('=== Teacher Detail Response ===');
+        console.log('result:', result);
+        console.log('=== Admin Info Response ===');
+        console.log('adminRes:', adminRes);
+        console.log('=== Tracking Data Response ===');
+        console.log('trackingTon:', trackingTon);
+        console.log('trackingPlaai:', trackingPlaai);
+        
+        // รวมข้อมูล tracking ทั้ง 2 ภาค
+        const combinedTracking = [
+          ...(trackingTon.data || []),
+          ...(trackingPlaai.data || [])
+        ];
         
         setData(result);
         setAdminInfo(adminRes.myInformation);
-        setTrackingData(trackingRes.data || []);
+        setTrackingData(combinedTracking);
       } catch (error) {
         console.error("Error fetching teacher detail:", error);
       } finally {
