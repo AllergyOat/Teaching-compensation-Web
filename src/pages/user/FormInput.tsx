@@ -39,10 +39,6 @@ const FormInput = () => {
   const { id: formId } = useParams<{ id?: string }>();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(!!formId);
-  
-  // State สำหรับ autocomplete
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [filteredSubjects, setFilteredSubjects] = useState<Subject[]>([]);
 
   const program = searchParams.get("program") || "";
   const section = searchParams.get("section") || "";
@@ -257,44 +253,6 @@ const FormInput = () => {
     fetchFormData();
   }, [formId, reset, navigate]);
 
-  // ปิด autocomplete เมื่อคลิกข้างนอก
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (!target.closest("#subjectId") && !target.closest(".autocomplete-dropdown")) {
-        setShowSuggestions(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Function สำหรับค้นหารหัสวิชา
-  const handleSubjectSearch = (value: string) => {
-    setValue("form.subjectId", value);
-
-    if (value.length > 0) {
-      const filtered = subjectIds.filter(
-        (subject) =>
-          subject.code.startsWith(value) ||
-          subject.name.toLowerCase().includes(value.toLowerCase())
-      );
-      setFilteredSubjects(filtered);
-      setShowSuggestions(filtered.length > 0);
-    } else {
-      setFilteredSubjects([]);
-      setShowSuggestions(false);
-    }
-  };
-
-  // Function เมื่อเลือกรหัสวิชา
-  const handleSelectSubject = (subject: Subject) => {
-    setValue("form.subjectId", subject.code);
-    setValue("form.subjectName", subject.name);
-    setShowSuggestions(false);
-  };
-
   const onSubmit = async (data: FormData) => {
     console.log("Form data:", JSON.stringify(data, null, 2));
 
@@ -488,7 +446,7 @@ const FormInput = () => {
               )}
             </div>
 
-            <div className="relative">
+            <div>
               <Label htmlFor="subjectId">รหัสรายวิชา</Label>
               <SubjectAutocompleteInput
                 value={watch("form.subjectId")}
