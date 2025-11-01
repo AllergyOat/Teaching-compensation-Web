@@ -21,8 +21,8 @@ export interface Section {
 export const getSemesterTracking = async (
   semester: string,
   year: number,
-  program: string,
-  section: string,
+  program?: string,
+  section?: string,
 ): Promise<Root> => {
   try {
     const accessToken = localStorage.getItem("accessToken");
@@ -31,8 +31,15 @@ export const getSemesterTracking = async (
       throw new Error("No access token found. Please login first.");
     }
 
+    // Build query string dynamically - only include parameters that have values
+    const params = new URLSearchParams();
+    params.append("semester", semester);
+    params.append("year", year.toString());
+    if (program) params.append("program", program);
+    if (section) params.append("section", section);
+
     const response = await axios.get(
-      `http://localhost:3000/api/forms/tracking?semester=${semester}&year=${year}&program=${program}&section=${section}`,
+      `http://localhost:3000/api/forms/tracking?${params.toString()}`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,

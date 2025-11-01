@@ -19,6 +19,8 @@ import AdminFormDetail from "@/pages/admin/FormDetail";
 import AdminEditFormDetail from "@/pages/admin/EditFormDetail";
 import Test from "@/pages/admin/Test";
 import ProtectRouteAdmin from "./ProtectRouteAdmin";
+import Subject from "@/pages/admin/Subject";
+import FormSubject from "@/pages/admin/FormSubject";
 
 const AppRoute = () => {
   return (
@@ -53,6 +55,8 @@ const AppRoute = () => {
           <Route path="form/edit/:formId" element={<AdminEditFormDetail />} />
           <Route path="profile" element={<AdminProfile />} />
           <Route path="test" element={<Test />} />
+          <Route path="subject" element={<Subject />} />
+          <Route path="subject/new" element={<FormSubject />} />
         </Route>
 
         <Route path="*" element={<div>404 Not Found</div>} />

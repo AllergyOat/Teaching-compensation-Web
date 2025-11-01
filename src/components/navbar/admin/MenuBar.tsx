@@ -33,6 +33,11 @@ const MenuBar = () => {
         </Link>
       </li>
       <li>
+        <Link to="/admin/subject" className={getLinkClass("/admin/subject")}>
+          ข้อมูลรายวิชา
+        </Link>
+      </li>
+      <li>
         <Link
           to="/admin/profile"
           className={isActive("/admin/profile") ? "pb-4 font-bold" : "pb-4"}
