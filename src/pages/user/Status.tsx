@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { getStatus } from "@/api/user/status";
 import { Link } from "react-router";
 
@@ -25,17 +31,36 @@ type StatusData = {
 };
 
 const Status = () => {
+  const months = [
+    "มกราคม",
+    "กุมภาพันธ์",
+    "มีนาคม",
+    "เมษายน",
+    "พฤษภาคม",
+    "มิถุนายน",
+    "กรกฎาคม",
+    "สิงหาคม",
+    "กันยายน",
+    "ตุลาคม",
+    "พฤศจิกายน",
+    "ธันวาคม",
+  ];
+
+  // Get current month and year automatically
+  const currentDate = new Date();
+  const currentMonthIndex = currentDate.getMonth();
+  const currentYear = (currentDate.getFullYear() + 543).toString(); // Convert to Buddhist year
+
   const [statusData, setStatusData] = useState<StatusData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedMonth, setSelectedMonth] = useState<string>("ตุลาคม");
-  const [selectedYear, setSelectedYear] = useState<string>("2568");
-  const [selectedProgram, setSelectedProgram] = useState<"ภาคปกติ" | "ภาคพิเศษ">("ภาคปกติ");
-
-  const months = [
-    "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-    "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
-  ];
+  const [selectedMonth, setSelectedMonth] = useState<string>(
+    months[currentMonthIndex],
+  );
+  const [selectedYear, setSelectedYear] = useState<string>(currentYear);
+  const [selectedProgram, setSelectedProgram] = useState<
+    "ภาคปกติ" | "ภาคพิเศษ"
+  >("ภาคปกติ");
 
   const years = ["2565", "2566", "2567", "2568", "2569", "2570"];
 
@@ -43,14 +68,15 @@ const Status = () => {
     const fetchStatusData = async () => {
       try {
         setLoading(true);
-        
+
         // Map program type to API format
-        const programParam = selectedProgram === "ภาคปกติ" ? "REGULAR_PROGRAM" : "SPECIAL_PROGRAM";
-        
+        const programParam =
+          selectedProgram === "ภาคปกติ" ? "REGULAR_PROGRAM" : "SPECIAL_PROGRAM";
+
         const data = await getStatus({
           program: programParam,
           month: selectedMonth,
-          year: selectedYear
+          year: selectedYear,
         });
         setStatusData(data);
         setError(null);
@@ -138,7 +164,11 @@ const Status = () => {
                 </SelectTrigger>
                 <SelectContent className="bg-white">
                   {months.map((month) => (
-                    <SelectItem key={month} value={month} className="text-gray-900">
+                    <SelectItem
+                      key={month}
+                      value={month}
+                      className="text-gray-900"
+                    >
                       {month}
                     </SelectItem>
                   ))}
@@ -147,7 +177,10 @@ const Status = () => {
             </div>
           </div>
           <div className="flex items-center justify-between text-2xl font-bold text-[#02BC77]">
-            <p>เดือน{selectedMonth} ภาค{selectedProgram === "ภาคปกติ" ? "ปกติ" : "พิเศษ"}</p>
+            <p>
+              เดือน{selectedMonth} ภาค
+              {selectedProgram === "ภาคปกติ" ? "ปกติ" : "พิเศษ"}
+            </p>
             <div className="flex items-center gap-2">
               <span className="text-2xl font-bold text-[#02BC77]">ปี</span>
               <Select value={selectedYear} onValueChange={setSelectedYear}>
@@ -156,7 +189,11 @@ const Status = () => {
                 </SelectTrigger>
                 <SelectContent className="bg-white">
                   {years.map((year) => (
-                    <SelectItem key={year} value={year} className="text-gray-900">
+                    <SelectItem
+                      key={year}
+                      value={year}
+                      className="text-gray-900"
+                    >
                       {year}
                     </SelectItem>
                   ))}
@@ -195,31 +232,33 @@ const Status = () => {
                 <Link
                   key={form.id}
                   to={`/home/${form.id}`}
-                  className={`group flex items-start justify-between rounded-xl border-0 p-6 shadow-md transition-all duration-300 hover:scale-[1.01] hover:shadow-xl cursor-pointer ${getCardBackground(form.status)}`}
+                  className={`group flex cursor-pointer items-start justify-between rounded-xl border-0 p-6 shadow-md transition-all duration-300 hover:scale-[1.01] hover:shadow-xl ${getCardBackground(form.status)}`}
                 >
                   <div className="flex-1">
                     <div className="mb-3 flex items-center gap-3">
                       <div className="h-1.5 w-1.5 rounded-full bg-[#02BC77]"></div>
-                      <h3 className="text-lg font-semibold text-gray-800 group-hover:text-[#02BC77] transition-colors">
+                      <h3 className="text-lg font-semibold text-gray-800 transition-colors group-hover:text-[#02BC77]">
                         {form.subjectName}
                       </h3>
                     </div>
                     <div className="ml-4 space-y-1.5">
                       <p className="text-sm font-medium text-gray-600">
-                        <span className="text-gray-500">รหัสวิชา:</span> {form.subjectId}
+                        <span className="text-gray-500">รหัสวิชา:</span>{" "}
+                        {form.subjectId}
                       </p>
                       <p className="text-sm text-gray-500">
                         <span className="font-medium">วันที่ส่ง:</span>{" "}
                         {new Date(form.createdAt).toLocaleDateString("th-TH", {
                           year: "numeric",
                           month: "long",
-                          day: "numeric"
+                          day: "numeric",
                         })}
                       </p>
                       {form.adminComment && (
                         <div className="mt-3 rounded-lg bg-blue-50 p-3">
                           <p className="text-sm text-gray-700">
-                            <strong className="text-blue-700">ความเห็น:</strong> {form.adminComment}
+                            <strong className="text-blue-700">ความเห็น:</strong>{" "}
+                            {form.adminComment}
                           </p>
                         </div>
                       )}
