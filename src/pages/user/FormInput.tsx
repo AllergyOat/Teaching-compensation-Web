@@ -31,6 +31,8 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { formInputSchema } from "@/utils/schemas";
 import { toast } from "sonner";
+import { getSemesterTracking } from "@/api/forms/semesterTracking";
+import SubjectAutocompleteInput from "@/components/formInput/SubjectAutocompleteInput";
 
 const FormInput = () => {
   const [searchParams] = useSearchParams();
@@ -42,6 +44,9 @@ const FormInput = () => {
   const section = searchParams.get("section") || "";
   const programThai = translateProgram(program);
   const sectionThai = translateSection(section);
+
+  const [trackingData, setTrackingData] = useState<any[]>([]);
+  // console.log(trackingData);
 
   const currentMonthThai = thaiMonths[new Date().getMonth()] as MonthType;
 
@@ -69,6 +74,7 @@ const FormInput = () => {
         {
           lectureId: "",
           kind: "LECTURE" as const,
+          totalHours: 0,
           schedules: [
             {
               date: "",
@@ -90,6 +96,93 @@ const FormInput = () => {
     name: "formScheduleDetails",
   });
 
+  useEffect(() => {
+    fetchTrackingData();
+  }, [
+    watch("form.semester"),
+    watch("form.year"),
+    watch("form.program"),
+    watch("form.section"),
+  ]);
+
+  // console.log(trackingData)
+
+  const fetchTrackingData = async () => {
+    const semester = watch("form.semester");
+    const year = watch("form.year");
+    const program = watch("form.program");
+    const section = watch("form.section");
+    if (!semester || !year) return;
+
+    try {
+      const res = await getSemesterTracking(semester, year, program, section);
+      const tracking = res.data || [];
+      setTrackingData(tracking);
+    } catch (error) {
+      setTrackingData([]);
+      console.error("Error fetching semester tracking data:", error);
+    }
+  };
+
+  function handleSubjectSelect(
+    subjectId: string,
+    trackingData: any[],
+    setValue: any,
+  ) {
+    const found = trackingData.find(
+      (item) => String(item.subjectId).trim() === subjectId,
+    );
+    if (found) {
+      setValue("form.subjectId", subjectId);
+      setValue("form.subjectName", found.subjectName);
+
+      if (found.sections && found.sections.length > 0) {
+        setValue(
+          "formScheduleDetails",
+          found.sections.map((section: any) => ({
+            lectureId: section.sectionId,
+            kind: section.kind,
+            totalHours: section.hoursRemaining,
+            schedules: [
+              {
+                date: "",
+                time: "",
+                totalHour: 0,
+                topic: "",
+                room: "",
+                note: null,
+              },
+            ],
+            compensation: [],
+          })),
+        );
+      }
+    } else {
+      setValue("form.subjectId", subjectId);
+      setValue("form.subjectName", "");
+      setValue("formScheduleDetails", [
+        {
+          lectureId: "",
+          kind: "LECTURE",
+          totalHours: 0,
+          schedules: [
+            {
+              date: "",
+              time: "",
+              totalHour: 0,
+              topic: "",
+              room: "",
+              note: null,
+            },
+          ],
+          compensation: [],
+        },
+      ]);
+    }
+  }
+
+  // console.log("Tracking Data:", trackingData);
+
   // Fetch form data for editing
   useEffect(() => {
     const fetchFormData = async () => {
@@ -104,6 +197,7 @@ const FormInput = () => {
 
         // Transform the form data to match FormInput format
         const form = response.data;
+        console.log("Fetched form data:", form);
         const transformedData: FormData = {
           form: {
             program: form.program as ProgramType,
@@ -117,6 +211,7 @@ const FormInput = () => {
           formScheduleDetails: form.formScheduleDetails.map((section) => ({
             lectureId: section.sectionId,
             kind: section.kind as "LECTURE" | "LAB",
+            totalHours: section.totalHours,
             schedules: section.schedules.map((schedule) => ({
               date: new Date(schedule.date).toISOString().split("T")[0], // Convert to YYYY-MM-DD
               time: schedule.time,
@@ -162,7 +257,7 @@ const FormInput = () => {
     console.log("Form data:", JSON.stringify(data, null, 2));
 
     const isEdit = !!formId;
-    
+
     // Show processing toast
     toast.info(isEdit ? "กำลังอัปเดตแบบฟอร์ม" : "กำลังส่งแบบฟอร์ม", {
       description: "กำลังดำเนินการ...",
@@ -353,17 +448,28 @@ const FormInput = () => {
 
             <div>
               <Label htmlFor="subjectId">รหัสรายวิชา</Label>
-              <Input
+              <SubjectAutocompleteInput
+                value={watch("form.subjectId")}
+                subjects={trackingData}
+                onChange={(subjectId) => {
+                  handleSubjectSelect(subjectId, trackingData, setValue);
+                }}
+                error={errors.form?.subjectId?.message}
+                placeholder="เช่น 02739200"
+              />
+
+              {/* <Input
                 id="subjectId"
                 className="mt-1 bg-white shadow-md"
                 placeholder="เช่น 02739200"
                 {...register("form.subjectId")}
+                onBlur={handleSubjectIdBlur}
               />
               {errors.form?.subjectId && (
                 <p className="mt-1 text-sm text-red-500">
                   {errors.form.subjectId.message}
                 </p>
-              )}
+              )} */}
             </div>
 
             <div>
@@ -380,6 +486,42 @@ const FormInput = () => {
                 </p>
               )}
             </div>
+            {/* Section Buttons to scroll*/}
+            {fields.length > 1 && (
+              <div>
+                <Label>หมู่เรียน</Label>
+                {fields.map((item, idx) => (
+                  <Button
+                    key={item.id}
+                    type="button"
+                    className="m-2 bg-white text-black shadow-md hover:bg-gray-200"
+                    onClick={() => {
+                      if (idx === fields.length - 1) {
+                        // ถ้าเป็นหมู่สุดท้าย ให้ scroll ไปล่างสุด
+                        window.scrollTo({
+                          top: document.body.scrollHeight,
+                          behavior: "smooth",
+                        });
+                      } else {
+                        // หมู่อื่น scroll แบบเดิม
+                        const el = document.getElementById(
+                          `section-${item.lectureId}`,
+                        );
+                        if (el) {
+                          const y =
+                            el.getBoundingClientRect().top +
+                            window.pageYOffset -
+                            120; // ปรับ offset ตาม header
+                          window.scrollTo({ top: y, behavior: "smooth" });
+                        }
+                      }
+                    }}
+                  >
+                    {item.lectureId || `Section ${idx + 1}`}
+                  </Button>
+                ))}
+              </div>
+            )}
           </div>
 
           {fields.map((item, index) => (
@@ -393,6 +535,15 @@ const FormInput = () => {
               setValue={setValue}
               totalGroups={fields.length}
               errors={errors.formScheduleDetails?.[index]}
+              isFromTracking={
+                !formId &&
+                !!trackingData.find(
+                  (item) =>
+                    String(item.subjectId).trim() ===
+                    watch("form.subjectId").trim(),
+                )
+              }
+              sectionId={item.lectureId}
             />
           ))}
 
@@ -401,30 +552,35 @@ const FormInput = () => {
               {errors.formScheduleDetails.message}
             </p>
           )}
-
-          <Button
-            type="button"
-            className="mt-4 h-15 w-full border-0 bg-[#F4F4F5] text-xl font-bold text-[#34C759] hover:bg-[#E5E5EA] hover:text-green-800"
-            onClick={() =>
-              append({
-                lectureId: "",
-                kind: "LECTURE" as const,
-                schedules: [
-                  {
-                    date: "",
-                    time: "",
-                    totalHour: 0,
-                    topic: "",
-                    room: "",
-                    note: null,
-                  },
-                ],
-                compensation: [],
-              })
-            }
-          >
-            เพิ่มหมู่เรียน
-          </Button>
+          {!trackingData.find(
+            (item) =>
+              String(item.subjectId).trim() === watch("form.subjectId").trim(),
+          ) && (
+            <Button
+              type="button"
+              className="mt-4 h-15 w-full border-0 bg-[#F4F4F5] text-xl font-bold text-[#34C759] hover:bg-[#E5E5EA] hover:text-green-800"
+              onClick={() =>
+                append({
+                  lectureId: "",
+                  kind: "LECTURE" as const,
+                  totalHours: 0,
+                  schedules: [
+                    {
+                      date: "",
+                      time: "",
+                      totalHour: 0,
+                      topic: "",
+                      room: "",
+                      note: null,
+                    },
+                  ],
+                  compensation: [],
+                })
+              }
+            >
+              เพิ่มหมู่เรียน
+            </Button>
+          )}
 
           <div className="mt-8 mb-8 flex justify-end">
             <Button

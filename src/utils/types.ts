@@ -50,6 +50,7 @@ export type Compensations = {
 export type LectureGroup = {
   lectureId: string;
   kind: KindType;
+  totalHours: number;
   schedules: Schedule[];
   compensation?: Compensations[];
 };
