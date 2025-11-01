@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Select,
   SelectContent,
@@ -15,9 +15,11 @@ import {
   TableRow,
 } from "../ui/table";
 import { Link } from "react-router";
+import DialogDeleteSubject from "./DialogDeleteSubject";
 
 // Define types for section
 interface SectionData {
+  id: string;
   sectionId: string;
   kind: string;
   totalHoursRequired: number;
@@ -26,6 +28,7 @@ interface SectionData {
 }
 
 interface SubjectData {
+  id: string;
   subjectId: string;
   subjectName: string;
   program: string;
@@ -40,6 +43,7 @@ interface TableSubjectsProps {
   onSemesterChange: (semester: string) => void;
   onYearChange: (year: string) => void;
   loading: boolean;
+  onRefresh?: () => void;
 }
 
 const TableSubjects: React.FC<TableSubjectsProps> = ({
@@ -49,15 +53,21 @@ const TableSubjects: React.FC<TableSubjectsProps> = ({
   onSemesterChange,
   onYearChange,
   loading,
+  onRefresh,
 }) => {
 
   const years = ["2565", "2566", "2567", "2568", "2569", "2570"];
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [subjectToDelete, setSubjectToDelete] = useState<SubjectData | null>(null);
 
   const translateSection = (section: string) => {
     return section === "LECTURE" ? "บรรยาย" : "ปฏิบัติการ";
   };
 
-  if (loading) {
+  const handleDelete = (subject: SubjectData) => {
+    setSubjectToDelete(subject);
+    setShowDeleteDialog(true);
+  };  if (loading) {
     return <div className="p-4">กำลังโหลดข้อมูล...</div>;
   }
   return (
@@ -154,9 +164,14 @@ const TableSubjects: React.FC<TableSubjectsProps> = ({
                   <TableCell className="px-6 py-4 text-base">
                     {translateSection(subject.section)}
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-base">
-                    <button className="text-[#0E8240] hover:text-[#0E8240]/80 font-medium">
-                      จัดการ
+                  <TableCell className="px-6 py-4 text-base space-x-4">
+                    <Link to={`/admin/subject/edit/${subject.sections[0].id}`}>
+                      <button className="text-[#0E8240] hover:text-[#0E8240]/80 font-medium cursor-pointer">
+                        แก้ไข
+                      </button>
+                    </Link>
+                    <button className="text-red-500 hover:text-red-500/80 font-medium cursor-pointer" onClick={() => handleDelete(subject)}>
+                      ลบ
                     </button>
                   </TableCell>
                 </TableRow>
@@ -165,6 +180,12 @@ const TableSubjects: React.FC<TableSubjectsProps> = ({
           </Table>
         </div>
       )}
+      <DialogDeleteSubject
+        showDeleteDialog={showDeleteDialog}
+        setShowDeleteDialog={setShowDeleteDialog}
+        subjectToDelete={subjectToDelete}
+        onRefresh={onRefresh}
+      />
     </div>
   );
 };

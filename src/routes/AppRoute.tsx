@@ -57,6 +57,7 @@ const AppRoute = () => {
           <Route path="test" element={<Test />} />
           <Route path="subject" element={<Subject />} />
           <Route path="subject/new" element={<FormSubject />} />
+          <Route path="subject/edit/:id" element={<FormSubject />} />
         </Route>
 
         <Route path="*" element={<div>404 Not Found</div>} />
