@@ -85,3 +85,34 @@ export const formInputSchema = z.object({
     .array(lectureGroupSchema)
     .min(1, { message: "ต้องมีข้อมูลหมู่เรียนอย่างน้อย 1 หมู่" }),
 });
+
+export const sectionDetailSchema = z.object({
+  sectionId: z.string().min(1, { message: "กรุณากรอกรหัสหมู่เรียน" }),
+  kind: z.enum(["LECTURE", "LAB"]).default("LECTURE"),
+  ratePerHour: z.number().min(1, { message: "กรุณากรอกอัตราค่าสอนมากกว่า 0 บาท" }),
+  maxTotalHours: z.number().min(1, { message: "กรุณากรอกจำนวนชั่วโมงมากกว่า 0" }),
+  teacherTotalHours: z.union([z.number(), z.null()]).optional(),
+});
+
+export const programSectionSchema = z.object({
+  program: z.enum(["REGULAR_PROGRAM", "SPECIAL_PROGRAM"], {
+    message: "กรุณาเลือกหลักสูตร",
+  }),
+  sections: z.array(sectionDetailSchema).min(1, {
+    message: "ต้องมีข้อมูล section อย่างน้อย 1 รายการ",
+  }),
+});
+
+export const formSubjectSchema = z.object({
+  subjectId: z.string().min(1, { message: "กรุณากรอกรหัสรายวิชา" }),
+  subjectName: z.string().min(1, { message: "กรุณากรอกชื่อรายวิชา" }),
+  semester: z.enum(["ภาคต้น", "ภาคปลาย", "ภาคฤดูร้อน"], {
+    message: "กรุณาเลือกภาคการศึกษา",
+  }),
+  section: z.enum(["LECTURE", "LAB"], {
+    message: "กรุณาเลือกประเภทหมู่เรียน",
+  }),
+  programs: z.array(programSectionSchema).min(1, {
+    message: "ต้องมีข้อมูล program อย่างน้อย 1 รายการ",
+  }),
+});
