@@ -273,13 +273,16 @@ const FormInput = () => {
         return;
       }
 
-      // Ensure kind field is present in all formScheduleDetails
+      // Prepare data for submission
       const submitData = {
         ...data,
-        formScheduleDetails: data.formScheduleDetails.map((detail) => ({
-          ...detail,
-          kind: detail.kind || "LECTURE", // Default to LECTURE if not set
-        })),
+        formScheduleDetails: data.formScheduleDetails.map((detail) => {
+          const { totalHours, ...detailWithoutTotalHours } = detail;
+          return {
+            ...detailWithoutTotalHours,
+            kind: detail.kind || "LECTURE", // Default to LECTURE if not set
+          };
+        }),
       };
 
       const url = isEdit
