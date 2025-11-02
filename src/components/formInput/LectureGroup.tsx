@@ -312,35 +312,26 @@ export const LectureGroup = ({
                             className="w-35 justify-between border-0 bg-white font-normal"
                           >
                             {currentDate
-                              ? (() => {
-                                  try {
-                                    return new Date(
-                                      currentDate,
-                                    ).toLocaleDateString("th-TH", {
-                                      day: "numeric",
-                                      month: "numeric",
-                                      year: "numeric",
-                                    });
-                                  } catch (e) {
-                                    return currentDate; // Show raw value if date parsing fails
-                                  }
-                                })()
+                              ? new Date(currentDate).toLocaleDateString(
+                                  "th-TH",
+                                  {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                  },
+                                )
                               : "เลือกวันที่"}
-                            <ChevronDownIcon className="h-4 w-4" />
+                            <ChevronDownIcon className="ml-2 h-4 w-4" />
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent
-                          className="w-auto overflow-hidden p-0"
-                          align="start"
-                        >
+                        <PopoverContent className="w-auto p-0">
                           <Calendar
                             mode="single"
                             selected={
                               currentDate ? new Date(currentDate) : undefined
                             }
-                            captionLayout="dropdown"
                             onSelect={(date) => {
-                              if (date && setValue) {
+                              if (date) {
                                 const formattedDate = format(
                                   date,
                                   "yyyy-MM-dd",
@@ -350,11 +341,11 @@ export const LectureGroup = ({
                                   formattedDate,
                                   { shouldValidate: true, shouldDirty: true },
                                 );
+                                setDatePickerStates((prev) => ({
+                                  ...prev,
+                                  [dateKey]: false,
+                                }));
                               }
-                              setDatePickerStates((prev) => ({
-                                ...prev,
-                                [dateKey]: false,
-                              }));
                             }}
                             locale={th}
                           />
