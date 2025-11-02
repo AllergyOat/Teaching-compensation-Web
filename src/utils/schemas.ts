@@ -7,18 +7,20 @@ export const loginSchema = z.object({
     .min(6, { message: "Password must be at least 6 characters" }),
 });
 
-export const registerSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-  password: z
-    .string()
-    .min(6, { message: "Password must be at least 6 characters" }),
-  confirmPassword: z
-    .string()
-    .min(6, { message: "Password must be at least 6 characters" }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "รหัสผ่านไม่ตรงกัน",
-  path: ["confirmPassword"],
-});
+export const registerSchema = z
+  .object({
+    email: z.string().email({ message: "Invalid email address" }),
+    password: z
+      .string()
+      .min(6, { message: "Password must be at least 6 characters" }),
+    confirmPassword: z
+      .string()
+      .min(6, { message: "Password must be at least 6 characters" }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "รหัสผ่านไม่ตรงกัน",
+    path: ["confirmPassword"],
+  });
 
 export const scheduleSchema = z.object({
   date: z.string().min(1, { message: "วันที่" }),
@@ -42,7 +44,7 @@ export const lectureGroupSchema = z.object({
   kind: z.enum(["LECTURE", "LAB"], {
     message: "กรุณาเลือกประเภทการสอน",
   }),
-  totalHours: z.number().min(1, { message: "กรุณากรอกจำนวนชั่วโมงการสอนทั้งหมด" }),
+  totalHours: z.union([z.number().min(0), z.null()]).optional(),
   schedules: z
     .array(scheduleSchema)
     .min(1, { message: "ต้องมีตารางสอนอย่างน้อย 1 รายการ" }),
@@ -89,8 +91,12 @@ export const formInputSchema = z.object({
 export const sectionDetailSchema = z.object({
   sectionId: z.string().min(1, { message: "กรุณากรอกรหัสหมู่เรียน" }),
   kind: z.enum(["LECTURE", "LAB"]).default("LECTURE"),
-  ratePerHour: z.number().min(1, { message: "กรุณากรอกอัตราค่าสอนมากกว่า 0 บาท" }),
-  maxTotalHours: z.number().min(1, { message: "กรุณากรอกจำนวนชั่วโมงมากกว่า 0" }),
+  ratePerHour: z
+    .number()
+    .min(1, { message: "กรุณากรอกอัตราค่าสอนมากกว่า 0 บาท" }),
+  maxTotalHours: z
+    .number()
+    .min(1, { message: "กรุณากรอกจำนวนชั่วโมงมากกว่า 0" }),
   teacherTotalHours: z.union([z.number(), z.null()]).optional(),
 });
 

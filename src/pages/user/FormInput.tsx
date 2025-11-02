@@ -211,7 +211,7 @@ const FormInput = () => {
           formScheduleDetails: form.formScheduleDetails.map((section) => ({
             lectureId: section.sectionId,
             kind: section.kind as "LECTURE" | "LAB",
-            totalHours: section.totalHours,
+            totalHours: section.totalHours ?? 0,
             schedules: section.schedules.map((schedule) => ({
               date: new Date(schedule.date).toISOString().split("T")[0], // Convert to YYYY-MM-DD
               time: schedule.time,
@@ -273,6 +273,15 @@ const FormInput = () => {
         return;
       }
 
+      // Ensure kind field is present in all formScheduleDetails
+      const submitData = {
+        ...data,
+        formScheduleDetails: data.formScheduleDetails.map((detail) => ({
+          ...detail,
+          kind: detail.kind || "LECTURE", // Default to LECTURE if not set
+        })),
+      };
+
       const url = isEdit
         ? `http://localhost:3000/api/forms/edit-form/${formId}`
         : "http://localhost:3000/api/forms/create-form";
@@ -285,7 +294,7 @@ const FormInput = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(submitData),
       });
 
       if (!response.ok) {
@@ -357,8 +366,8 @@ const FormInput = () => {
         </div>
       </header>
       <main className="flex flex-col items-center justify-start">
-        <div className="mt-4 w-10/12">
-          <h2 className="mt-4 text-2xl font-bold">ข้อมูลแบบรายงาน</h2>
+        <div className="w-10/12">
+          <h2 className="mt-8 text-2xl font-bold">ข้อมูลแบบรายงาน</h2>
           <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             <div>
               <Label htmlFor="month">แบบรายงานการสอนประจำเดือน</Label>
@@ -524,6 +533,7 @@ const FormInput = () => {
               </div>
             )}
           </div>
+          <h2 className="mt-6 text-2xl font-bold">ตารางสอน</h2>
 
           {fields.map((item, index) => (
             <LectureGroup

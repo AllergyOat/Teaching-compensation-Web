@@ -45,12 +45,12 @@ export type Compensations = {
   newDate: string;
   newTime: string;
   reason: string;
-}
+};
 
 export type LectureGroup = {
   lectureId: string;
   kind: KindType;
-  totalHours: number;
+  totalHours?: number | null;
   schedules: Schedule[];
   compensation?: Compensations[];
 };
