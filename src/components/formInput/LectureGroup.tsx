@@ -160,9 +160,76 @@ export const LectureGroup = ({
   });
 
   return (
-    <div className="lecture-group mt-9" id={`section-${sectionId}`}>
+    <div className="lecture-group mt-4" id={`section-${sectionId}`}>
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">ตารางสอน {index + 1}</h2>
+        
+      </div>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex gap-4">
+          <div className="my-4 flex items-center gap-2">
+            <Label htmlFor={`formScheduleDetails[${index}].lectureId`}>
+              หมู่เรียน
+            </Label>
+            <div className="flex flex-col">
+              <Input
+                className="w-32 border-0 border-gray-400 bg-white shadow-md"
+                placeholder="กรอกเลขหมู่เรียน"
+                {...register(`formScheduleDetails[${index}].lectureId`)}
+              />
+              {errors?.lectureId && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.lectureId.message}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {section === "LAB" && (
+            <div className="my-4 gap-4">
+              <Select
+                onValueChange={(value) =>
+                  setValue(`formScheduleDetails[${index}].kind`, value)
+                }
+                value={watch(`formScheduleDetails[${index}].kind`)}
+              >
+                <SelectTrigger
+                  className="mt-1 w-full bg-white shadow-md"
+                  id="month"
+                >
+                  <SelectValue placeholder="เลือกหมู่" />
+                </SelectTrigger>
+                <SelectContent className="border-0">
+                  <SelectGroup>
+                    <SelectLabel>เลือกหมู่</SelectLabel>
+                    <SelectItem value="LECTURE">บรรยาย</SelectItem>
+                    <SelectItem value="LAB">ปฏิบัติ</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          {isFromTracking && (
+            <div className="flex gap-4">
+              <Label htmlFor={`formScheduleDetails[${index}].totalHours`}>
+                ชั่วโมงการสอนคงเหลืออยู่
+              </Label>
+              <div className="flex">
+                <Label>
+                  <span className="font-bold">
+                    {watch(`formScheduleDetails[${index}].totalHours`)}
+                  </span>
+                  ชั่วโมง
+                </Label>
+                {errors?.totalHours && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.totalHours.message}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
         <div className="flex items-center gap-2">
           {totalGroups > 1 && isFromTracking === false && (
             <Button
@@ -199,71 +266,6 @@ export const LectureGroup = ({
             {showCompensation ? "ซ่อนบันทึกข้อความ" : "เพิ่มบันทึกข้อความ"}
           </Button>
         </div>
-      </div>
-
-      <div className="flex gap-4">
-        <div className="my-4 flex items-center gap-2">
-          <Label htmlFor={`formScheduleDetails[${index}].lectureId`}>
-            หมู่เรียน
-          </Label>
-          <div className="flex flex-col">
-            <Input
-              className="w-32 border-0 border-gray-400 bg-white shadow-md"
-              placeholder="กรอกเลขหมู่เรียน"
-              {...register(`formScheduleDetails[${index}].lectureId`)}
-            />
-            {errors?.lectureId && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.lectureId.message}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {section === "LAB" && (
-          <div className="my-4 gap-4">
-            <Select
-              onValueChange={(value) =>
-                setValue(`formScheduleDetails[${index}].kind`, value)
-              }
-              value={watch(`formScheduleDetails[${index}].kind`)}
-            >
-              <SelectTrigger
-                className="mt-1 w-full bg-white shadow-md"
-                id="month"
-              >
-                <SelectValue placeholder="เลือกหมู่" />
-              </SelectTrigger>
-              <SelectContent className="border-0">
-                <SelectGroup>
-                  <SelectLabel>เลือกหมู่</SelectLabel>
-                  <SelectItem value="LECTURE">บรรยาย</SelectItem>
-                  <SelectItem value="LAB">ปฏิบัติ</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-        {isFromTracking && (
-          <div className="flex gap-4">
-            <Label htmlFor={`formScheduleDetails[${index}].totalHours`}>
-              จำนวนชั่วโมงการสอนคงเหลืออยู่
-            </Label>
-            <div className="flex">
-              <Label>
-                <span className="font-bold">
-                  {watch(`formScheduleDetails[${index}].totalHours`)}
-                </span>
-                ชั่วโมง
-              </Label>
-              {errors?.totalHours && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.totalHours.message}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
       </div>
 
       <div>
@@ -502,7 +504,7 @@ export const LectureGroup = ({
       {showCompensation && (
         <div className="mt-6 rounded-lg border-1 border-orange-300 bg-orange-50 p-4">
           <h3 className="mb-4 text-xl font-bold text-orange-700">
-            บันทึกความชดเชย (ตารางสอนที่ {index + 1})
+            บันทึกข้อความชดเชย (ตารางสอนที่ {index + 1})
           </h3>
 
           <Table>
