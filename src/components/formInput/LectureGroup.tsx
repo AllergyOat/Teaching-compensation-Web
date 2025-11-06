@@ -123,6 +123,39 @@ export const LectureGroup = ({
   const formSection = watch("form.section");
   const section = formSection || urlSection;
 
+  // Get form month and year to set calendar default month
+  const formMonth = watch("form.month");
+  const formYear = watch("form.year");
+
+  // Helper function to parse Thai month to Date object
+  const getDefaultMonth = () => {
+    if (!formMonth || !formYear) return new Date();
+
+    const thaiMonths: { [key: string]: number } = {
+      มกราคม: 0,
+      กุมภาพันธ์: 1,
+      มีนาคม: 2,
+      เมษายน: 3,
+      พฤษภาคม: 4,
+      มิถุนายน: 5,
+      กรกฎาคม: 6,
+      สิงหาคม: 7,
+      กันยายน: 8,
+      ตุลาคม: 9,
+      พฤศจิกายน: 10,
+      ธันวาคม: 11,
+    };
+
+    const monthIndex = thaiMonths[formMonth];
+    if (monthIndex !== undefined) {
+      // Convert Buddhist year to Gregorian year (subtract 543)
+      const gregorianYear = parseInt(formYear) - 543;
+      return new Date(gregorianYear, monthIndex);
+    }
+
+    return new Date();
+  };
+
   // Effect to show compensation section if there's existing compensation data
   useEffect(() => {
     if (compensationFields.length > 0) {
@@ -161,9 +194,7 @@ export const LectureGroup = ({
 
   return (
     <div className="lecture-group mt-4" id={`section-${sectionId}`}>
-      <div className="flex items-center justify-between">
-        
-      </div>
+      <div className="flex items-center justify-between"></div>
       <div className="flex items-center justify-between gap-4">
         <div className="flex gap-4">
           <div className="my-4 flex items-center gap-2">
@@ -332,6 +363,7 @@ export const LectureGroup = ({
                             selected={
                               currentDate ? new Date(currentDate) : undefined
                             }
+                            defaultMonth={getDefaultMonth()}
                             onSelect={(date) => {
                               if (date) {
                                 const formattedDate = format(
@@ -350,6 +382,8 @@ export const LectureGroup = ({
                               }
                             }}
                             locale={th}
+                            disabled={{ before: new Date(0) }}
+                            disableNavigation
                           />
                         </PopoverContent>
                       </Popover>
@@ -566,6 +600,7 @@ export const LectureGroup = ({
                               selected={
                                 currentDate ? new Date(currentDate) : undefined
                               }
+                              defaultMonth={getDefaultMonth()}
                               onSelect={(date) => {
                                 if (date) {
                                   const isoDate = format(date, "yyyy-MM-dd");
@@ -580,6 +615,8 @@ export const LectureGroup = ({
                                 }
                               }}
                               locale={th}
+                              disabled={{ before: new Date(0) }}
+                              disableNavigation
                             />
                           </PopoverContent>
                         </Popover>
@@ -651,6 +688,7 @@ export const LectureGroup = ({
                               selected={
                                 currentDate ? new Date(currentDate) : undefined
                               }
+                              defaultMonth={getDefaultMonth()}
                               onSelect={(date) => {
                                 if (date) {
                                   const isoDate = format(date, "yyyy-MM-dd");
@@ -665,6 +703,8 @@ export const LectureGroup = ({
                                 }
                               }}
                               locale={th}
+                              disabled={{ before: new Date(0) }}
+                              disableNavigation
                             />
                           </PopoverContent>
                         </Popover>

@@ -2,7 +2,7 @@ import Layout from "@/layouts/Layout";
 import LayoutAdmin from "@/layouts/AdminLayout";
 import AuthLayout from "@/layouts/AuthLayout";
 import Home from "@/pages/user/Home";
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import Login from "@/pages/auth/Login";
 import Register from "@/pages/auth/Register";
 import Form from "@/pages/user/FormSelect";
@@ -26,12 +26,12 @@ const AppRoute = () => {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<Navigate to="/home" replace />} />
         {/* Auth Section */}
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Route>
-
         {/* User Section */}
         <Route element={<Layout />}>
           <Route path="/home" element={<Home />} />
@@ -47,7 +47,14 @@ const AppRoute = () => {
         </Route>
 
         {/* Admin Section */}
-        <Route path="admin" element={<ProtectRouteAdmin><LayoutAdmin /></ProtectRouteAdmin>}>
+        <Route
+          path="admin"
+          element={
+            <ProtectRouteAdmin>
+              <LayoutAdmin />
+            </ProtectRouteAdmin>
+          }
+        >
           <Route index element={<AdminHome />} />
           <Route path="user" element={<UserList />} />
           <Route path="user/:userId" element={<UserDetail />} />

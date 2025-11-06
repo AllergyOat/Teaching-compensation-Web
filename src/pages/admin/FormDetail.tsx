@@ -588,7 +588,7 @@ const FormDetail = () => {
                     <div className="mb-3 flex items-center gap-2">
                       <div className="h-1.5 w-1.5 rounded-full bg-orange-500"></div>
                       <h4 className="text-base font-semibold text-orange-600">
-                        บันทึกความการสอนชดเชย (หมู่เรียน {section.sectionId})
+                        บันทึกข้อความการสอนชดเชย (หมู่เรียน {section.sectionId})
                       </h4>
                     </div>
                     <div className="overflow-hidden rounded-lg border border-orange-200 shadow-sm">
