@@ -60,10 +60,10 @@ const Login = () => {
 
   return (
     <>
-      {/* Desktop Layout */}
-      <div className="flex h-screen bg-[#F7F7F7]">
-        {/* Left side - Image */}
-        <div className="flex flex-1 items-center justify-center">
+      {/* Responsive Layout */}
+      <div className="flex min-h-screen flex-col bg-[#F7F7F7] lg:flex-row">
+        {/* Left side - Image (hidden on mobile, visible on large screens) */}
+        <div className="hidden flex-1 items-center justify-center lg:flex">
           <div className="w-full max-w-2xl px-8">
             <img
               src={dashbordImg}
@@ -74,10 +74,12 @@ const Login = () => {
         </div>
 
         {/* Right side - Form */}
-        <div className="flex flex-1 flex-col items-center justify-center rounded-3xl bg-white shadow-xl">
-          <div className="w-full max-w-[500px] px-8">
-            <h1 className="mb-3 text-5xl font-bold">ยินดีต้อนรับสู่</h1>
-            <p className="mb-10 text-2xl font-semibold text-[#048C59]">
+        <div className="flex flex-1 flex-col items-center justify-center bg-white p-4 shadow-xl sm:p-6 md:p-8 lg:rounded-3xl">
+          <div className="w-full max-w-[500px]">
+            <h1 className="mb-3 text-3xl font-bold sm:text-4xl md:text-5xl">
+              ยินดีต้อนรับสู่
+            </h1>
+            <p className="mb-6 text-lg font-semibold text-[#048C59] sm:text-xl md:mb-10 md:text-2xl">
               ระบบเบิกจ่ายค่าสอนพิเศษ
             </p>
 
@@ -111,7 +113,7 @@ const Login = () => {
                 className="mt-4 mb-6 h-12 w-full cursor-pointer rounded-2xl bg-[#17C964] text-lg font-bold text-white transition-colors hover:bg-[#13b45a]"
               />
             </form>
-            <p className="cursor-pointer text-right text-[#2797C7]">
+            <p className="cursor-pointer text-right text-sm text-[#2797C7] sm:text-base">
               ลืมรหัสผ่าน?
             </p>
           </div>
