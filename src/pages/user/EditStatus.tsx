@@ -16,6 +16,7 @@ const Profile = () => {
     major: "",
     type: "",
     teachingLevel: "",
+    email: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);

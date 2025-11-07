@@ -2,6 +2,7 @@ import WelcomeCard from "@/components/home/WelcomeCard";
 import StaticFormCard from "@/components/home/StaticFormCard";
 import UserInfoCard from "@/components/home/UserInfoCard";
 import SchedulesCard from "@/components/home/SchedulesCard";
+import ProfileDialog from "@/components/home/ProfileDialog";
 import { useState, useEffect } from "react";
 import { getHomeData, type HomeResponse } from "@/api/user/home";
 import { Link, useNavigate, useSearchParams } from "react-router";
@@ -21,6 +22,8 @@ import {
 } from "@/components/ui/select";
 import emthyBoxImg from "@/assets/images/empty_box.png";
 import { Button } from "@/components/ui/button";
+import AmountInfoCard from "@/components/home/AmountInfoCard";
+import { RotateCcw } from 'lucide-react';
 
 const Home = () => {
   const [homeData, setHomeData] = useState<HomeResponse | null>(null);
@@ -29,6 +32,9 @@ const Home = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<"user" | "money">("user");
+  
+  // Profile Dialog State
+  const [showProfileDialog, setShowProfileDialog] = useState(false);
 
   // Get current date for defaults
   const currentDate = new Date();
@@ -65,6 +71,15 @@ const Home = () => {
       setSearchParams(newSearchParams, { replace: true });
     }
   }, [searchParams, setSearchParams, currentMonth, currentYear]);
+
+  // Check for profile dialog flag from registration
+  useEffect(() => {
+    const shouldShowDialog = localStorage.getItem("showProfileDialog");
+    if (shouldShowDialog === "true") {
+      setShowProfileDialog(true);
+      localStorage.removeItem("showProfileDialog");
+    }
+  }, []);
 
   useEffect(() => {
     // Only fetch data if we have month and year values (either from URL or defaults)
@@ -163,14 +178,16 @@ const Home = () => {
             />
             <div className="grid h-50 grid-cols-2 gap-5">
               <StaticFormCard
-                total={homeData?.total_forms || 0}
-                description={`รายวิชาที่ส่งแล้วในเดือน ${month}`}
-                graphData="graph"
+                total={homeData?.totalLectureHours || 0}
+                description={`ชั่วโมงสอนบรรยายในเดือน ${month}`}
+                graphData={homeData?.totalLectureHours || 0}
+                maxValue={45}
               />
               <StaticFormCard
-                total={homeData?.totalHour || 0}
-                description={`ชั่วโมงการสอนสุทธิในเดือน ${month}`}
-                graphData="graph"
+                total={homeData?.totalLabHours || 0}
+                description={`ชั่วโมงสอนปฎิบัติในเดือน ${month}`}
+                graphData={homeData?.totalLabHours || 0}
+                maxValue={30}
               />
             </div>
           </div>
@@ -179,10 +196,10 @@ const Home = () => {
             <div className="grid h-12 w-full grid-cols-2">
               <Button
                 onClick={() => setActiveTab("user")}
-                className={`h-full w-full rounded-l-md rounded-r-none ${
+                className={`h-full w-full rounded-l-md rounded-r-none transition-colors ${
                   activeTab === "user"
-                    ? "bg-[#0BA678] text-white"
-                    : "bg-[#E4E4E4] text-black"
+                    ? "bg-[#0BA678] text-white hover:bg-[#099963]"
+                    : "bg-[#E4E4E4] text-gray-700 hover:bg-[#C8F5E5] hover:text-[#0BA678]"
                 }`}
               >
                 ข้อมูลผู้ใช้
@@ -190,10 +207,10 @@ const Home = () => {
 
               <Button
                 onClick={() => setActiveTab("money")}
-                className={`h-full w-full rounded-l-none rounded-r-md ${
+                className={`h-full w-full rounded-l-none rounded-r-md transition-colors ${
                   activeTab === "money"
-                    ? "bg-[#0BA678] text-white"
-                    : "bg-[#E4E4E4] text-black"
+                    ? "bg-[#0BA678] text-white hover:bg-[#099963]"
+                    : "bg-[#E4E4E4] text-gray-700 hover:bg-[#C8F5E5] hover:text-[#0BA678]"
                 }`}
               >
                 จำนวนเงินที่ได้รับ
@@ -212,7 +229,10 @@ const Home = () => {
                 type={homeData?.user.type || " "}
               />
             ) : (
-              <div>Hello</div>
+              <AmountInfoCard
+                labAmount={homeData?.totalAmount.labAmount || 0}
+                lectureAmount={homeData?.totalAmount.lectureAmount || 0}
+              />
             )}
           </div>
         </div>
@@ -278,7 +298,8 @@ const Home = () => {
                 onClick={clearFilters}
                 className="rounded bg-[#02BC77] px-3 py-2 text-sm font-bold text-white hover:bg-green-800"
               >
-                รีเซ็ตเป็นเดือนปัจจุบัน
+                <RotateCcw className="h-4" />
+                รีเซ็ต
               </Button>
             )}
           </div>
@@ -286,20 +307,28 @@ const Home = () => {
 
         <div className="mt-4 grid gap-5 md:grid-cols-1 lg:grid-cols-2">
           {homeData?.forms && homeData.forms.length > 0 ? (
-            homeData.forms.map((form) => (
-              <Link to={`/home/${form.id}`} key={form.id}>
-                <SchedulesCard
-                  key={form.id}
-                  subjectId={form.subjectId}
-                  sectionId={form.formScheduleDetails[0]?.sectionId || ""}
-                  subjectName={form.subjectName}
-                  section={translateSection(form.section)}
-                  room={form.formScheduleDetails[0]?.schedules[0]?.room || ""}
-                  program={translateProgram(form.program)}
-                  sectionColorClass={getSectionColor(form.section)}
-                />
-              </Link>
-            ))
+            homeData.forms.map((form) => {
+              // Get all section IDs and join them with comma
+              const allSectionIds = form.formScheduleDetails
+                .map((detail) => detail.sectionId)
+                .filter(Boolean)
+                .join(", ");
+
+              return (
+                <Link to={`/home/${form.id}`} key={form.id}>
+                  <SchedulesCard
+                    key={form.id}
+                    subjectId={form.subjectId}
+                    sectionId={allSectionIds || ""}
+                    subjectName={form.subjectName}
+                    section={translateSection(form.section)}
+                    room={form.formScheduleDetails[0]?.schedules[0]?.room || ""}
+                    program={translateProgram(form.program)}
+                    sectionColorClass={getSectionColor(form.section)}
+                  />
+                </Link>
+              );
+            })
           ) : (
             <div className="col-span-full py-8 text-center text-gray-500">
               <img
@@ -311,7 +340,20 @@ const Home = () => {
             </div>
           )}
         </div>
+        <div className="mt-6 text-right">
+          ทั้งหมด{" "}
+          <span className="font-bold text-[#17C964]">
+            {homeData?.forms.length || 0}
+          </span>{" "}
+          รายวิชา
+        </div>
       </div>
+
+      {/* Profile Dialog */}
+      <ProfileDialog 
+        open={showProfileDialog} 
+        onOpenChange={setShowProfileDialog}
+      />
     </div>
   );
 };

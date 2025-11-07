@@ -11,9 +11,18 @@ export interface Schedule {
   note: string | null;
 }
 
+export interface Compensations {
+  originalDate: string;
+  originalTime: string;
+  newDate: string;
+  newTime: string;
+  reason: string;
+}
+
 export interface FormScheduleDetail {
   sectionId: string;
   schedules: Schedule[];
+  compensation: Compensations[]; 
 }
 
 export interface Form {
@@ -30,9 +39,17 @@ export interface Form {
   formScheduleDetails: FormScheduleDetail[];
 }
 
+export interface TotalAmount {
+  labAmount: number
+  lectureAmount: number
+}
+
 export interface HomeResponse {
   total_forms: number;
   totalHour: number;
+  totalLectureHours: number;
+  totalLabHours: number;
+  totalAmount: TotalAmount
   user: {
     id: string;
     firstName: string;

@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import FormInputs from "@/components/form/FormInputs";
 import { login, type LoginResponse } from "@/api/auth/login";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { LoginFormInputs } from "@/utils/types";
 import { loginSchema } from "@/utils/schemas";
@@ -27,11 +27,20 @@ const Login = () => {
         data.password,
       );
 
+      console.log("Login Response - User:", user);
+      console.log("User Role:", user.role);
+
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("user", JSON.stringify(user));
 
-      // Navigate to home page on success
-      navigate("/home");
+      // Navigate based on user role
+      if (user.role === "ADMIN" || user.role === "MAJOR_ADMIN") {
+        console.log("Navigating to /admin");
+        navigate("/admin");
+      } else {
+        console.log("Navigating to /home");
+        navigate("/home");
+      }
     } catch (error: any) {
       console.error("Login failed:", error);
 
@@ -50,48 +59,68 @@ const Login = () => {
   };
 
   return (
-    <div className="flex h-screen">
-      <div className="flex flex-2 flex-col items-center pt-[150px]">
-        <div>
-          <h1 className="mb-3.5 text-5xl font-bold">เข้าสู่ระบบ</h1>
-          <p className="mb-10 text-2xl">
-            สร้างบัญชีของคุณ{" "}
-            <Link to="/register">
-              <span className="text-[#2797C7] underline">สร้างบัญชี</span>
-            </Link>
-          </p>
-          <form onSubmit={handleSubmit(loginSubmit)}>
-            <FormInputs
-              register={register}
-              name="email"
-              type="email"
-              placeholder="Email"
-              errors={errors}
-              className="h-12 w-full rounded-xl border-1 bg-[#F4F4F5] px-4 py-3 transition-all duration-200 placeholder:text-gray-700"
+    <>
+      {/* Responsive Layout */}
+      <div className="flex min-h-screen flex-col bg-[#F7F7F7] lg:flex-row">
+        {/* Left side - Image (hidden on mobile, visible on large screens) */}
+        <div className="hidden flex-1 items-center justify-center lg:flex">
+          <div className="w-full max-w-2xl px-8">
+            <img
+              src={dashbordImg}
+              alt="Dashboard"
+              className="h-auto w-full object-contain"
             />
-            <FormInputs
-              register={register}
-              name="password"
-              type="password"
-              placeholder="Password"
-              errors={errors}
-              className="h-12 w-full rounded-xl border-1 bg-[#F4F4F5] px-4 py-3 transition-all duration-200 placeholder:text-gray-700"
-            />
-            <Buttons
-              text="เข้าสู่ระบบ"
-              isPending={isSubmitting}
-              className="mb-6 h-12 w-[500px] cursor-pointer rounded-2xl bg-[#17C964] text-lg text-black transition-colors hover:bg-[#13b45a]"
-            />
-          </form>
-          <p className="cursor-pointer text-[#2797C7]">ลืมรหัสผ่าน?</p>
+          </div>
+        </div>
+
+        {/* Right side - Form */}
+        <div className="flex flex-1 flex-col items-center justify-center bg-white p-4 shadow-xl sm:p-6 md:p-8 lg:rounded-3xl">
+          <div className="w-full max-w-[500px]">
+            <h1 className="mb-3 text-3xl font-bold sm:text-4xl md:text-5xl">
+              ยินดีต้อนรับสู่
+            </h1>
+            <p className="mb-6 text-lg font-semibold text-[#048C59] sm:text-xl md:mb-10 md:text-2xl">
+              ระบบเบิกจ่ายค่าสอนพิเศษ
+            </p>
+
+            {/* Display login error */}
+            {loginError && (
+              <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+                {loginError}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit(loginSubmit)}>
+              <FormInputs
+                register={register}
+                name="email"
+                type="email"
+                placeholder="อีเมล"
+                errors={errors}
+                className="h-12 w-full rounded-xl border-1 bg-[#F4F4F5] px-4 py-3 transition-all duration-200 placeholder:text-gray-700"
+              />
+              <FormInputs
+                register={register}
+                name="password"
+                type="password"
+                placeholder="รหัสผ่าน"
+                errors={errors}
+                className="h-12 w-full rounded-xl border-1 bg-[#F4F4F5] px-4 py-3 transition-all duration-200 placeholder:text-gray-700"
+              />
+              <Buttons
+                text="เข้าสู่ระบบ"
+                isPending={isSubmitting}
+                className="mt-4 mb-6 h-12 w-full cursor-pointer rounded-2xl bg-[#17C964] text-lg font-bold text-white transition-colors hover:bg-[#13b45a]"
+              />
+            </form>
+            <p className="cursor-pointer text-right text-sm text-[#2797C7] sm:text-base">
+              ลืมรหัสผ่าน?
+            </p>
+          </div>
         </div>
       </div>
-      <div className="flex flex-1 flex-col items-start justify-center">
-        <div>
-          <img src={dashbordImg} alt="Dashboard" />
-        </div>
-      </div>
-    </div>
+    </>
   );
 };
+
 export default Login;

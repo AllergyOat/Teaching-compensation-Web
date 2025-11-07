@@ -10,6 +10,7 @@ export interface ProfileData {
   major: string;
   type: string;
   teachingLevel: string;
+  email: string;
 }
 
 export interface ProfileResponse {
@@ -32,7 +33,8 @@ export const getProfile = async (): Promise<ProfileData> => {
       },
     });
 
-    return response.data;
+    // API returns { user: {...} }
+    return response.data.user;
   } catch (error: any) {
     console.error("Failed to update profile:", error);
 
