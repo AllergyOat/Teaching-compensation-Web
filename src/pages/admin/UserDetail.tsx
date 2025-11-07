@@ -129,53 +129,49 @@ const UserDetail = () => {
 
 
   // ใช้ข้อมูลกราฟจาก API โดยตรง
-  const chartData = data?.graph1 || [];
+  // const chartData = data?.graph1 || [];
   
   // เรียงลำดับเดือน
-  const monthOrder = [
-    "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-    "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
-  ];
+  // const monthOrder = [
+  //   "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+  //   "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+  // ];
   
   // สร้างข้อมูลกราฟ graph2 จากฟอร์ม (ถ้าไม่มีจาก API)
-  const getGraph2Data = () => {
-    let chartData: Array<{ month: string; totalAmount: number; fill?: string }> = [];
+  // const getGraph2Data = () => {
+  //   let chartData: Array<{ month: string; totalAmount: number; fill?: string }> = [];
     
-    if (data?.graph2 && data.graph2.length > 0) {
-      // เรียงข้อมูลจาก API ตามลำดับเดือน
-      chartData = [...data.graph2].sort((a, b) => monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month));
-    } else if (data?.forms && data.forms.length > 0) {
-      // คำนวณจากฟอร์ม
-      const monthlyAmount: Record<string, number> = {};
-      data.forms.forEach((form) => {
-        const month = form.month;
-        if (!monthlyAmount[month]) {
-          monthlyAmount[month] = 0;
-        }
-        monthlyAmount[month] += form.amount;
-      });
+  //   if (data?.graph2 && data.graph2.length > 0) {
+  //     // เรียงข้อมูลจาก API ตามลำดับเดือน
+  //     chartData = [...data.graph2].sort((a, b) => monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month));
+  //   } else if (data?.forms && data.forms.length > 0) {
+  //     // คำนวณจากฟอร์ม
+  //     const monthlyAmount: Record<string, number> = {};
+  //     data.forms.forEach((form) => {
+  //       const month = form.month;
+  //       if (!monthlyAmount[month]) {
+  //         monthlyAmount[month] = 0;
+  //       }
+  //       monthlyAmount[month] += form.amount;
+  //     });
       
-      chartData = Object.entries(monthlyAmount)
-        .map(([month, totalAmount]) => ({
-          month,
-          totalAmount,
-        }))
-        .sort((a, b) => monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month));
-    } else {
-      return [];
-    }
+  //     chartData = Object.entries(monthlyAmount)
+  //       .map(([month, totalAmount]) => ({
+  //         month,
+  //         totalAmount,
+  //       }))
+  //       .sort((a, b) => monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month));
+  //   } else {
+  //     return [];
+  //   }
     
-    // เพิ่มสีสลับให้กับแต่ละเดือน (มกราคม = ม่วง, กุมภาพันธ์ = เหลือง, ...)
-    return chartData.map((item, index) => ({
-      ...item,
-      fill: index % 2 === 0 ? "#a855f7" : "#fbbf24", // สลับสีม่วงและเหลือง
-    }));
-  };
+  //   // เพิ่มสีสลับให้กับแต่ละเดือน (มกราคม = ม่วง, กุมภาพันธ์ = เหลือง, ...)
+  //   return chartData.map((item, index) => ({
+  //     ...item,
+  //     fill: index % 2 === 0 ? "#a855f7" : "#fbbf24", // สลับสีม่วงและเหลือง
+  //   }));
+  // };
   
-  const graph2Data = getGraph2Data();
-  
-  // ใช้ข้อมูลกราฟ graph3 จาก API โดยตรง
-  const graph3Data = data?.graph3 || [];
   
   // Get unique subjects from approved forms filtered by selected semester
   const approvedForms = data?.forms?.filter((form) => form.status === 'APPROVED') || [];

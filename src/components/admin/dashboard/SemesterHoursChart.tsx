@@ -83,7 +83,6 @@ const SemesterHoursChart = ({ filteredForms, selectedSubject, selectedSemester, 
       return null;
     }
 
-   
 
     const subjectTracking = trackingData.filter(
       track => track.subjectId === selectedSubject && track.semester === selectedSemester
@@ -91,9 +90,7 @@ const SemesterHoursChart = ({ filteredForms, selectedSubject, selectedSemester, 
 
   
     
-    const subjectForms = filteredForms.filter(form => 
-      form.subjectId === selectedSubject && form.semester === selectedSemester
-    );
+    
     
     
     let sectionKind: string | null = null;
