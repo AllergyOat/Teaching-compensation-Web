@@ -67,3 +67,20 @@ export type FormData = {
   };
   formScheduleDetails: LectureGroup[];
 };
+
+export type semesterTracking = {
+    subjectId: string;
+    subjectName: string;
+    program: string;
+    semester: string;
+    section: string;
+    sections: Section[];
+}
+
+export interface Section {
+  sectionId: string;
+  kind: string;
+  totalHoursRequired: number;
+  hoursUsed: number;
+  hoursRemaining: number;
+}
