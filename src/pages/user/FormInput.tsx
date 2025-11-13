@@ -4,6 +4,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { useSearchParams, useParams, useNavigate } from "react-router";
 import { useState, useEffect, useCallback } from "react";
 import { getFormDetail } from "@/api/forms/detail";
+import { createForm, editForm } from "@/api/forms/formAction";
 import { LectureGroup } from "@/components/formInput/LectureGroup";
 import type {
   FormData,
@@ -105,7 +106,12 @@ const FormInput = () => {
     if (!formSemester || !formYear) return;
 
     try {
-      const res = await getSemesterTracking(formSemester, formYear, formProgram, formSection);
+      const res = await getSemesterTracking(
+        formSemester,
+        formYear,
+        formProgram,
+        formSection,
+      );
       const tracking = (res.data || []) as semesterTracking[];
       setTrackingData(tracking);
     } catch (error) {
@@ -259,15 +265,6 @@ const FormInput = () => {
     });
 
     try {
-      const accessToken = localStorage.getItem("accessToken");
-      if (!accessToken) {
-        toast.error("ไม่สามารถดำเนินการได้", {
-          description: "กรุณาเข้าสู่ระบบ",
-        });
-        setTimeout(() => navigate("/login"), 2000);
-        return;
-      }
-
       // Prepare data for submission
       const submitData = {
         ...data,
@@ -281,88 +278,11 @@ const FormInput = () => {
         }),
       };
 
-      const url = isEdit
-        ? `http://localhost:3000/api/forms/edit-form/${formId}`
-        : "http://localhost:3000/api/forms/create-form";
-
-      const method = isEdit ? "PUT" : "POST";
-
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(submitData),
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          toast.error("เซสชั่นหมดอายุ", {
-            description: "กรุณาเข้าสู่ระบบใหม่",
-          });
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("user");
-          setTimeout(() => navigate("/login"), 2000);
-          return;
-        }
-        if (response.status === 403) {
-          toast.error("ไม่มีสิทธิ์เข้าถึง", {
-            description: "คุณไม่มีสิทธิ์",
-          });
-          return;
-        }
-        
-        // Handle validation errors from API
-        if (response.status === 400) {
-          const errorData = await response.json();
-          
-          // Check if it's a time validation error
-          if (errorData.message === "Invalid time range detected") {
-            toast.error("ข้อมูลเวลาไม่ถูกต้อง", {
-              description: errorData.conflicts && errorData.conflicts.length > 0
-                ? `${errorData.conflicts[0].topic} (${errorData.conflicts[0].time}): ${errorData.conflicts[0].reason}`
-                : "เวลาเริ่มต้นและสิ้นสุดต้องไม่เท่ากัน",
-              duration: 5000,
-            });
-            return;
-          }
-          
-          // Check if it's a time conflict error
-          if (errorData.message && errorData.message.includes("Time conflict")) {
-            const conflictMsg = errorData.conflicts && errorData.conflicts.length > 0
-              ? errorData.conflicts.map((c: { conflict: string }) => c.conflict).join("\n")
-              : "มีเวลาสอนที่ซ้ำกันในวันเดียวกัน";
-            
-            toast.error("เวลาสอนซ้ำกัน", {
-              description: conflictMsg,
-              duration: 7000,
-            });
-            return;
-          }
-
-          // Check if it's a missing totalHours error
-          if (errorData.message && errorData.message.includes("totalHours")) {
-            toast.error("ข้อมูลไม่ครบถ้วน", {
-              description: errorData.message,
-              duration: 5000,
-            });
-            return;
-          }
-          
-          // Generic validation error
-          toast.error("ข้อมูลไม่ถูกต้อง", {
-            description: errorData.message || "กรุณาตรวจสอบข้อมูลอีกครั้ง",
-            duration: 5000,
-          });
-          return;
-        }
-        
-        throw new Error(
-          isEdit
-            ? "เกิดข้อผิดพลาดในการอัปเดตแบบฟอร์ม"
-            : "เกิดข้อผิดพลาดในการส่งแบบฟอร์ม",
-        );
+      // Use API functions from formAction.ts
+      if (isEdit) {
+        await editForm(formId!, submitData);
+      } else {
+        await createForm(submitData);
       }
 
       toast.success("สำเร็จ!", {
@@ -377,11 +297,80 @@ const FormInput = () => {
           navigate("/home");
         }
       }, 1500);
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Form submission error:", error);
+
+      // Handle specific error cases
+      if (error.message?.includes("login") || error.response?.status === 401) {
+        toast.error("เซสชั่นหมดอายุ", {
+          description: "กรุณาเข้าสู่ระบบใหม่",
+        });
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("user");
+        setTimeout(() => navigate("/login"), 2000);
+        return;
+      }
+
+      if (error.response?.status === 403) {
+        toast.error("ไม่มีสิทธิ์เข้าถึง", {
+          description: "คุณไม่มีสิทธิ์",
+        });
+        return;
+      }
+
+      // Handle validation errors from API
+      if (error.response?.status === 400) {
+        const errorData = error.response.data;
+
+        // Check if it's a time validation error
+        if (errorData.message === "Invalid time range detected") {
+          toast.error("ข้อมูลเวลาไม่ถูกต้อง", {
+            description:
+              errorData.conflicts && errorData.conflicts.length > 0
+                ? `${errorData.conflicts[0].topic} (${errorData.conflicts[0].time}): ${errorData.conflicts[0].reason}`
+                : "เวลาเริ่มต้นและสิ้นสุดต้องไม่เท่ากัน",
+            duration: 5000,
+          });
+          return;
+        }
+
+        // Check if it's a time conflict error
+        if (errorData.message && errorData.message.includes("Time conflict")) {
+          const conflictMsg =
+            errorData.conflicts && errorData.conflicts.length > 0
+              ? errorData.conflicts
+                  .map((c: { conflict: string }) => c.conflict)
+                  .join("\n")
+              : "มีเวลาสอนที่ซ้ำกันในวันเดียวกัน";
+
+          toast.error("เวลาสอนซ้ำกัน", {
+            description: conflictMsg,
+            duration: 7000,
+          });
+          return;
+        }
+
+        // Check if it's a missing totalHours error
+        if (errorData.message && errorData.message.includes("totalHours")) {
+          toast.error("ข้อมูลไม่ครบถ้วน", {
+            description: errorData.message,
+            duration: 5000,
+          });
+          return;
+        }
+
+        // Generic validation error
+        toast.error("ข้อมูลไม่ถูกต้อง", {
+          description: errorData.message || "กรุณาตรวจสอบข้อมูลอีกครั้ง",
+          duration: 5000,
+        });
+        return;
+      }
+
+      // Generic error
       toast.error("เกิดข้อผิดพลาด", {
         description: isEdit ? "อัปเดตไม่สำเร็จ" : "ส่งไม่สำเร็จ",
       });
-      console.error(error);
     }
   };
 
