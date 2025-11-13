@@ -1,4 +1,4 @@
-import axios from "axios";
+import { api } from "../client";
 
 export interface Root {
   myInformation: MyInformation;
@@ -69,7 +69,7 @@ export const getAdminHomeData = async (params?: {
       throw new Error("No access token found. Please login first.");
     }
 
-    const response = await axios.get("http://localhost:3000/api/admin/home", {
+    const response = await api.get("api/admin/home", {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

@@ -3,7 +3,6 @@ import emptyBoxImage from "@/assets/images/students.png";
 import { getAdminHomeData, type Root } from "../../api/admin/home";
 import TableSubjects from "@/components/subject/TableSubjects";
 import { listSubjectSectionRates } from "@/api/admin/subject";
-
 // Types for TableSubjects component
 interface SectionData {
   id: string;
@@ -46,50 +45,56 @@ const Subject = () => {
     try {
       setLoading(true);
       // ถ้าเลือก "ทั้งหมด" ไม่ต้องส่ง semester parameter
-      const response = semester === "ทั้งหมด" 
-        ? await listSubjectSectionRates()
-        : await listSubjectSectionRates(semester);
-      
+      const response =
+        semester === "ทั้งหมด"
+          ? await listSubjectSectionRates()
+          : await listSubjectSectionRates(semester);
+
       if (response.success && response.data) {
         // Transform data และรวมวิชาที่มี subjectId + semester เดียวกัน
-        const groupedBySubject = response.data.reduce((acc, item) => {
-          // ถ้าเลือก "ทั้งหมด" ให้ group ตาม subjectId + semester
-          // ถ้าเลือกภาคเฉพาะให้ group ตาม subjectId เท่านั้น
-          const key = semester === "ทั้งหมด" 
-            ? `${item.subjectId}_${item.semester}`
-            : item.subjectId;
-          
-          if (!acc[key]) {
-            // สร้าง entry ใหม่สำหรับวิชานี้
-            acc[key] = {
-              id: item.id,
-              subjectId: item.subjectId,
-              subjectName: item.subjectName,
-              program: item.program,
-              semester: item.semester,
-              section: item.section, // เก็บ section แรกที่เจอ (LECTURE หรือ LAB)
-              sections: []
-            };
-          }
-          
-          // รวม sections จากทุก record ที่มี subjectId เดียวกัน
-          const transformedSections = item.sections.map((section) => ({
-            id: section.id,
-            sectionId: section.sectionId,
-            kind: section.kind,
-            totalHoursRequired: section.MaxTotalHours,
-            hoursUsed: section.teacherTotalHours || 0,
-            hoursRemaining: section.MaxTotalHours - (section.teacherTotalHours || 0),
-          }));
-          
-          acc[key].sections.push(...transformedSections);
-          
-          return acc;
-        }, {} as Record<string, SubjectData>);
-        
+        const groupedBySubject = response.data.reduce(
+          (acc, item) => {
+            // ถ้าเลือก "ทั้งหมด" ให้ group ตาม subjectId + semester
+            // ถ้าเลือกภาคเฉพาะให้ group ตาม subjectId เท่านั้น
+            const key =
+              semester === "ทั้งหมด"
+                ? `${item.subjectId}_${item.semester}`
+                : item.subjectId;
+
+            if (!acc[key]) {
+              // สร้าง entry ใหม่สำหรับวิชานี้
+              acc[key] = {
+                id: item.id,
+                subjectId: item.subjectId,
+                subjectName: item.subjectName,
+                program: item.program,
+                semester: item.semester,
+                section: item.section, // เก็บ section แรกที่เจอ (LECTURE หรือ LAB)
+                sections: [],
+              };
+            }
+
+            // รวม sections จากทุก record ที่มี subjectId เดียวกัน
+            const transformedSections = item.sections.map((section) => ({
+              id: section.id,
+              sectionId: section.sectionId,
+              kind: section.kind,
+              totalHoursRequired: section.MaxTotalHours,
+              hoursUsed: section.teacherTotalHours || 0,
+              hoursRemaining:
+                section.MaxTotalHours - (section.teacherTotalHours || 0),
+            }));
+
+            acc[key].sections.push(...transformedSections);
+
+            return acc;
+          },
+          {} as Record<string, SubjectData>,
+        );
+
         // แปลง object กลับเป็น array
         const transformed = Object.values(groupedBySubject);
-        
+
         setFilteredData(transformed);
       }
     } catch (error) {

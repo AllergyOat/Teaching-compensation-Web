@@ -1,4 +1,4 @@
-import axios from "axios";
+import { api } from "../client";
 
 export interface ProfileData {
   firstName: string;
@@ -20,30 +20,15 @@ export interface ProfileResponse {
 
 export const getProfile = async (): Promise<ProfileData> => {
   try {
-    const accessToken = localStorage.getItem("accessToken");
-
-    if (!accessToken) {
-      throw new Error("No access token found. Please login first.");
-    }
-
-    const response = await axios.get("http://localhost:3000/api/user/profile", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    // API returns { user: {...} }
+    const response = await api.get("api/user/profile");
     return response.data.user;
   } catch (error: any) {
-    console.error("Failed to update profile:", error);
-
+    console.error("Failed to get profile:", error);
     if (error.response?.status === 401) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("user");
       throw new Error("Session expired. Please login again.");
     }
-
     throw error;
   }
 };
@@ -52,34 +37,15 @@ export const updateProfile = async (
   profileData: ProfileData,
 ): Promise<ProfileResponse> => {
   try {
-    const accessToken = localStorage.getItem("accessToken");
-
-    if (!accessToken) {
-      throw new Error("No access token found. Please login first.");
-    }
-
-    const response = await axios.post(
-      "http://localhost:3000/api/user/profile",
-      profileData,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      },
-    );
-
+    const response = await api.post("api/user/profile", profileData);
     return response.data;
   } catch (error: any) {
     console.error("Failed to update profile:", error);
-
-    // Handle token expiration
     if (error.response?.status === 401) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("user");
       throw new Error("Session expired. Please login again.");
     }
-
     throw error;
   }
 };

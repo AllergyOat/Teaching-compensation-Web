@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { api } from "../client";
 
 export const generateSchedulesDocx = async (formId: string, sectionId: string): Promise<Blob> => {
   try {
@@ -6,8 +6,8 @@ export const generateSchedulesDocx = async (formId: string, sectionId: string): 
     if (!accessToken) {
       throw new Error("No access token found. Please login first.");
     }
-    const response = await axios.get(
-      `http://localhost:3000/api/forms/${formId}/${sectionId}/generate-report`,
+    const response = await api.get(
+      `api/forms/${formId}/${sectionId}/generate-report`,
       {
         responseType: "blob",
         headers: {
@@ -30,8 +30,8 @@ export const generateCompensationDocx = async (formId: string, sectionId: string
     if (!accessToken) {
       throw new Error("No access token found. Please login first.");
     }
-    const response = await axios.get(
-      `http://localhost:3000/api/forms/${formId}/${sectionId}/generate-compensation`,
+    const response = await api.get(
+      `api/forms/${formId}/${sectionId}/generate-compensation`,
       {
         responseType: "blob",
         headers: {

@@ -1,4 +1,4 @@
-import axios from "axios";
+import { api } from "../client";
 
 export interface Root {
   forms: Form[];
@@ -127,8 +127,8 @@ export const getAdminTeacherDetail = async (
     if (!accessToken) {
       throw new Error("No access token found. Please login first.");
     }
-    const response = await axios.get(
-      `http://localhost:3000/api/admin/users-dashboard/${year}/${userId}`,
+    const response = await api.get(
+      `api/admin/users-dashboard/${year}/${userId}`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,

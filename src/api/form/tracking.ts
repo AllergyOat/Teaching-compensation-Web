@@ -1,4 +1,4 @@
-import axios from "axios";
+import { api } from "../client";
 
 export interface SemesterTrackingData {
   subjectId: string;
@@ -33,8 +33,8 @@ export const getSemesterTracking = async (params: {
       throw new Error("No access token found. Please login first.");
     }
     
-    const response = await axios.get(
-      `http://localhost:3000/api/forms/tracking`,
+    const response = await api.get(
+      `api/forms/tracking`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,

@@ -1,4 +1,4 @@
-import axios from "axios";
+import {api} from "../client";
 
 export interface Root {
   data: Daum[]
@@ -38,8 +38,8 @@ export const getSemesterTracking = async (
     if (program) params.append("program", program);
     if (section) params.append("section", section);
 
-    const response = await axios.get(
-      `http://localhost:3000/api/forms/tracking?${params.toString()}`,
+    const response = await api.get(
+      `api/forms/tracking?${params.toString()}`,
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,

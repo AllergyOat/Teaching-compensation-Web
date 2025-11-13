@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router";
 import { getFormDetail, type Root } from "@/api/forms/detail";
+import { deleteForm } from "@/api/forms/formAction";
 import {
   translateProgram,
   translateSection,
@@ -17,7 +18,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Trash2, Edit, Printer } from "lucide-react";
-import { generateSchedulesDocx, generateCompensationDocx } from "@/api/docx/userDocx";
+import {
+  generateSchedulesDocx,
+  generateCompensationDocx,
+} from "@/api/docx/userDocx";
 import {
   Select,
   SelectContent,
@@ -113,45 +117,7 @@ const FormDetail = () => {
 
     try {
       setIsDeleting(true);
-      const accessToken = localStorage.getItem("accessToken");
-
-      if (!accessToken) {
-        toast.error("ไม่สามารถดำเนินการได้", {
-          description: "กรุณาเข้าสู่ระบบ",
-        });
-        setTimeout(() => navigate("/login"), 2000);
-        return;
-      }
-
-      const response = await fetch(
-        `http://localhost:3000/api/forms/${formId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          toast.error("เซสชั่นหมดอายุ", {
-            description: "กรุณาเข้าสู่ระบบใหม่",
-          });
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("user");
-          setTimeout(() => navigate("/login"), 2000);
-          return;
-        }
-        if (response.status === 403) {
-          toast.error("ไม่มีสิทธิ์", {
-            description: "คุณไม่มีสิทธิ์ลบแบบฟอร์มนี้",
-          });
-          return;
-        }
-        throw new Error("เกิดข้อผิดพลาดในการลบแบบฟอร์ม");
-      }
+      await deleteForm(formId);
 
       toast.success("ลบแบบฟอร์มสำเร็จ!", {
         description: "กำลังนำคุณกลับไปหน้าหลัก",
@@ -160,9 +126,22 @@ const FormDetail = () => {
       setTimeout(() => navigate("/home"), 1500);
     } catch (error: any) {
       console.error("Delete form error:", error);
-      toast.error("ไม่สามารถลบแบบฟอร์มได้", {
-        description: error.message,
-      });
+
+      // Handle specific error cases
+      if (error.message?.includes("login") || error.response?.status === 401) {
+        toast.error("เซสชั่นหมดอายุ", {
+          description: "กรุณาเข้าสู่ระบบใหม่",
+        });
+        setTimeout(() => navigate("/login"), 2000);
+      } else if (error.response?.status === 403) {
+        toast.error("ไม่มีสิทธิ์", {
+          description: "คุณไม่มีสิทธิ์ลบแบบฟอร์มนี้",
+        });
+      } else {
+        toast.error("ไม่สามารถลบแบบฟอร์มได้", {
+          description: error.message || "กรุณาลองใหม่อีกครั้ง",
+        });
+      }
       setShowDeleteDialog(false);
     } finally {
       setIsDeleting(false);

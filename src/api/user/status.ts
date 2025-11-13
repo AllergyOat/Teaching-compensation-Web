@@ -1,4 +1,4 @@
-import axios from "axios";
+import { api } from "../client";
 
 type StatusCounts = {
   PENDING: number;
@@ -28,38 +28,21 @@ type StatusParams = {
 
 export const getStatus = async (params?: StatusParams): Promise<ProfileData> => {
   try {
-    const accessToken = localStorage.getItem("accessToken");
-
-    if (!accessToken) {
-      throw new Error("No access token found. Please login first.");
-    }
-
-    // Build query string
     const queryParams = new URLSearchParams();
     if (params?.program) queryParams.append("program", params.program);
     if (params?.month) queryParams.append("month", params.month);
     if (params?.year) queryParams.append("year", params.year);
-    
     const queryString = queryParams.toString();
-    const url = `http://localhost:3000/api/user/status${queryString ? `?${queryString}` : ""}`;
-
-    const response = await axios.get(url, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-    });
-
+    const url = queryString ? `api/user/status?${queryString}` : "api/user/status";
+    const response = await api.get(url);
     return response.data;
   } catch (error: any) {
-    console.error("Failed to update profile:", error);
-
+    console.error("Failed to get status:", error);
     if (error.response?.status === 401) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("user");
       throw new Error("Session expired. Please login again.");
     }
-
     throw error;
   }
 };

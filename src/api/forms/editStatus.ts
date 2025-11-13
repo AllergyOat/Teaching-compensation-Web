@@ -1,4 +1,4 @@
-import axios from "axios";
+import { api } from "../client";
 
 export interface UpdateStatusResponse {
   message: string;
@@ -20,8 +20,8 @@ export const updateFormStatus = async (
       throw new Error("No access token found. Please login first.");
     }
 
-    const response = await axios.put(
-      `http://localhost:3000/api/admin/forms/${formId}/status`,
+    const response = await api.put(
+      `api/admin/forms/${formId}/status`,
       statusData,
       {
         headers: {

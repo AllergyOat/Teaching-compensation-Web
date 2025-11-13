@@ -1,4 +1,4 @@
-import axios from "axios"
+import { api } from "../client";
 
 export interface Root {
   users: User[]
@@ -26,7 +26,7 @@ export const getAdminUsers = async (params?: {
       throw new Error("No access token found. Please login first.");
     }
 
-    const response = await axios.get("http://localhost:3000/api/admin/users", {
+    const response = await api.get("api/admin/users", {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
