@@ -1,11 +1,11 @@
 import { useForm } from "react-hook-form";
-import FormInputs from "@/components/form/FormInputs";
-import { login, type LoginResponse } from "@/api/auth/login";
-import { useNavigate } from "react-router";
+import FormInputs from "@/components/authForm/FormInputs";
+import { login, type LoginResponse } from "@/api/auth/auth";
+import { Link, useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { LoginFormInputs } from "@/utils/types";
 import { loginSchema } from "@/utils/schemas";
-import Buttons from "@/components/form/Buttons";
+import Buttons from "@/components/authForm/Buttons";
 import { useState } from "react";
 import dashbordImg from "@/assets/images/dashboard.png";
 
@@ -113,9 +113,11 @@ const Login = () => {
                 className="mt-4 mb-6 h-12 w-full cursor-pointer rounded-2xl bg-[#17C964] text-lg font-bold text-white transition-colors hover:bg-[#13b45a]"
               />
             </form>
-            <p className="cursor-pointer text-right text-sm text-[#2797C7] sm:text-base">
-              ลืมรหัสผ่าน?
-            </p>
+            <Link to="/forget-password">
+              <p className="cursor-pointer text-right text-sm text-[#2797C7] sm:text-base">
+                ลืมรหัสผ่าน?
+              </p>
+            </Link>
           </div>
         </div>
       </div>

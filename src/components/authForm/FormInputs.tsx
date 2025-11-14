@@ -32,7 +32,7 @@ const FormInputs = <T extends FieldValues>(props: FormInputProps<T>) => {
           htmlFor={name}
           className="block text-sm font-medium mb-2 capitalize"
         >
-          {label || placeholder}
+          {label || name}
         </Label>
       )}
       <Input

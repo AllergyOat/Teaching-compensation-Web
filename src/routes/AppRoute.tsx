@@ -21,6 +21,7 @@ import Test from "@/pages/admin/Test";
 import ProtectRouteAdmin from "./ProtectRouteAdmin";
 import Subject from "@/pages/admin/Subject";
 import FormSubject from "@/pages/admin/FormSubject";
+import ForgetPassword from "@/pages/auth/ForgetPassword";
 
 const AppRoute = () => {
   return (
@@ -31,6 +32,7 @@ const AppRoute = () => {
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forget-password" element={<ForgetPassword />} />
         </Route>
         {/* User Section */}
         <Route element={<Layout />}>
