@@ -76,11 +76,14 @@ const Login = () => {
         {/* Right side - Form */}
         <div className="flex flex-1 flex-col items-center justify-center bg-white p-4 shadow-xl sm:p-6 md:p-8 lg:rounded-3xl">
           <div className="w-full max-w-[500px]">
-            <h1 className="mb-3 text-3xl font-bold sm:text-4xl md:text-5xl">
-              ยินดีต้อนรับสู่
+            <h1 className="mb-3 text-2xl font-bold sm:text-4xl md:text-5xl">
+              เข้าสู่ระบบ
             </h1>
-            <p className="mb-6 text-lg font-semibold text-[#048C59] sm:text-xl md:mb-10 md:text-2xl">
-              ระบบเบิกจ่ายค่าสอนพิเศษ
+            <p className="mb-6 font-semibold text-[#048C59] sm:text-xl md:mb-10 md:text-2xl">
+              สร้างบัญชีเพื่อเริ่มต้นใช้งาน{" "}
+              <Link to="/register">
+                <span className="text-[#2797C7] underline">สร้างบัญชี</span>
+              </Link>
             </p>
 
             {/* Display login error */}

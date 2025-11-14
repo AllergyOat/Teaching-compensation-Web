@@ -39,9 +39,6 @@ export default function EmailStep({ onNext }: EmailStepProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Link to="/login">
-        <p className="mb-4 text-sm text-gray-500">← กลับสู่หน้าหลัก</p>
-      </Link>
       <h2 className="text-xl font-bold">ลืมรหัสผ่าน</h2>
       <p className="font-semibold text-[#048C59]">
         กรอกอีเมลของคุณเพื่อรับรหัส OTP
@@ -68,6 +65,11 @@ export default function EmailStep({ onNext }: EmailStepProps) {
         isPending={isSubmitting}
         className="mt-4 w-full rounded-xl bg-[#0BA678] py-2 text-white hover:bg-[#048C59]"
       />
+      <Link to="/login">
+        <p className="mb-4 mt-4 text-right text-sm ">
+          จำรหัสผ่านได้? <span className="text-[#2797C7] font-semibold underline">เข้าสู่ระบบ</span>
+        </p>
+      </Link>
     </form>
   );
 }
