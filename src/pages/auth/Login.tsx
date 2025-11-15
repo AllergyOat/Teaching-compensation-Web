@@ -113,7 +113,7 @@ const Login = () => {
               <Buttons
                 text="เข้าสู่ระบบ"
                 isPending={isSubmitting}
-                className="mt-4 mb-6 h-12 w-full cursor-pointer rounded-2xl bg-[#17C964] text-lg font-bold text-white transition-colors hover:bg-[#13b45a]"
+                className="mt-4 mb-4 h-12 w-full cursor-pointer rounded-2xl bg-[#17C964] text-lg font-bold text-white transition-colors hover:bg-[#13b45a]"
               />
             </form>
             <Link to="/forget-password">

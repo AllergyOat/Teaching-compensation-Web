@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { newPasswordSchema } from "@/utils/schemas";
 import Buttons from "../Buttons";
+import { toast } from "sonner";
 
 interface NewPasswordStepProps {
   email: string;
@@ -30,12 +31,12 @@ export default function NewPasswordStep({ email, otp }: NewPasswordStepProps) {
     try {
       await resetPassword(email, otp, data.newPassword);
 
-      alert("Password reset successfully!");
+      toast.success("รหัสผ่านถูกรีเซ็ตเรียบร้อยแล้ว");
       navigate("/login");
     } catch (err: any) {
       setError("root", {
         type: "manual",
-        message: err.response?.data?.message || "Failed to reset password",
+        message: err.response?.data?.message || "ไม่สามารถรีเซ็ตรหัสผ่านได้",
       });
     }
   };
