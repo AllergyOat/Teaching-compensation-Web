@@ -17,13 +17,13 @@ import {
 } from "@/components/ui/select";
 import registerBG from "../../assets/images/registerBG.png";
 import { Link, useNavigate } from "react-router";
-import FormInputs from "@/components/form/FormInputs";
+import FormInputs from "@/components/authForm/FormInputs";
 import type { RegisterFormInputs } from "@/utils/types";
 import { useForm } from "react-hook-form";
 import { registerSchema } from "@/utils/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Buttons from "@/components/form/Buttons";
-import { registerAPI, type LoginResponse } from "@/api/auth/login";
+import Buttons from "@/components/authForm/Buttons";
+import { registerAPI, type LoginResponse } from "@/api/auth/auth";
 import { useState } from "react";
 import { updateProfile, type ProfileData } from "@/api/user/profile";
 import { toast } from "sonner";
@@ -55,12 +55,12 @@ const Register = () => {
   const registerSubmit = async (data: RegisterFormInputs) => {
     const { accessToken, user }: LoginResponse = await registerAPI(
       data.email,
-      data.password
+      data.password,
     );
 
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("user", JSON.stringify(user));
-    
+
     // ตั้งค่าให้แสดง popup กรอกข้อมูลเมื่อเข้าหน้า home
     localStorage.setItem("showProfileDialog", "true");
 
@@ -85,7 +85,7 @@ const Register = () => {
 
   const profileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validation
     if (!profileData.firstName || !profileData.lastName) {
       toast.warning("ข้อมูลไม่ครบถ้วน", {
@@ -136,10 +136,12 @@ const Register = () => {
         className="min-h-screen bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${registerBG})` }}
       >
-        <div className="min-h-screen bg-opacity-50 flex items-center justify-center">
-          <Card className="flex flex-col items-center w-[550px] h-[600px] p-9 bg-opacity-90 bg-white border-0 shadow-xl">
-            <div className="space-y-1 text-center mt-4">
-              <h1 className="text-4xl font-bold text-center">สร้างบัญชีของคุณ</h1>
+        <div className="bg-opacity-50 flex min-h-screen items-center justify-center">
+          <Card className="bg-opacity-90 flex h-[600px] w-[550px] flex-col items-center border-0 bg-white p-9 shadow-xl">
+            <div className="mt-4 space-y-1 text-center">
+              <h1 className="text-center text-4xl font-bold">
+                สร้างบัญชีของคุณ
+              </h1>
               <h2 className="mt-2.5">
                 มีบัญชีอยู่แล้ว?{" "}
                 <Link to="/login">
@@ -154,7 +156,7 @@ const Register = () => {
                 type="email"
                 placeholder="Email"
                 errors={errors}
-                className="w-[450px] px-4 py-3 rounded-xl border-0 bg-[#F4F4F5] h-13 transition-all duration-200 placeholder:text-gray-700"
+                className="h-13 w-[450px] rounded-xl border-0 bg-[#F4F4F5] px-4 py-3 transition-all duration-200 placeholder:text-gray-700"
               />
               <FormInputs
                 register={register}
@@ -162,7 +164,7 @@ const Register = () => {
                 type="password"
                 placeholder="Password"
                 errors={errors}
-                className="w-[450px] px-4 py-3 rounded-xl border-0 bg-[#F4F4F5] h-13 transition-all duration-200 placeholder:text-gray-700"
+                className="h-13 w-[450px] rounded-xl border-0 bg-[#F4F4F5] px-4 py-3 transition-all duration-200 placeholder:text-gray-700"
               />
               <FormInputs
                 register={register}
@@ -170,12 +172,12 @@ const Register = () => {
                 type="password"
                 placeholder="Confirm Password"
                 errors={errors}
-                className="w-[450px] px-4 py-3 rounded-xl border-0 bg-[#F4F4F5] h-13 transition-all duration-200 placeholder:text-gray-700"
+                className="h-13 w-[450px] rounded-xl border-0 bg-[#F4F4F5] px-4 py-3 transition-all duration-200 placeholder:text-gray-700"
               />
               <Buttons
                 text="สร้างบัญชี"
                 isPending={isSubmitting}
-                className="bg-[#17C964] hover:bg-[#13b45a] w-[450px] h-12 rounded-2xl text-black text-lg transition-colors cursor-pointer mt-5"
+                className="mt-5 h-12 w-[450px] cursor-pointer rounded-2xl bg-[#17C964] text-lg text-black transition-colors hover:bg-[#13b45a]"
               />
             </form>
           </Card>
@@ -184,7 +186,7 @@ const Register = () => {
 
       {/* Popup กรอกข้อมูลผู้ใช้ */}
       <Dialog open={showProfileDialog} onOpenChange={setShowProfileDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">
               กรอกข้อมูลผู้ใช้

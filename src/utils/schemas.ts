@@ -22,6 +22,24 @@ export const registerSchema = z
     path: ["confirmPassword"],
   });
 
+export const forgetPasswordSchema = z.object({
+  email: z.string().email({ message: "อีเมลไม่ถูกต้อง" }),
+});
+
+export const otpSchema = z.object({
+  otp: z.string().regex(/^\d{6}$/, "กรุณากรอกรหัส OTP  6 หลักให้ถูกต้อง"),
+});
+
+export const newPasswordSchema = z
+  .object({
+    newPassword: z.string().min(6, "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "รหัสผ่านไม่ตรงกัน",
+    path: ["confirmPassword"],
+  });
+
 export const scheduleSchema = z.object({
   date: z.string().min(1, { message: "วันที่" }),
   time: z.string().min(1, { message: "เวลา" }),
