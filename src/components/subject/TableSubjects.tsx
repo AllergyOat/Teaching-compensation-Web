@@ -56,10 +56,11 @@ const TableSubjects: React.FC<TableSubjectsProps> = ({
   loading,
   onRefresh,
 }) => {
-
   const years = ["2565", "2566", "2567", "2568", "2569", "2570"];
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [subjectToDelete, setSubjectToDelete] = useState<SubjectData | null>(null);
+  const [subjectToDelete, setSubjectToDelete] = useState<SubjectData | null>(
+    null,
+  );
 
   const translateSection = (section: string) => {
     return section === "LECTURE" ? "บรรยาย" : "ปฏิบัติการ";
@@ -68,7 +69,8 @@ const TableSubjects: React.FC<TableSubjectsProps> = ({
   const handleDelete = (subject: SubjectData) => {
     setSubjectToDelete(subject);
     setShowDeleteDialog(true);
-  };  if (loading) {
+  };
+  if (loading) {
     return <div className="p-4">กำลังโหลดข้อมูล...</div>;
   }
   return (
@@ -80,7 +82,7 @@ const TableSubjects: React.FC<TableSubjectsProps> = ({
             <SelectValue placeholder="เลือกภาคการศึกษา" />
           </SelectTrigger>
           <SelectContent className="bg-white">
-            <SelectItem value="ทั้งหมด" className="text-gray-900 font-semibold">
+            <SelectItem value="ทั้งหมด" className="font-semibold text-gray-900">
               ทั้งหมด
             </SelectItem>
             <SelectItem value="ภาคต้น" className="text-gray-900">
@@ -124,17 +126,13 @@ const TableSubjects: React.FC<TableSubjectsProps> = ({
       </div>
 
       {/* Subjects List */}
-      {trackingData.length === 0 ? (
-        <div className="py-8 text-center text-gray-500">ไม่พบข้อมูลรายวิชา</div>
-      ) : semester === "ทั้งหมด" ? (
+      {semester === "ทั้งหมด" ? (
         // แสดงแบบแยกตามภาคเรียนเมื่อเลือก "ทั้งหมด"
         <>
           {["ภาคต้น", "ภาคปลาย", "ภาคฤดูร้อน"].map((semesterName) => {
             const semesterSubjects = trackingData.filter(
-              (subject) => subject.semester === semesterName
+              (subject) => subject.semester === semesterName,
             );
-
-            if (semesterSubjects.length === 0) return null;
 
             return (
               <div key={semesterName} className="mb-8">
@@ -151,7 +149,7 @@ const TableSubjects: React.FC<TableSubjectsProps> = ({
                 </div>
 
                 {/* ตารางของภาคนี้ */}
-                <div className="overflow-hidden rounded-lg shadow-md mb-6">
+                <div className="mb-6 overflow-hidden rounded-lg shadow-md">
                   <Table className="w-full">
                     <TableHeader>
                       <TableRow className="bg-[#C7E7DC]">
@@ -173,42 +171,57 @@ const TableSubjects: React.FC<TableSubjectsProps> = ({
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {semesterSubjects.map((subject, subjectIndex) => (
-                        <TableRow
-                          key={`${subject.subjectId}-${subject.semester}-${subjectIndex}`}
-                          className={`transition-colors ${
-                            subjectIndex % 2 === 0 ? "bg-green-50/50" : "bg-white"
-                          } hover:bg-green-100`}
-                        >
-                          <TableCell className="px-6 py-4 text-base">
-                            {subject.subjectId}
-                          </TableCell>
-                          <TableCell className="px-6 py-4 text-base">
-                            {subject.subjectName}
-                          </TableCell>
-                          <TableCell className="px-6 py-4 text-base">
-                            {subject.sections
-                              .map((section) => section.sectionId)
-                              .join(", ")}
-                          </TableCell>
-                          <TableCell className="px-6 py-4 text-base">
-                            {translateSection(subject.section)}
-                          </TableCell>
-                          <TableCell className="px-6 py-4 text-base space-x-4">
-                            <Link to={`/admin/subject/edit/${subject.sections[0].id}`}>
-                              <button className="text-[#0E8240] hover:text-[#0E8240]/80 font-medium cursor-pointer">
-                                แก้ไข
-                              </button>
-                            </Link>
-                            <button
-                              className="text-red-500 hover:text-red-500/80 font-medium cursor-pointer"
-                              onClick={() => handleDelete(subject)}
-                            >
-                              ลบ
-                            </button>
+                      {semesterSubjects.length === 0 ? (
+                        <TableRow>
+                          <TableCell
+                            colSpan={5}
+                            className="px-6 py-8 text-center text-gray-500"
+                          >
+                            ไม่มีข้อมูลรายวิชาในภาคนี้
                           </TableCell>
                         </TableRow>
-                      ))}
+                      ) : (
+                        semesterSubjects.map((subject, subjectIndex) => (
+                          <TableRow
+                            key={`${subject.subjectId}-${subject.semester}-${subjectIndex}`}
+                            className={`transition-colors ${
+                              subjectIndex % 2 === 0
+                                ? "bg-green-50/50"
+                                : "bg-white"
+                            } hover:bg-green-100`}
+                          >
+                            <TableCell className="px-6 py-4 text-base">
+                              {subject.subjectId}
+                            </TableCell>
+                            <TableCell className="px-6 py-4 text-base">
+                              {subject.subjectName}
+                            </TableCell>
+                            <TableCell className="px-6 py-4 text-base">
+                              {subject.sections
+                                .map((section) => section.sectionId)
+                                .join(", ")}
+                            </TableCell>
+                            <TableCell className="px-6 py-4 text-base">
+                              {translateSection(subject.section)}
+                            </TableCell>
+                            <TableCell className="space-x-4 px-6 py-4 text-base">
+                              <Link
+                                to={`/admin/subject/edit/${subject.sections[0].id}`}
+                              >
+                                <button className="cursor-pointer font-medium text-[#0E8240] hover:text-[#0E8240]/80">
+                                  แก้ไข
+                                </button>
+                              </Link>
+                              <button
+                                className="cursor-pointer font-medium text-red-500 hover:text-red-500/80"
+                                onClick={() => handleDelete(subject)}
+                              >
+                                ลบ
+                              </button>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
                     </TableBody>
                   </Table>
                 </div>
@@ -216,6 +229,8 @@ const TableSubjects: React.FC<TableSubjectsProps> = ({
             );
           })}
         </>
+      ) : trackingData.length === 0 ? (
+        <div className="py-8 text-center text-gray-500">ไม่พบข้อมูลรายวิชา</div>
       ) : (
         // แสดงแบบปกติเมื่อเลือกภาคเฉพาะ
         <div className="overflow-hidden rounded-lg shadow-md">
@@ -261,13 +276,16 @@ const TableSubjects: React.FC<TableSubjectsProps> = ({
                   <TableCell className="px-6 py-4 text-base">
                     {translateSection(subject.section)}
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-base space-x-4">
+                  <TableCell className="space-x-4 px-6 py-4 text-base">
                     <Link to={`/admin/subject/edit/${subject.sections[0].id}`}>
-                      <button className="text-[#0E8240] hover:text-[#0E8240]/80 font-medium cursor-pointer">
+                      <button className="cursor-pointer font-medium text-[#0E8240] hover:text-[#0E8240]/80">
                         แก้ไข
                       </button>
                     </Link>
-                    <button className="text-red-500 hover:text-red-500/80 font-medium cursor-pointer" onClick={() => handleDelete(subject)}>
+                    <button
+                      className="cursor-pointer font-medium text-red-500 hover:text-red-500/80"
+                      onClick={() => handleDelete(subject)}
+                    >
                       ลบ
                     </button>
                   </TableCell>
