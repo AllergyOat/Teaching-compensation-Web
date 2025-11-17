@@ -176,7 +176,7 @@ const Home = () => {
               month={month}
               year={year}
             />
-            <div className="grid h-50 grid-cols-2 gap-5">
+            <div className="grid h-auto md:h-50 grid-cols-1 md:grid-cols-2 gap-3 md:gap-5">
               <StaticFormCard
                 total={homeData?.totalLectureHours || 0}
                 description={`ชั่วโมงสอนบรรยายในเดือน ${month}`}
