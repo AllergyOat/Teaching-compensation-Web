@@ -16,19 +16,19 @@ const StaticFormCard = (props: StaticFormCardProps) => {
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <Card className="bg-white border-0 shadow-md p-10">
+    <Card className="bg-white border-0 shadow-md p-4 md:p-6 lg:p-10">
       <div className="flex items-center justify-between">
         {/* Left side - Number and description */}
-        <div className="flex items-center gap-4">
-          <h2 className="text-6xl font-bold text-gray-900">{total}</h2>
-          <p className="text-xl text-gray-800 font-semibold leading-tight">
+        <div className="flex items-center gap-2 md:gap-4">
+          <h2 className="text-3xl md:text-4xl xl:text-6xl font-bold text-gray-900">{total}</h2>
+          <p className="text-sm md:text-base xl:text-xl text-gray-800 font-semibold leading-tight">
             {description}
           </p>
         </div>
         
         {/* Right side - Circular Progress */}
         <div className="flex flex-col items-center gap-1">
-          <div className="relative h-28 w-28">
+          <div className="relative h-20 w-20 md:h-28 md:w-28">
             {/* Shadow effect */}
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-green-100/50 to-green-50/30 blur-sm"></div>
             

@@ -1,11 +1,11 @@
 import { useForm } from "react-hook-form";
-import FormInputs from "@/components/form/FormInputs";
-import { login, type LoginResponse } from "@/api/auth/login";
-import { useNavigate } from "react-router";
+import FormInputs from "@/components/authForm/FormInputs";
+import { login, type LoginResponse } from "@/api/auth/auth";
+import { Link, useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { LoginFormInputs } from "@/utils/types";
 import { loginSchema } from "@/utils/schemas";
-import Buttons from "@/components/form/Buttons";
+import Buttons from "@/components/authForm/Buttons";
 import { useState } from "react";
 import dashbordImg from "@/assets/images/dashboard.png";
 
@@ -76,11 +76,14 @@ const Login = () => {
         {/* Right side - Form */}
         <div className="flex flex-1 flex-col items-center justify-center bg-white p-4 shadow-xl sm:p-6 md:p-8 lg:rounded-3xl">
           <div className="w-full max-w-[500px]">
-            <h1 className="mb-3 text-3xl font-bold sm:text-4xl md:text-5xl">
-              ยินดีต้อนรับสู่
+            <h1 className="mb-3 text-2xl font-bold sm:text-4xl md:text-5xl">
+              เข้าสู่ระบบ
             </h1>
-            <p className="mb-6 text-lg font-semibold text-[#048C59] sm:text-xl md:mb-10 md:text-2xl">
-              ระบบเบิกจ่ายค่าสอนพิเศษ
+            <p className="mb-6 font-semibold text-[#048C59] sm:text-xl md:mb-10 md:text-2xl">
+              สร้างบัญชีเพื่อเริ่มต้นใช้งาน{" "}
+              <Link to="/register">
+                <span className="text-[#2797C7] underline">สร้างบัญชี</span>
+              </Link>
             </p>
 
             {/* Display login error */}
@@ -110,12 +113,14 @@ const Login = () => {
               <Buttons
                 text="เข้าสู่ระบบ"
                 isPending={isSubmitting}
-                className="mt-4 mb-6 h-12 w-full cursor-pointer rounded-2xl bg-[#17C964] text-lg font-bold text-white transition-colors hover:bg-[#13b45a]"
+                className="mt-4 mb-4 h-12 w-full cursor-pointer rounded-2xl bg-[#17C964] text-lg font-bold text-white transition-colors hover:bg-[#13b45a]"
               />
             </form>
-            <p className="cursor-pointer text-right text-sm text-[#2797C7] sm:text-base">
-              ลืมรหัสผ่าน?
-            </p>
+            <Link to="/forget-password">
+              <p className="cursor-pointer text-right text-sm text-[#2797C7] sm:text-base">
+                ลืมรหัสผ่าน?
+              </p>
+            </Link>
           </div>
         </div>
       </div>

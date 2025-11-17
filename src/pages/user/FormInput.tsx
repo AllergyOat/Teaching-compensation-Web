@@ -4,6 +4,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { useSearchParams, useParams, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
 import { getFormDetail } from "@/api/forms/detail";
+import { createForm, editForm } from "@/api/forms/formAction";
 import { LectureGroup } from "@/components/formInput/LectureGroup";
 import type {
   FormData,
@@ -11,6 +12,7 @@ import type {
   SemesterType,
   ProgramType,
   SectionType,
+  semesterTracking,
 } from "@/utils/types";
 import { Button } from "@/components/ui/button";
 import documentsImg from "@/assets/images/documents.png";
@@ -45,7 +47,7 @@ const FormInput = () => {
   const programThai = translateProgram(program);
   const sectionThai = translateSection(section);
 
-  const [trackingData, setTrackingData] = useState<any[]>([]);
+  const [trackingData, setTrackingData] = useState<semesterTracking[]>([]);
   // console.log(trackingData);
 
   const currentMonthThai = thaiMonths[new Date().getMonth()] as MonthType;
@@ -96,37 +98,37 @@ const FormInput = () => {
     name: "formScheduleDetails",
   });
 
+  const formSemester = watch("form.semester");
+  const formYear = watch("form.year");
+  const formProgram = watch("form.program");
+  const formSection = watch("form.section");
+
   useEffect(() => {
+    const fetchTrackingData = async () => {
+      if (!formSemester || !formYear) return;
+
+      try {
+        const res = await getSemesterTracking(
+          formSemester,
+          formYear,
+          formProgram,
+          formSection,
+        );
+        const tracking = (res.data || []) as semesterTracking[];
+        setTrackingData(tracking);
+      } catch (error) {
+        setTrackingData([]);
+        console.error("Error fetching semester tracking data:", error);
+      }
+    };
+
     fetchTrackingData();
-  }, [
-    watch("form.semester"),
-    watch("form.year"),
-    watch("form.program"),
-    watch("form.section"),
-  ]);
-
-  // console.log(trackingData)
-
-  const fetchTrackingData = async () => {
-    const semester = watch("form.semester");
-    const year = watch("form.year");
-    const program = watch("form.program");
-    const section = watch("form.section");
-    if (!semester || !year) return;
-
-    try {
-      const res = await getSemesterTracking(semester, year, program, section);
-      const tracking = res.data || [];
-      setTrackingData(tracking);
-    } catch (error) {
-      setTrackingData([]);
-      console.error("Error fetching semester tracking data:", error);
-    }
-  };
+  }, [formSemester, formYear, formProgram, formSection]);
 
   function handleSubjectSelect(
     subjectId: string,
-    trackingData: any[],
+    trackingData: semesterTracking[],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setValue: any,
   ) {
     const found = trackingData.find(
@@ -139,7 +141,7 @@ const FormInput = () => {
       if (found.sections && found.sections.length > 0) {
         setValue(
           "formScheduleDetails",
-          found.sections.map((section: any) => ({
+          found.sections.map((section) => ({
             lectureId: section.sectionId,
             kind: section.kind,
             totalHours: section.hoursRemaining,
@@ -235,9 +237,9 @@ const FormInput = () => {
 
         // Reset form with the fetched data
         reset(transformedData);
-      } catch (error: any) {
+      } catch (error) {
         console.error("Error fetching form data:", error);
-        if (error.message.includes("login")) {
+        if (error instanceof Error && error.message.includes("login")) {
           navigate("/login");
         } else {
           toast.error("เกิดข้อผิดพลาด", {
@@ -264,19 +266,11 @@ const FormInput = () => {
     });
 
     try {
-      const accessToken = localStorage.getItem("accessToken");
-      if (!accessToken) {
-        toast.error("ไม่สามารถดำเนินการได้", {
-          description: "กรุณาเข้าสู่ระบบ",
-        });
-        setTimeout(() => navigate("/login"), 2000);
-        return;
-      }
-
       // Prepare data for submission
       const submitData = {
         ...data,
         formScheduleDetails: data.formScheduleDetails.map((detail) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { totalHours, ...detailWithoutTotalHours } = detail;
           return {
             ...detailWithoutTotalHours,
@@ -285,42 +279,11 @@ const FormInput = () => {
         }),
       };
 
-      const url = isEdit
-        ? `http://localhost:3000/api/forms/edit-form/${formId}`
-        : "http://localhost:3000/api/forms/create-form";
-
-      const method = isEdit ? "PUT" : "POST";
-
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(submitData),
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          toast.error("เซสชั่นหมดอายุ", {
-            description: "กรุณาเข้าสู่ระบบใหม่",
-          });
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("user");
-          setTimeout(() => navigate("/login"), 2000);
-          return;
-        }
-        if (response.status === 403) {
-          toast.error("ไม่มีสิทธิ์เข้าถึง", {
-            description: "คุณไม่มีสิทธิ์",
-          });
-          return;
-        }
-        throw new Error(
-          isEdit
-            ? "เกิดข้อผิดพลาดในการอัปเดตแบบฟอร์ม"
-            : "เกิดข้อผิดพลาดในการส่งแบบฟอร์ม",
-        );
+      // Use API functions from formAction.ts
+      if (isEdit) {
+        await editForm(formId!, submitData);
+      } else {
+        await createForm(submitData);
       }
 
       toast.success("สำเร็จ!", {
@@ -335,15 +298,84 @@ const FormInput = () => {
           navigate("/home");
         }
       }, 1500);
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Form submission error:", error);
+
+      // Handle specific error cases
+      if (error.message?.includes("login") || error.response?.status === 401) {
+        toast.error("เซสชั่นหมดอายุ", {
+          description: "กรุณาเข้าสู่ระบบใหม่",
+        });
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("user");
+        setTimeout(() => navigate("/login"), 2000);
+        return;
+      }
+
+      if (error.response?.status === 403) {
+        toast.error("ไม่มีสิทธิ์เข้าถึง", {
+          description: "คุณไม่มีสิทธิ์",
+        });
+        return;
+      }
+
+      // Handle validation errors from API
+      if (error.response?.status === 400) {
+        const errorData = error.response.data;
+
+        // Check if it's a time validation error
+        if (errorData.message === "Invalid time range detected") {
+          toast.error("ข้อมูลเวลาไม่ถูกต้อง", {
+            description:
+              errorData.conflicts && errorData.conflicts.length > 0
+                ? `${errorData.conflicts[0].topic} (${errorData.conflicts[0].time}): ${errorData.conflicts[0].reason}`
+                : "เวลาเริ่มต้นและสิ้นสุดต้องไม่เท่ากัน",
+            duration: 5000,
+          });
+          return;
+        }
+
+        // Check if it's a time conflict error
+        if (errorData.message && errorData.message.includes("Time conflict")) {
+          const conflictMsg =
+            errorData.conflicts && errorData.conflicts.length > 0
+              ? errorData.conflicts
+                  .map((c: { conflict: string }) => c.conflict)
+                  .join("\n")
+              : "มีเวลาสอนที่ซ้ำกันในวันเดียวกัน";
+
+          toast.error("เวลาสอนซ้ำกัน", {
+            description: conflictMsg,
+            duration: 7000,
+          });
+          return;
+        }
+
+        // Check if it's a missing totalHours error
+        if (errorData.message && errorData.message.includes("totalHours")) {
+          toast.error("ข้อมูลไม่ครบถ้วน", {
+            description: errorData.message,
+            duration: 5000,
+          });
+          return;
+        }
+
+        // Generic validation error
+        toast.error("ข้อมูลไม่ถูกต้อง", {
+          description: errorData.message || "กรุณาตรวจสอบข้อมูลอีกครั้ง",
+          duration: 5000,
+        });
+        return;
+      }
+
+      // Generic error
       toast.error("เกิดข้อผิดพลาด", {
         description: isEdit ? "อัปเดตไม่สำเร็จ" : "ส่งไม่สำเร็จ",
       });
-      console.error(error);
     }
   };
 
-  const onError = (errors: any) => {
+  const onError = (errors: unknown) => {
     console.log("Form validation errors:", errors);
     toast.warning("ข้อมูลไม่ครบถ้วน", {
       description: "กรุณากรอกข้อมูลให้ครบถ้วน",
