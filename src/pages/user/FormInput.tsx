@@ -2,7 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useSearchParams, useParams, useNavigate } from "react-router";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { getFormDetail } from "@/api/forms/detail";
 import { createForm, editForm } from "@/api/forms/formAction";
 import { LectureGroup } from "@/components/formInput/LectureGroup";
@@ -98,31 +98,32 @@ const FormInput = () => {
     name: "formScheduleDetails",
   });
 
-  const fetchTrackingData = useCallback(async () => {
-    const formSemester = watch("form.semester");
-    const formYear = watch("form.year");
-    const formProgram = watch("form.program");
-    const formSection = watch("form.section");
-    if (!formSemester || !formYear) return;
-
-    try {
-      const res = await getSemesterTracking(
-        formSemester,
-        formYear,
-        formProgram,
-        formSection,
-      );
-      const tracking = (res.data || []) as semesterTracking[];
-      setTrackingData(tracking);
-    } catch (error) {
-      setTrackingData([]);
-      console.error("Error fetching semester tracking data:", error);
-    }
-  }, [watch]);
+  const formSemester = watch("form.semester");
+  const formYear = watch("form.year");
+  const formProgram = watch("form.program");
+  const formSection = watch("form.section");
 
   useEffect(() => {
+    const fetchTrackingData = async () => {
+      if (!formSemester || !formYear) return;
+
+      try {
+        const res = await getSemesterTracking(
+          formSemester,
+          formYear,
+          formProgram,
+          formSection,
+        );
+        const tracking = (res.data || []) as semesterTracking[];
+        setTrackingData(tracking);
+      } catch (error) {
+        setTrackingData([]);
+        console.error("Error fetching semester tracking data:", error);
+      }
+    };
+
     fetchTrackingData();
-  }, [fetchTrackingData]);
+  }, [formSemester, formYear, formProgram, formSection]);
 
   function handleSubjectSelect(
     subjectId: string,
