@@ -65,7 +65,7 @@ const Register = () => {
     localStorage.setItem("showProfileDialog", "true");
 
     // ไปหน้า home
-    navigate("/home");
+    navigate("/");
   };
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
