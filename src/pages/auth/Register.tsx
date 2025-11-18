@@ -136,27 +136,30 @@ const Register = () => {
         className="min-h-screen bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${registerBG})` }}
       >
-        <div className="bg-opacity-50 flex min-h-screen items-center justify-center">
-          <Card className="bg-opacity-90 flex h-[600px] w-[550px] flex-col items-center border-0 bg-white p-9 shadow-xl">
-            <div className="mt-4 space-y-1 text-center">
-              <h1 className="text-center text-4xl font-bold">
+        <div className="bg-opacity-50 flex min-h-screen items-center justify-center px-4 py-8">
+          <Card className="bg-opacity-90 flex w-full max-w-[550px] flex-col items-center border-0 bg-white p-6 shadow-xl sm:h-auto sm:p-9">
+            <div className="mt-2 w-full space-y-1 text-center sm:mt-4">
+              <h1 className="text-center text-2xl font-bold sm:text-3xl md:text-4xl">
                 สร้างบัญชีของคุณ
               </h1>
-              <h2 className="mt-2.5">
+              <h2 className="mt-2.5 text-sm sm:text-base">
                 มีบัญชีอยู่แล้ว?{" "}
                 <Link to="/login">
                   <span className="text-[#2797C7]">เข้าสู่ระบบ</span>
                 </Link>
               </h2>
             </div>
-            <form onSubmit={handleSubmit(registerSubmit)}>
+            <form
+              onSubmit={handleSubmit(registerSubmit)}
+              className="mt-4 w-full"
+            >
               <FormInputs
                 register={register}
                 name="email"
                 type="email"
                 placeholder="Email"
                 errors={errors}
-                className="h-13 w-[450px] rounded-xl border-0 bg-[#F4F4F5] px-4 py-3 transition-all duration-200 placeholder:text-gray-700"
+                className="h-12 w-full rounded-xl border-0 bg-[#F4F4F5] px-4 py-3 transition-all duration-200 placeholder:text-gray-700 sm:h-13"
               />
               <FormInputs
                 register={register}
@@ -164,7 +167,7 @@ const Register = () => {
                 type="password"
                 placeholder="Password"
                 errors={errors}
-                className="h-13 w-[450px] rounded-xl border-0 bg-[#F4F4F5] px-4 py-3 transition-all duration-200 placeholder:text-gray-700"
+                className="h-12 w-full rounded-xl border-0 bg-[#F4F4F5] px-4 py-3 transition-all duration-200 placeholder:text-gray-700 sm:h-13"
               />
               <FormInputs
                 register={register}
@@ -172,12 +175,12 @@ const Register = () => {
                 type="password"
                 placeholder="Confirm Password"
                 errors={errors}
-                className="h-13 w-[450px] rounded-xl border-0 bg-[#F4F4F5] px-4 py-3 transition-all duration-200 placeholder:text-gray-700"
+                className="h-12 w-full rounded-xl border-0 bg-[#F4F4F5] px-4 py-3 transition-all duration-200 placeholder:text-gray-700 sm:h-13"
               />
               <Buttons
                 text="สร้างบัญชี"
                 isPending={isSubmitting}
-                className="mt-5 h-12 w-[450px] cursor-pointer rounded-2xl bg-[#17C964] text-lg text-black transition-colors hover:bg-[#13b45a]"
+                className="mt-5 h-12 w-full cursor-pointer rounded-2xl bg-[#17C964] text-base text-black transition-colors hover:bg-[#13b45a] sm:text-lg"
               />
             </form>
           </Card>
@@ -186,21 +189,21 @@ const Register = () => {
 
       {/* Popup กรอกข้อมูลผู้ใช้ */}
       <Dialog open={showProfileDialog} onOpenChange={setShowProfileDialog}>
-        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+        <DialogContent className="max-h-[90vh] w-[95vw] max-w-2xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">
+            <DialogTitle className="text-xl font-bold sm:text-2xl">
               กรอกข้อมูลผู้ใช้
             </DialogTitle>
           </DialogHeader>
 
           <form onSubmit={profileSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor="firstName">
+                <Label htmlFor="firstName" className="text-sm sm:text-base">
                   ชื่อ <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  className="bg-white"
+                  className="h-10 bg-white sm:h-auto"
                   id="firstName"
                   name="firstName"
                   value={profileData.firstName}
@@ -209,11 +212,11 @@ const Register = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="lastName">
+                <Label htmlFor="lastName" className="text-sm sm:text-base">
                   นามสกุล <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  className="bg-white"
+                  className="h-10 bg-white sm:h-auto"
                   id="lastName"
                   name="lastName"
                   value={profileData.lastName}
@@ -223,13 +226,13 @@ const Register = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor="degree">
+                <Label htmlFor="degree" className="text-sm sm:text-base">
                   วุฒิการศึกษา <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  className="bg-white"
+                  className="h-10 bg-white sm:h-auto"
                   id="degree"
                   name="degree"
                   value={profileData.degree}
@@ -238,11 +241,11 @@ const Register = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="position">
+                <Label htmlFor="position" className="text-sm sm:text-base">
                   ตำแหน่ง <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  className="bg-white"
+                  className="h-10 bg-white sm:h-auto"
                   id="position"
                   name="position"
                   value={profileData.position}
@@ -252,13 +255,13 @@ const Register = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor="department">
+                <Label htmlFor="department" className="text-sm sm:text-base">
                   ภาควิชา <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  className="bg-white"
+                  className="h-10 bg-white sm:h-auto"
                   id="department"
                   name="department"
                   value={profileData.department}
@@ -267,11 +270,11 @@ const Register = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="faculty">
+                <Label htmlFor="faculty" className="text-sm sm:text-base">
                   คณะ <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  className="bg-white"
+                  className="h-10 bg-white sm:h-auto"
                   id="faculty"
                   name="faculty"
                   value={profileData.faculty}
@@ -282,11 +285,11 @@ const Register = () => {
             </div>
 
             <div>
-              <Label htmlFor="major">
+              <Label htmlFor="major" className="text-sm sm:text-base">
                 สาขาวิชา <span className="text-red-500">*</span>
               </Label>
               <Input
-                className="bg-white"
+                className="h-10 bg-white sm:h-auto"
                 id="major"
                 name="major"
                 value={profileData.major}
@@ -295,16 +298,16 @@ const Register = () => {
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor="type">
+                <Label htmlFor="type" className="text-sm sm:text-base">
                   ประเภทอาจารย์ <span className="text-red-500">*</span>
                 </Label>
                 <Select
                   value={profileData.type}
                   onValueChange={(value) => handleSelectChange("type", value)}
                 >
-                  <SelectTrigger className="w-full bg-white">
+                  <SelectTrigger className="h-10 w-full bg-white sm:h-auto">
                     <SelectValue placeholder="เลือกประเภทอาจารย์" />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
@@ -314,7 +317,7 @@ const Register = () => {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="teachingLevel">
+                <Label htmlFor="teachingLevel" className="text-sm sm:text-base">
                   ระดับการสอน <span className="text-red-500">*</span>
                 </Label>
                 <Select
@@ -323,7 +326,7 @@ const Register = () => {
                     handleSelectChange("teachingLevel", value)
                   }
                 >
-                  <SelectTrigger className="w-full bg-white">
+                  <SelectTrigger className="h-10 w-full bg-white sm:h-auto">
                     <SelectValue placeholder="เลือกระดับการสอน" />
                   </SelectTrigger>
                   <SelectContent className="bg-white">
@@ -334,18 +337,18 @@ const Register = () => {
               </div>
             </div>
 
-            <div className="flex gap-3 pt-4">
+            <div className="flex flex-col gap-3 pt-4 sm:flex-row">
               <Button
                 type="button"
                 variant="outline"
-                className="flex-1"
+                className="h-10 flex-1 sm:h-auto"
                 onClick={() => setShowProfileDialog(false)}
               >
                 ข้ามไปก่อน
               </Button>
               <Button
                 type="submit"
-                className="flex-1 bg-green-600 hover:bg-green-700"
+                className="h-10 flex-1 bg-green-600 hover:bg-green-700 sm:h-auto"
                 disabled={isProfileLoading}
               >
                 {isProfileLoading ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
